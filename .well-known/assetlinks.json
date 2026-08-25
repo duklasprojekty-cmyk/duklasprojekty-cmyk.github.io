@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "com.archiduklas.krolkufla",
+        "sha256_cert_fingerprints": ["5A:6A:AD:EF:88:79:7F:0E:D0:4C:D8:23:BB:AF:D3:E0:F2:ED:EC:B9:84:85:03:A2:BF:B1:14:E6:E2:B0:79:77"]
+      }
+    }]
