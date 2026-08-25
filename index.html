@@ -1,0 +1,2429 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Król Kufla — talia imprezowa</title>
+<meta name="description" content="Imprezowa gra w karty. 18+. Graj odpowiedzialnie.">
+<meta name="theme-color" content="#150B22">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="assets/app-icon.png">
+<link rel="apple-touch-icon" href="assets/icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://api.fontshare.com">
+<link rel="preconnect" href="https://cdn.fontshare.com" crossorigin>
+<link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0E0716;
+  --ink-2:#1A0E29;
+  --violet:#2A1442;
+  --amber:#FFB627;
+  --pink:#FF2E63;
+  --mint:#17E5C4;
+  --ivory:#F6F0E6;
+  --ivory-dim:rgba(246,240,230,.62);
+  --card-w:min(70vw, 300px);
+  --display:'Bricolage Grotesque','Trebuchet MS',system-ui,sans-serif;
+  --body:'General Sans','Segoe UI',system-ui,sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0}
+body{
+  background:var(--ink);
+  color:var(--ivory);
+  font-family:var(--body);
+  overflow:hidden;
+  display:flex;flex-direction:column;
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+#mesh{position:fixed;inset:0;z-index:-1;background:url("assets/background.jpg") center/cover no-repeat}
+#fx{position:fixed;inset:0;pointer-events:none;z-index:60}
+#grain{
+  position:fixed;inset:0;pointer-events:none;z-index:1;opacity:.05;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.suit-icon{display:inline-block;width:1em;height:1em;vertical-align:middle}
+.suit-icon svg{width:100%;height:100%;display:block;fill:currentColor}
+
+/* ---------- screens ---------- */
+.screen{display:none;flex:1;min-height:0;flex-direction:column}
+.screen.active{display:flex;animation:screenIn .5s cubic-bezier(.2,.9,.2,1)}
+.screen.leaving{animation:screenOut .22s ease forwards}
+@keyframes screenIn{from{opacity:0;transform:scale(.97) translateY(6px)}to{opacity:1;transform:none}}
+@keyframes screenOut{to{opacity:0;transform:scale(.97) translateY(-6px)}}
+#screenHome.active{overflow-y:auto}
+#screenPlayers.active{overflow-y:auto}
+#screenGame{overflow:hidden}
+
+/* ---------- title screen ---------- */
+#screenTitle{align-items:center;justify-content:center;position:relative}
+#screenTitle .title-top{position:absolute;top:16px;right:16px;display:flex;gap:8px;align-items:center}
+.chip.icon{padding:9px 11px;font-size:15px;line-height:1}
+.chip.icon.off{opacity:.5}
+.title-wrap{display:flex;flex-direction:column;align-items:center;text-align:center;cursor:pointer;padding:20px}
+.title-mark{width:110px;height:auto;object-fit:contain;filter:drop-shadow(0 0 26px rgba(255,182,39,.5));animation:titleBreathe 3s ease-in-out infinite}
+.title-word{font-family:var(--display);font-weight:800;font-size:clamp(30px,9vw,42px);letter-spacing:-.02em;margin:18px 0 4px}
+.title-tag{margin:0 0 34px;font-size:12px;letter-spacing:.28em;text-transform:uppercase;color:var(--ivory-dim)}
+.tap-prompt{
+  display:inline-flex;align-items:center;gap:8px;padding:13px 26px;border-radius:999px;
+  border:1px solid rgba(255,182,39,.5);background:rgba(255,182,39,.08);color:var(--amber);
+  font-family:var(--body);font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase;
+  animation:tapPulse 1.6s ease-in-out infinite;
+}
+@keyframes titleBreathe{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+@keyframes tapPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,182,39,.35)}50%{box-shadow:0 0 0 14px rgba(255,182,39,0)}}
+
+/* ---------- weryfikacja wieku ---------- */
+#screenAge,#screenAgeBlock{align-items:center;justify-content:center}
+.age-wrap{display:flex;flex-direction:column;align-items:center;text-align:center;padding:28px;max-width:420px}
+.age-crest{width:64px;height:64px;color:var(--amber);filter:drop-shadow(0 0 20px rgba(255,182,39,.5));margin-bottom:18px}
+.age-title{font-family:var(--display);font-weight:800;font-size:clamp(24px,7vw,32px);letter-spacing:-.02em;margin:0 0 12px}
+.age-text{margin:0;font-size:14px;line-height:1.6;color:var(--ivory-dim)}
+.age-no{
+  margin-top:12px;background:transparent;border:0;color:var(--ivory-dim);
+  font-family:var(--body);font-size:13px;text-decoration:underline;text-underline-offset:3px;cursor:pointer;
+}
+
+/* ---------- mode switch interstitial ---------- */
+#screenModeSwitch{align-items:center;justify-content:center}
+.switch-wrap{text-align:center;padding:20px}
+.switch-label{font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:var(--ivory-dim);margin-bottom:10px}
+.switch-mode{font-family:var(--display);font-weight:800;font-size:clamp(32px,10vw,50px);letter-spacing:-.02em;margin-bottom:26px}
+.switch-bar{width:220px;height:4px;border-radius:2px;background:rgba(246,240,230,.14);overflow:hidden;margin:0 auto}
+.switch-bar i{display:block;height:100%;width:0%;background:linear-gradient(90deg,var(--amber),var(--pink));transition:width .12s linear}
+.switch-pct{margin-top:10px;font-family:var(--display);font-weight:700;font-size:14px;letter-spacing:.08em;color:var(--ivory-dim)}
+#screenModeSwitch.lvl3 .switch-mode{color:var(--pink);text-shadow:0 0 24px rgba(255,46,99,.7);animation:modeGlitch .35s steps(2) infinite}
+#screenModeSwitch.lvl3{animation:screenIn .5s cubic-bezier(.2,.9,.2,1), shake .5s .3s}
+#screenModeSwitch.lvl2 .switch-mode{color:var(--amber);text-shadow:0 0 20px rgba(255,182,39,.5)}
+#screenModeSwitch.lvl1 .switch-mode{color:var(--mint);text-shadow:0 0 18px rgba(23,229,196,.5)}
+@keyframes modeGlitch{0%,100%{transform:translateX(0)}50%{transform:translateX(2px)}}
+.switch-mode.pop{animation:pop .4s cubic-bezier(.2,.9,.2,1)}
+
+/* ---------- losowanie startujacego gracza ---------- */
+#screenPlayerPick{align-items:center;justify-content:center}
+
+/* ---------- automat losujacy (efekt kasynowego bebna) ---------- */
+.reel{position:relative;height:64px;overflow:hidden;margin-bottom:26px;border-radius:12px;box-shadow:0 0 0 1px rgba(23,229,196,.18) inset;-webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 24%,#000 76%,transparent 100%);mask-image:linear-gradient(to bottom,transparent 0,#000 24%,#000 76%,transparent 100%);animation:reelGlow 1.1s ease-in-out infinite}
+.reel.landed{animation:none;box-shadow:0 0 0 1px rgba(23,229,196,.18) inset}
+@keyframes reelGlow{0%,100%{box-shadow:0 0 0 1px rgba(23,229,196,.18) inset}50%{box-shadow:0 0 22px 2px rgba(23,229,196,.35) inset}}
+.reel-track{display:flex;flex-direction:column}
+.reel-row{height:64px;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-weight:800;font-size:clamp(28px,9vw,46px);letter-spacing:-.02em;white-space:nowrap;padding:0 10px;color:var(--mint);text-shadow:0 0 20px rgba(23,229,196,.5)}
+.reel.landed .reel-row:last-child{animation:pop .4s cubic-bezier(.2,.9,.2,1)}
+
+/* ---------- ekran "kto teraz" ---------- */
+#screenTurnPick{align-items:center;justify-content:center}
+.turn-wrap{text-align:center;padding:24px;width:100%;max-width:420px}
+.turn-options{display:flex;flex-direction:column;gap:14px;margin-top:22px}
+.turn-opt{
+  display:flex;align-items:center;justify-content:center;gap:12px;padding:18px;border-radius:16px;
+  background:rgba(246,240,230,.06);border:1px solid rgba(246,240,230,.18);color:var(--ivory);
+  font-family:var(--display);font-weight:700;font-size:17px;cursor:pointer;transition:transform .15s,border-color .2s;
+}
+.turn-opt:active{transform:scale(.96)}
+.turn-opt:nth-child(1){border-color:rgba(255,182,39,.4)}
+.turn-opt:nth-child(2){border-color:rgba(23,229,196,.4)}
+.turn-pick-grid{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:22px}
+.turn-pick-grid .player-chip{padding:11px 18px 11px 10px}
+.turn-pick-grid .player-chip:after{content:none}
+.turn-back{
+  margin-top:22px;background:none;border:0;color:var(--ivory-dim);
+  font-family:var(--body);font-weight:600;font-size:13px;cursor:pointer;
+  padding:10px 16px;border-radius:999px;transition:color .2s;
+}
+.turn-back:active{color:var(--ivory)}
+#screenTurnPick.picking .turn-back{visibility:hidden}
+
+/* ---------- panel graczy ---------- */
+.player-grid{display:flex;flex-wrap:wrap;gap:10px;margin:4px 0 10px}
+.player-chip{
+  display:flex;align-items:center;gap:9px;padding:8px 14px 8px 8px;border-radius:999px;
+  background:rgba(246,240,230,.06);border:1px solid rgba(246,240,230,.16);cursor:pointer;
+  font-family:var(--body);font-size:14px;font-weight:600;color:var(--ivory);
+  transition:transform .15s,border-color .2s;
+}
+.player-chip:active{transform:scale(.93)}
+.player-chip:after{content:'×';opacity:.5;font-size:17px;margin-left:2px}
+.player-avatar{
+  width:30px;height:30px;border-radius:50%;display:grid;place-items:center;flex:0 0 auto;
+  font-family:var(--display);font-weight:700;font-size:13px;color:#1A0E29;
+}
+
+/* ---------- top bar ---------- */
+header{
+  display:flex;align-items:center;gap:10px;
+  padding:14px 16px 10px;
+  position:relative;z-index:10;flex:0 0 auto;
+}
+.brand{display:flex;align-items:center;gap:9px}
+.brand .mark{width:27px;height:34px;object-fit:contain;flex:0 0 auto;filter:drop-shadow(0 2px 6px rgba(255,182,39,.35))}
+.brand .word{font-family:var(--display);font-weight:800;font-size:15px;letter-spacing:-.02em;line-height:1}
+.brand .word span{display:block;font-family:var(--body);font-weight:500;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--ivory-dim);margin-top:4px}
+.spacer{flex:1}
+.chip{
+  border:1px solid rgba(246,240,230,.18);background:rgba(246,240,230,.06);
+  color:var(--ivory);font-family:var(--body);font-weight:600;font-size:12px;
+  padding:9px 13px;border-radius:999px;cursor:pointer;white-space:nowrap;
+  transition:transform .15s, background .2s, border-color .2s;
+}
+.chip:active{transform:scale(.93)}
+.chip.on{background:var(--amber);color:#1A0E29;border-color:var(--amber)}
+
+.global-menu-btn{
+  position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));z-index:60;
+  width:52px;height:52px;border-radius:50%;padding:0;
+  background:rgba(26,14,41,.72);border:1px solid rgba(246,240,230,.22);
+  backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;
+  color:var(--ivory);cursor:pointer;transition:transform .15s;
+  box-shadow:0 6px 18px rgba(0,0,0,.35);
+}
+.global-menu-btn:active{transform:scale(.9)}
+.global-menu-btn .suit-icon{width:22px;height:22px}
+.lang-toggle{display:flex;background:rgba(246,240,230,.06);border:1px solid rgba(246,240,230,.16);border-radius:999px;padding:3px;gap:2px;flex:0 0 auto}
+.lang-toggle button{border:0;background:transparent;color:var(--ivory-dim);font-family:var(--body);font-weight:700;font-size:11px;padding:7px 11px;border-radius:999px;cursor:pointer;transition:background .2s,color .2s}
+.lang-toggle button.on{background:var(--amber);color:#1A0E29}
+
+/* ---------- splash ---------- */
+#screenSplash{align-items:center;justify-content:center;flex-direction:column;gap:16px;transition:opacity .5s ease}
+#screenSplash.exit{opacity:0}
+.splash-mark{
+  width:96px;height:auto;object-fit:contain;
+  animation:splashPop .8s cubic-bezier(.2,.9,.2,1) both, splashPulse 1.6s ease-in-out .8s infinite;
+  filter:drop-shadow(0 0 20px rgba(255,182,39,.5));
+}
+.splash-word{
+  font-family:var(--display);font-weight:700;font-size:13px;letter-spacing:.35em;text-transform:uppercase;
+  color:var(--ivory-dim);opacity:0;animation:splashFadeIn .6s ease .45s forwards;
+}
+@keyframes splashPop{from{transform:scale(.4) rotate(-10deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+@keyframes splashPulse{0%,100%{filter:drop-shadow(0 0 16px rgba(255,182,39,.4))}50%{filter:drop-shadow(0 0 32px rgba(255,182,39,.8))}}
+@keyframes splashFadeIn{to{opacity:1}}
+
+/* ---------- home screen ---------- */
+.home-body{padding:4px 20px calc(24px + env(safe-area-inset-bottom));display:flex;flex-direction:column;flex:1}
+.home-body h1{font-family:var(--display);font-weight:800;font-size:clamp(26px,7vw,34px);margin:10px 0 6px;letter-spacing:-.02em;line-height:1.08}
+.home-sub{margin:0 0 22px;color:var(--ivory-dim);font-size:14px;line-height:1.5}
+#screenHome .home-body h1, #screenHome .home-body .home-sub{text-align:center}
+#screenHome .section-label{text-align:center}
+.section-label{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mint);margin:6px 0 10px;font-weight:700}
+.home-hint{margin:0 0 12px;font-size:12px;color:var(--ivory-dim);line-height:1.45}
+
+/* ---------- carousel wyboru talii ---------- */
+.carousel-wrap{position:relative;margin:0 -20px 4px;padding:0 20px}
+.carousel{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding:0 11%;padding:2px 11% 6px;scrollbar-width:none;-ms-overflow-style:none}
+.carousel::-webkit-scrollbar{display:none}
+.deck-card{
+  scroll-snap-align:center;flex:0 0 78%;padding:18px;border-radius:18px;
+  background:rgba(246,240,230,.05);border:1px solid rgba(246,240,230,.12);color:var(--ivory);
+  cursor:pointer;transition:border-color .2s,background .2s,transform .15s;
+}
+.deck-card:active{transform:scale(.96)}
+.deck-card.on{border-color:var(--amber);background:rgba(255,182,39,.12)}
+.deck-card b{display:block;font-family:var(--display);font-weight:700;font-size:17px;margin-bottom:6px}
+.deck-card span{display:block;font-size:12px;color:var(--ivory-dim);line-height:1.45;min-height:50px}
+.deck-icon{width:52px;height:52px;margin-bottom:10px;filter:drop-shadow(0 4px 10px rgba(0,0,0,.35));transition:filter .25s,transform .25s}
+.deck-icon img{width:100%;height:100%;object-fit:contain;display:block}
+.deck-card.on .deck-icon{filter:drop-shadow(0 4px 16px rgba(255,182,39,.6));transform:scale(1.08)}
+.diff{display:flex;align-items:center;gap:4px;margin-top:12px}
+.diff i{width:16px;height:5px;border-radius:3px;background:rgba(246,240,230,.14);display:block;transition:background .2s}
+.diff i.on{background:var(--pink)}
+.diff em{font-style:normal;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ivory-dim);margin-left:6px}
+.car-arrow{
+  position:absolute;top:50%;transform:translateY(-50%);width:32px;height:32px;border-radius:50%;
+  border:1px solid rgba(246,240,230,.18);background:rgba(14,7,22,.65);color:var(--ivory);
+  font-size:17px;line-height:1;cursor:pointer;z-index:2;backdrop-filter:blur(6px);transition:transform .15s;
+}
+.car-arrow:active{transform:translateY(-50%) scale(.85)}
+.car-prev{left:6px}.car-next{right:6px}
+.carousel-dots{display:flex;justify-content:center;gap:6px;margin-bottom:20px}
+.carousel-dots button{width:7px;height:7px;border-radius:50%;border:0;background:rgba(246,240,230,.2);cursor:pointer;padding:0;transition:background .2s,transform .2s}
+.carousel-dots button.on{background:var(--amber);transform:scale(1.35)}
+.cta-start{
+  width:100%;margin-top:24px;padding:17px;border-radius:16px;border:0;
+  background:linear-gradient(135deg,var(--pink),#ff5f8a);color:#fff;
+  font-family:var(--display);font-weight:700;font-size:17px;letter-spacing:-.01em;cursor:pointer;
+  box-shadow:0 14px 30px rgba(255,46,99,.4);transition:transform .15s;
+}
+.cta-start:active{transform:scale(.97)}
+.rules-link{
+  display:block;width:100%;margin-top:14px;padding:10px;background:none;border:0;
+  color:var(--ivory-dim);font-family:var(--body);font-weight:600;font-size:13px;
+  text-decoration:underline;text-underline-offset:3px;cursor:pointer;
+}
+
+/* ---------- meta row ---------- */
+.meta{
+  display:flex;align-items:center;gap:14px;padding:0 18px 4px;
+  font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ivory-dim);
+  flex:0 0 auto;
+}
+.bar{flex:1;height:3px;border-radius:2px;background:rgba(246,240,230,.14);overflow:hidden}
+.bar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--mint),var(--amber));transition:width .5s cubic-bezier(.2,.8,.2,1)}
+.crowns{display:flex;gap:5px}
+.crowns b{
+  width:9px;height:9px;border-radius:50%;background:rgba(246,240,230,.16);
+  transition:background .3s, box-shadow .3s, transform .3s;
+}
+.crowns b.on{background:var(--amber);box-shadow:0 0 12px var(--amber);transform:scale(1.25)}
+
+/* ---------- stage ---------- */
+main{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  gap:18px;padding:6px 18px 18px;perspective:1400px;position:relative;min-height:0;
+  overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;
+}
+/* auto-marginesy centruja gdy jest miejsce, a pozwalaja scrollowac gdy tresc nie miesci sie */
+main>.stack{margin-top:auto}
+main>.sheet{margin-bottom:auto}
+.stack{position:relative;width:var(--card-w);aspect-ratio:5/7;cursor:pointer;transform-style:preserve-3d;flex:0 0 auto}
+.stack:active{transform:scale(.975)}
+.stack-glow{
+  position:absolute;left:8%;right:8%;bottom:-6%;height:24px;border-radius:50%;
+  background:radial-gradient(closest-side, rgba(0,0,0,.5), transparent 75%);
+  filter:blur(6px);pointer-events:none;z-index:-1;
+}
+
+.card{position:absolute;inset:0;transform-style:preserve-3d;transition:transform .85s cubic-bezier(.4,.15,.2,1)}
+.face{
+  position:absolute;inset:0;border-radius:20px;backface-visibility:hidden;
+  overflow:hidden;box-shadow:0 26px 60px rgba(0,0,0,.6);
+}
+/* back */
+.back{
+  background-image:
+    radial-gradient(120% 90% at 50% 12%, rgba(0,0,0,.15), rgba(0,0,0,.55) 70%),
+    url("assets/card-back-texture.jpg");
+  background-size:cover, 240px 240px;
+  background-repeat:no-repeat, repeat;
+  background-position:center, center;
+  border:1px solid rgba(255,182,39,.35);
+  display:grid;place-items:center;
+}
+.crest{position:relative;width:62%;aspect-ratio:1;display:grid;place-items:center;animation:breathe 3.2s ease-in-out infinite}
+.crest.dealing{animation:dealPulse .85s ease}
+@keyframes dealPulse{0%{transform:scale(1)}25%{transform:scale(1.14)}55%{transform:scale(.94)}100%{transform:scale(1)}}
+.crest svg{width:100%;height:100%;overflow:visible}
+.crest .ring{fill:none;stroke:rgba(255,182,39,.4);stroke-width:1;transition:stroke .3s}
+.crest .ring2{fill:none;stroke:rgba(255,182,39,.22);stroke-width:.6;transition:stroke .3s}
+.crest.dealing .ring,.crest.dealing .ring2{stroke:var(--mint)}
+.crest .mark{
+  width:46%;height:46%;position:absolute;border-radius:50%;object-fit:cover;
+  border:2px solid var(--amber);box-shadow:0 0 22px rgba(255,182,39,.55), 0 6px 18px rgba(0,0,0,.5);
+}
+.back small{
+  position:absolute;bottom:20px;left:0;right:0;text-align:center;
+  font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:rgba(246,240,230,.5);
+}
+@keyframes breathe{0%,100%{transform:scale(1);opacity:.9}50%{transform:scale(1.045);opacity:1}}
+/* front */
+.front{
+  transform:rotateY(180deg);
+  background:linear-gradient(170deg,#FFFDF7,#EDE3D2);
+  color:#1A0E29;border:1px solid rgba(0,0,0,.12);
+  display:flex;flex-direction:column;justify-content:space-between;padding:16px;
+}
+.corner{font-family:var(--display);font-weight:800;font-size:22px;line-height:.95;display:flex;flex-direction:column;align-items:center;width:min-content}
+.corner.br{transform:rotate(180deg);align-self:flex-end}
+.corner .suit-icon{width:19px;height:19px;margin-top:3px}
+.pip{
+  position:absolute;inset:0;display:grid;place-items:center;
+  opacity:.13;pointer-events:none;
+}
+.pip .suit-icon{width:clamp(80px,26vw,130px);height:clamp(80px,26vw,130px)}
+.red{color:#D01E45}.black{color:#1A0E29}
+
+/* ---------- rule sheet ---------- */
+.sheet{
+  width:min(560px,100%);
+  border-radius:22px;padding:18px 18px 20px;
+  background:linear-gradient(165deg, rgba(246,240,230,.09), rgba(246,240,230,.03));
+  border:1px solid rgba(246,240,230,.14);
+  backdrop-filter:blur(14px);
+  opacity:0;transform:translateY(18px) scale(.97);
+  transition:opacity .45s, transform .45s cubic-bezier(.2,.9,.2,1);
+  min-height:132px;flex:0 0 auto;
+}
+.sheet.show{opacity:1;transform:none}
+.eyebrow{font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:var(--mint);margin-bottom:8px}
+.sheet h2{font-family:var(--display);font-weight:800;font-size:clamp(21px,6.4vw,30px);margin:0 0 8px;letter-spacing:-.02em;line-height:1.08}
+.sheet p{margin:0;font-size:15px;line-height:1.5;color:rgba(246,240,230,.86)}
+.sheet .hint{margin-top:12px;font-size:12px;color:var(--ivory-dim);font-style:italic}
+.roll{
+  margin-top:14px;display:inline-flex;align-items:center;gap:8px;
+  background:var(--pink);color:#fff;border:0;border-radius:999px;
+  padding:11px 18px;font-family:var(--body);font-weight:700;font-size:14px;cursor:pointer;
+  box-shadow:0 10px 26px rgba(255,46,99,.35);transition:transform .15s;
+}
+.roll.done{
+  display:flex;width:100%;justify-content:center;margin-top:16px;
+  background:rgba(23,229,196,.14);color:var(--mint);border:1px solid rgba(23,229,196,.4);
+  box-shadow:none;
+}
+.roll:active{transform:scale(.94)}
+.pick-row{margin-top:10px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.pick-label{font-size:11px;color:var(--ivory-dim);margin-right:2px}
+.pick-chip{
+  background:rgba(246,240,230,.08);border:1px solid rgba(246,240,230,.18);color:var(--ivory);
+  padding:6px 12px;border-radius:999px;font-family:var(--body);font-size:12px;font-weight:600;cursor:pointer;
+  transition:transform .15s,border-color .2s;
+}
+.pick-chip:active{transform:scale(.92)}
+.rule-flag{
+  display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:999px;
+  background:rgba(23,229,196,.15);border:1px solid rgba(23,229,196,.4);color:var(--mint);
+  font-family:var(--body);font-weight:700;font-size:12px;margin-bottom:10px;
+  opacity:0;transform:translateY(6px) scale(.9);
+}
+.rule-flag.show{animation:flagPop .5s cubic-bezier(.2,.9,.2,1) forwards}
+@keyframes flagPop{0%{opacity:0;transform:translateY(6px) scale(.9)}60%{opacity:1;transform:translateY(-2px) scale(1.04)}100%{opacity:1;transform:none}}
+.idle{display:flex;flex-direction:column;justify-content:center;height:100%;text-align:center;color:var(--ivory-dim);font-size:14px}
+
+/* ---------- modal ---------- */
+.modal{position:fixed;inset:0;z-index:70;display:none;background:rgba(8,4,14,.72);backdrop-filter:blur(8px)}
+.modal.open{display:flex;align-items:flex-end}
+.panel{
+  width:100%;max-height:86vh;overflow:auto;border-radius:26px 26px 0 0;
+  background:linear-gradient(180deg,#251338,#150B22);
+  border-top:1px solid rgba(255,182,39,.3);padding:22px 20px calc(28px + env(safe-area-inset-bottom));
+  animation:up .35s cubic-bezier(.2,.9,.2,1);
+}
+@keyframes up{from{transform:translateY(100%)}to{transform:none}}
+.panel h3{font-family:var(--display);font-weight:800;font-size:20px;margin:0 0 4px}
+.panel .sub{font-size:12px;color:var(--ivory-dim);margin-bottom:16px}
+.opt{
+  display:block;width:100%;text-align:left;margin-bottom:10px;padding:14px;border-radius:16px;
+  background:rgba(246,240,230,.05);border:1px solid rgba(246,240,230,.12);color:var(--ivory);
+  font-family:var(--body);cursor:pointer;transition:border-color .2s,background .2s;
+}
+.opt.on{border-color:var(--amber);background:rgba(255,182,39,.12)}
+.opt b{display:block;font-size:15px;margin-bottom:3px}
+.opt span{font-size:12px;color:var(--ivory-dim);line-height:1.4}
+.row{display:flex;gap:8px;margin:8px 0 14px}
+.row input{
+  flex:1;background:rgba(246,240,230,.06);border:1px solid rgba(246,240,230,.16);
+  color:var(--ivory);border-radius:12px;padding:12px;font-family:var(--body);font-size:14px;
+}
+.row input::placeholder{color:rgba(246,240,230,.35)}
+.row button{background:var(--mint);color:#0E0716;border:0;border-radius:12px;padding:0 18px;font-weight:700;cursor:pointer}
+.tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:6px}
+.tag{
+  background:rgba(23,229,196,.13);border:1px solid rgba(23,229,196,.35);color:var(--mint);
+  padding:7px 12px;border-radius:999px;font-size:13px;cursor:pointer;
+}
+.tag:after{content:' ×';opacity:.6}
+.house{list-style:none;padding:0;margin:0}
+.house li{
+  display:flex;gap:10px;align-items:flex-start;padding:11px 0;border-bottom:1px solid rgba(246,240,230,.09);font-size:14px;line-height:1.4
+}
+.house li b{color:var(--amber);font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding-top:3px;white-space:nowrap}
+.house li button{margin-left:auto;background:none;border:0;color:rgba(246,240,230,.4);font-size:18px;cursor:pointer;line-height:1}
+.empty{color:var(--ivory-dim);font-size:13px;padding:14px 0}
+.gen{border:1px solid rgba(255,182,39,.28);background:rgba(255,182,39,.06);border-radius:18px;padding:14px;margin-bottom:18px}
+.genrow{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.cat{
+  background:rgba(246,240,230,.06);border:1px solid rgba(246,240,230,.14);color:var(--ivory-dim);
+  padding:7px 12px;border-radius:999px;font-size:12px;font-family:var(--body);cursor:pointer;transition:.2s
+}
+.cat.on{background:var(--amber);color:#1A0E29;border-color:var(--amber);font-weight:700}
+.genout{
+  min-height:58px;display:flex;align-items:center;font-size:15px;line-height:1.45;
+  color:rgba(246,240,230,.9);padding:4px 2px 10px
+}
+.genout.pop{animation:pop .35s cubic-bezier(.2,.9,.2,1)}
+@keyframes pop{from{opacity:0;transform:translateY(8px) scale(.97)}to{opacity:1;transform:none}}
+.genbtns{display:flex;gap:8px}
+.gbtn{
+  flex:1;padding:12px;border-radius:12px;border:1px solid rgba(246,240,230,.16);
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  background:rgba(246,240,230,.05);color:var(--ivory);font-family:var(--body);font-weight:600;font-size:13px;cursor:pointer;transition:transform .15s
+}
+.gbtn.primary{background:var(--pink);border-color:var(--pink);color:#fff;box-shadow:0 8px 20px rgba(255,46,99,.3)}
+.gbtn:disabled{opacity:.4;cursor:default}
+.gbtn:active:not(:disabled){transform:scale(.95)}
+.close{width:100%;margin-top:18px;padding:14px;border-radius:14px;border:0;background:var(--amber);color:#1A0E29;font-weight:700;font-family:var(--body);font-size:15px;cursor:pointer}
+
+.shake{animation:shake .5s}
+@keyframes shake{10%,90%{transform:translateX(-2px)}20%,80%{transform:translateX(4px)}30%,50%,70%{transform:translateX(-7px)}40%,60%{transform:translateX(7px)}}
+
+/* ======================================================
+   WARSTWA EFEKTOW — swiatlo, blysk, polysk, mikrointerakcje
+   ====================================================== */
+
+/* ---- ruchome swiatla w tle (zywy, imprezowy klimat) ---- */
+#aurora{
+  position:fixed;inset:-25%;z-index:-1;pointer-events:none;opacity:.55;
+  background:
+    radial-gradient(30% 26% at 18% 22%, rgba(255,46,99,.55), transparent 70%),
+    radial-gradient(26% 24% at 82% 72%, rgba(23,229,196,.45), transparent 70%),
+    radial-gradient(24% 22% at 62% 16%, rgba(255,182,39,.45), transparent 70%),
+    radial-gradient(26% 24% at 30% 82%, rgba(138,79,255,.45), transparent 70%);
+  filter:blur(38px);
+  will-change:transform;
+  animation:auroraDrift 22s ease-in-out infinite alternate;
+}
+@keyframes auroraDrift{
+  0%{transform:translate3d(0,0,0) scale(1) rotate(0deg)}
+  50%{transform:translate3d(3%,-2%,0) scale(1.12) rotate(4deg)}
+  100%{transform:translate3d(-3%,3%,0) scale(1.05) rotate(-4deg)}
+}
+/* na duzych momentach swiatla nabieraja mocy */
+#aurora.hot{animation:auroraDrift 22s ease-in-out infinite alternate, auroraHot 1.1s ease-out}
+@keyframes auroraHot{0%{opacity:1;filter:blur(24px) saturate(1.8)}100%{opacity:.55;filter:blur(38px)}}
+
+/* ---- pelnoekranowy blysk na wielkich momentach ---- */
+#flash{
+  position:fixed;inset:0;z-index:64;pointer-events:none;opacity:0;
+  background:radial-gradient(circle at 50% 42%, rgba(255,255,255,.95), rgba(255,255,255,0) 62%);
+}
+#flash.go{animation:flashOut .55s cubic-bezier(.1,.8,.3,1)}
+@keyframes flashOut{0%{opacity:.9}100%{opacity:0}}
+
+/* ---- winieta pulsujaca kolorem karty ---- */
+#vig{position:fixed;inset:0;z-index:63;pointer-events:none;opacity:0;transition:opacity .55s ease}
+#vig.go{opacity:1}
+
+/* ---- polysk przelatujacy po odkrytej karcie ---- */
+.front::after{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,.75) 47%,rgba(255,255,255,.3) 54%,transparent 68%);
+  transform:translateX(-130%);
+}
+.card.shine .front::after{animation:shineSweep 1s cubic-bezier(.25,.6,.3,1)}
+@keyframes shineSweep{0%{transform:translateX(-130%)}100%{transform:translateX(130%)}}
+
+/* poswiata karty w kolorze koloru karty */
+.stack.glow-red .stack-halo{box-shadow:0 0 70px 12px rgba(255,46,99,.5);opacity:1}
+.stack.glow-black .stack-halo{box-shadow:0 0 70px 12px rgba(23,229,196,.45);opacity:1}
+.stack.glow-gold .stack-halo{box-shadow:0 0 90px 20px rgba(255,182,39,.75);opacity:1}
+.stack-halo{
+  position:absolute;inset:6%;border-radius:24px;pointer-events:none;z-index:-1;
+  opacity:0;transition:opacity .5s ease, box-shadow .5s ease;
+}
+
+/* ---- fala (ripple) pod palcem ---- */
+.rip{
+  position:absolute;border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle, rgba(255,255,255,.55), rgba(255,255,255,0) 70%);
+  transform:translate(-50%,-50%) scale(0);animation:ripGo .55s ease-out forwards;
+}
+@keyframes ripGo{to{transform:translate(-50%,-50%) scale(1);opacity:0}}
+
+/* ---- korony: efektowne "zdobycie" ---- */
+.crowns b.gained{animation:crownGain .75s cubic-bezier(.2,.9,.2,1)}
+@keyframes crownGain{
+  0%{transform:scale(1)}
+  35%{transform:scale(2.6);box-shadow:0 0 30px 6px var(--amber)}
+  70%{transform:scale(1.05)}
+  100%{transform:scale(1.25)}
+}
+/* pasek postepu — plynacy polysk */
+.bar{position:relative}
+.bar i{position:relative;overflow:hidden}
+.bar i::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.85),transparent);
+  transform:translateX(-100%);animation:barSheen 2.6s ease-in-out infinite;
+}
+@keyframes barSheen{0%{transform:translateX(-100%)}55%,100%{transform:translateX(220%)}}
+
+/* ---- bęben: rozmycie ruchu podczas kręcenia ---- */
+.reel.spinning .reel-row{filter:blur(1.6px);opacity:.85}
+.reel-track{transition-property:transform,filter}
+.reel.landed .reel-row:last-child{filter:none;opacity:1}
+
+/* ---- wjazd tresci zasady kaskadowo ---- */
+.sheet.show .eyebrow{animation:riseIn .45s .05s both cubic-bezier(.2,.9,.2,1)}
+.sheet.show h2{animation:riseIn .45s .12s both cubic-bezier(.2,.9,.2,1)}
+.sheet.show .desc,.sheet.show p{animation:riseIn .45s .19s both cubic-bezier(.2,.9,.2,1)}
+.sheet.show .roll,.sheet.show .pick-row{animation:riseIn .45s .27s both cubic-bezier(.2,.9,.2,1)}
+@keyframes riseIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+/* ---- ikony talii: delikatne unoszenie ---- */
+.deck-card.on .deck-icon{animation:iconFloat 3.4s ease-in-out infinite}
+@keyframes iconFloat{0%,100%{transform:scale(1.08) translateY(0)}50%{transform:scale(1.12) translateY(-6px)}}
+
+/* ---- przyciski: zywsza reakcja ---- */
+.roll,.chip,.gbtn,.turn-opt,.player-chip,.deck-card,.close,.global-menu-btn{position:relative;overflow:hidden}
+.roll.done{transition:transform .15s, background .25s, border-color .25s, box-shadow .25s}
+.roll.done:active{box-shadow:0 0 22px rgba(23,229,196,.5)}
+#btnStart{position:relative;overflow:hidden}
+#btnStart::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.45) 50%,transparent 65%);
+  transform:translateX(-120%);animation:barSheen 3.2s ease-in-out infinite;
+}
+
+/* ---- flaga nowej zasady: iskrzy ---- */
+.rule-flag.show{animation:flagPop .45s cubic-bezier(.2,.9,.2,1), flagGlow 1.6s .45s ease-in-out infinite}
+@keyframes flagGlow{0%,100%{filter:drop-shadow(0 0 0 rgba(255,182,39,0))}50%{filter:drop-shadow(0 0 10px rgba(255,182,39,.85))}}
+
+/* ---- licznik % na ekranie ladowania: pulsuje ---- */
+.switch-pct{animation:pctPulse 1s ease-in-out infinite}
+@keyframes pctPulse{0%,100%{opacity:.65}50%{opacity:1}}
+
+/* ---- unoszace sie symbole kart w tle (ambient) ---- */
+#floaters{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
+#floaters span{
+  position:absolute;display:block;opacity:0;
+  animation:floatUp linear infinite;
+}
+#floaters svg{width:100%;height:100%;display:block;fill:currentColor}
+@keyframes floatUp{
+  0%{opacity:0;transform:translateY(20vh) rotate(0deg) scale(.8)}
+  12%{opacity:var(--o,.14)}
+  88%{opacity:var(--o,.14)}
+  100%{opacity:0;transform:translateY(-115vh) rotate(var(--r,180deg)) scale(1.05)}
+}
+
+/* ---- karta reaguje przechyłem na dotyk/kursor ---- */
+.stack{transition:transform .35s cubic-bezier(.2,.9,.2,1)}
+.stack.tilting{transition:transform .08s linear}
+
+/* ---- karuzela talii: niewybrane cofaja sie w glab ---- */
+.deck-card{transform:scale(.9);opacity:.55;transition:border-color .25s,background .25s,transform .3s cubic-bezier(.2,.9,.2,1),opacity .3s,box-shadow .3s}
+.deck-card.on{transform:scale(1);opacity:1;box-shadow:0 14px 40px rgba(0,0,0,.4), 0 0 0 1px rgba(255,182,39,.25)}
+.deck-card:active{transform:scale(.88)}
+.deck-card.on:active{transform:scale(.96)}
+
+/* ---- opcje "kto teraz": zywsza reakcja ---- */
+.turn-opt{transition:transform .18s cubic-bezier(.2,.9,.2,1),border-color .25s,background .25s,box-shadow .25s}
+.turn-opt:active{transform:scale(.95);box-shadow:0 0 26px rgba(23,229,196,.35)}
+.turn-opt .suit-icon{transition:transform .3s}
+.turn-opt:active .suit-icon{transform:rotate(20deg) scale(1.2)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition-duration:.01ms!important}}
+@media (max-height:680px){:root{--card-w:min(50vw,210px)} .sheet{min-height:112px;padding:14px}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<defs>
+  <symbol id="s-diamond" viewBox="0 0 100 100"><path d="M50,4 C64,26 88,44 88,50 C88,56 64,74 50,96 C36,74 12,56 12,50 C12,44 36,26 50,4 Z"/></symbol>
+  <symbol id="s-heart" viewBox="0 0 100 100"><path d="M50,92 C18,68 4,46 4,29 C4,12 17,3 32,6 C43,8 48,16 50,25 C52,16 57,8 68,6 C83,3 96,12 96,29 C96,46 82,68 50,92 Z"/></symbol>
+  <symbol id="s-spade" viewBox="0 0 100 100"><path d="M50,8 C18,32 4,54 4,71 C4,88 17,97 32,94 C43,92 48,84 50,75 C52,84 57,92 68,94 C83,97 96,88 96,71 C96,54 82,32 50,8 Z M46,80 C46,90 40,94 36,98 L64,98 C60,94 54,90 54,80 Z"/></symbol>
+  <symbol id="s-club" viewBox="0 0 100 100"><path d="M70,32 A20,20 0 1,1 30,32 A20,20 0 1,1 70,32 Z M52,62 A20,20 0 1,1 12,62 A20,20 0 1,1 52,62 Z M88,62 A20,20 0 1,1 48,62 A20,20 0 1,1 88,62 Z M44,60 C40,72 30,80 22,96 L78,96 C70,80 60,72 56,60 Z"/></symbol>
+  <symbol id="s-crown" viewBox="0 0 100 100"><path d="M12,38 L28,52 L38,26 L50,44 L62,26 L72,52 L88,38 L82,76 L18,76 Z M18,82 L82,82 L82,90 L18,90 Z"/></symbol>
+  <symbol id="s-mug" viewBox="0 0 100 100"><path d="M22,20 L68,20 L68,32 L78,32 Q90,32 90,46 L90,54 Q90,68 78,68 L68,68 L68,82 L22,82 Z M68,40 L68,60 L76,60 Q80,60 80,54 L80,46 Q80,40 76,40 Z"/><path d="M30,28 L60,28 L60,34 L30,34 Z" opacity=".55"/></symbol>
+  <symbol id="s-dice" viewBox="0 0 100 100"><path fill-rule="evenodd" d="M14,14 L86,14 L86,86 L14,86 Z M40,32 A8,8 0 1,0 24,32 A8,8 0 1,0 40,32 Z M58,50 A8,8 0 1,0 42,50 A8,8 0 1,0 58,50 Z M76,68 A8,8 0 1,0 60,68 A8,8 0 1,0 76,68 Z"/></symbol>
+  <symbol id="s-target" viewBox="0 0 100 100"><path fill-rule="evenodd" d="M90,50 A40,40 0 1,0 10,50 A40,40 0 1,0 90,50 Z M78,50 A28,28 0 1,0 22,50 A28,28 0 1,0 78,50 Z M60,50 A10,10 0 1,0 40,50 A10,10 0 1,0 60,50 Z"/></symbol>
+  <symbol id="s-check" viewBox="0 0 100 100"><path d="M38,74 L10,46 L22,34 L38,50 L78,10 L90,22 Z"/></symbol>
+  <symbol id="s-refresh" viewBox="0 0 100 100"><path d="M30,84.64 A40,40 0 1,1 70,84.64 L63,72.52 A26,26 0 1,0 37,72.52 Z"/><path d="M74,90 L58,84 L68,66 Z"/></symbol>
+  <symbol id="s-speaker-on" viewBox="0 0 100 100"><path d="M15,40 L35,40 L35,60 L15,60 Z M35,40 L60,20 L60,80 L35,60 Z M68,45 L72,45 L72,55 L68,55 Z M76,38 L80,38 L80,62 L76,62 Z M84,30 L88,30 L88,70 L84,70 Z"/></symbol>
+  <symbol id="s-speaker-off" viewBox="0 0 100 100"><path d="M15,40 L35,40 L35,60 L15,60 Z M35,40 L60,20 L60,80 L35,60 Z M67.2,38.8 L72.8,33.2 L96.8,57.2 L91.2,62.8 Z M96.8,38.8 L91.2,33.2 L67.2,57.2 L72.8,62.8 Z"/></symbol>
+  <symbol id="s-star" viewBox="0 0 100 100"><path d="M50,4 L61,36 L96,36 L68,57 L79,90 L50,70 L21,90 L32,57 L4,36 L39,36 Z"/></symbol>
+  <symbol id="s-arrow-right" viewBox="0 0 100 100"><path d="M10,42 L60,42 L60,25 L92,50 L60,75 L60,58 L10,58 Z"/></symbol>
+  <symbol id="s-menu" viewBox="0 0 100 100"><path d="M15,25 L85,25 L85,35 L15,35 Z M15,45 L85,45 L85,55 L15,55 Z M15,65 L85,65 L85,75 L15,75 Z"/></symbol>
+</defs>
+</svg>
+<div id="mesh"></div>
+<div id="aurora"></div>
+<div id="floaters"></div>
+<div id="grain"></div>
+<div id="vig"></div>
+<div id="flash"></div>
+<canvas id="fx"></canvas>
+
+<button class="global-menu-btn" id="globalMenuBtn" aria-label="menu"><span class="suit-icon"><svg viewBox="0 0 100 100"><use href="#s-menu"/></svg></span></button>
+<div class="modal" id="mMenu"><div class="panel">
+  <h3 id="menuTitle">Menu</h3>
+  <div class="sub" id="menuSub">Szybki dostęp do ustawień gry.</div>
+  <button class="opt" id="menuSound"><b id="menuSoundLabel">Dźwięk: włączony</b><span id="menuSoundSub">Muzyka i efekty w tle</span></button>
+  <button class="opt" id="menuRules"><b id="menuRulesLabel">Zasady stołu</b><span id="menuRulesSub">Zobacz i dopisz zasady</span></button>
+  <button class="opt" id="menuHome"><b id="menuHomeLabel">Menu główne</b><span id="menuHomeSub">Wróć do wyboru trybu</span></button>
+  <button class="close" data-close id="menuClose">Zamknij</button>
+</div></div>
+
+<!-- ========== EKRAN LADOWANIA ========== -->
+<div class="screen active" id="screenSplash">
+  <img class="splash-mark" src="assets/logo-mark.png" alt="">
+  <span class="splash-word">KRÓL KUFLA</span>
+</div>
+
+<!-- ========== WERYFIKACJA WIEKU (18+) ========== -->
+<div class="screen" id="screenAge">
+  <div class="age-wrap">
+    <span class="suit-icon age-crest"><svg viewBox="0 0 100 100"><use href="#s-crown"/></svg></span>
+    <h1 class="age-title" id="ageTitle">Zanim zaczniemy</h1>
+    <p class="age-text" id="ageText">Ta gra zawiera treści przeznaczone dla dorosłych i odwołuje się do spożywania alkoholu. Jeśli grasz z alkoholem — rób to odpowiedzialnie i nie prowadź pojazdów.</p>
+    <button class="roll" id="ageYes" style="margin-top:22px"><span id="ageYesLabel">Mam ukończone 18 lat</span></button>
+    <button class="age-no" id="ageNo"><span id="ageNoLabel">Nie mam 18 lat</span></button>
+  </div>
+</div>
+<div class="screen" id="screenAgeBlock">
+  <div class="age-wrap">
+    <span class="suit-icon age-crest"><svg viewBox="0 0 100 100"><use href="#s-mug"/></svg></span>
+    <h1 class="age-title" id="ageBlockTitle">Wróć, gdy będziesz pełnoletni</h1>
+    <p class="age-text" id="ageBlockText">Ta gra jest dostępna wyłącznie dla osób pełnoletnich.</p>
+  </div>
+</div>
+
+<!-- ========== EKRAN TYTULOWY ========== -->
+<div class="screen" id="screenTitle">
+  <div class="title-top">
+    <div class="lang-toggle">
+      <button data-lang="pl" class="on">PL</button>
+      <button data-lang="en">EN</button>
+    </div>
+  </div>
+  <div class="title-wrap" id="titleTap">
+    <img class="title-mark" src="assets/logo-mark.png" alt="">
+    <h1 class="title-word" id="titleAppName">KRÓL KUFLA</h1>
+    <p class="title-tag" id="titleTagline">talia imprezowa</p>
+    <div class="tap-prompt" id="tapPrompt">Dotknij, aby zagrać</div>
+  </div>
+</div>
+
+<!-- ========== EKRAN PRZEJSCIA TRYBU ========== -->
+<div class="screen" id="screenModeSwitch">
+  <div class="switch-wrap">
+    <div class="switch-label" id="switchLabel">PRZEŁĄCZAMY NA TRYB</div>
+    <div class="switch-mode" id="switchMode">CHAOS</div>
+    <div class="switch-bar"><i id="switchFill"></i></div>
+    <div class="switch-pct" id="switchPct">0%</div>
+  </div>
+</div>
+
+<!-- ========== EKRAN LOSOWANIA STARTUJACEGO ========== -->
+<div class="screen" id="screenPlayerPick">
+  <div class="switch-wrap">
+    <div class="switch-label" id="pickLabel">LOSUJEMY, KTO ZACZYNA</div>
+    <div class="reel" id="pickReel"><div class="reel-track" id="pickName">—</div></div>
+  </div>
+</div>
+
+<!-- ========== EKRAN "KTO TERAZ" ========== -->
+<div class="screen" id="screenTurnPick">
+  <div class="turn-wrap">
+    <div class="switch-label" id="turnLabel">KTO TERAZ?</div>
+    <div class="turn-options" id="turnOptions">
+      <button class="turn-opt" id="turnRandom"><span class="suit-icon"><svg viewBox="0 0 100 100"><use href="#s-dice"/></svg></span><span id="turnRandomLabel">Losuj gracza</span></button>
+      <button class="turn-opt" id="turnManual"><span class="suit-icon"><svg viewBox="0 0 100 100"><use href="#s-target"/></svg></span><span id="turnManualLabel">Wskaż gracza</span></button>
+    </div>
+    <div class="turn-pick-grid" id="turnPickGrid" style="display:none"></div>
+    <div class="reel" id="turnReel" style="display:none"><div class="reel-track" id="turnResult">—</div></div>
+    <button class="turn-back" id="turnBack">‹ Wróć</button>
+  </div>
+</div>
+
+<!-- ========== EKRAN GRACZY ========== -->
+<div class="screen" id="screenPlayers">
+  <header>
+    <div class="brand">
+      <img class="mark" src="assets/logo-mark.png" alt="">
+      <div class="word"><span id="appName3">KRÓL KUFLA</span><span id="tagline3">talia imprezowa</span></div>
+    </div>
+    <div class="spacer"></div>
+    <div class="lang-toggle">
+      <button data-lang="pl" class="on">PL</button>
+      <button data-lang="en">EN</button>
+    </div>
+  </header>
+  <div class="home-body">
+    <h1 id="playersTitle">Kto gra?</h1>
+    <p class="home-sub" id="playersHint">Dodaj imiona, a karty typu „wybierasz przyjaciela” same wylosują osobę.</p>
+    <div class="row"><input id="pName" placeholder="Imię" maxlength="18"><button id="pAdd">Dodaj</button></div>
+    <div class="player-grid" id="pList"></div>
+    <div class="empty" id="pEmpty">Na razie pusto.</div>
+    <button class="cta-start" id="btnPlayersNext">Dalej</button>
+  </div>
+</div>
+
+<!-- ========== EKRAN STARTOWY ========== -->
+<div class="screen" id="screenHome">
+  <header>
+    <div class="brand">
+      <img class="mark" src="assets/logo-mark.png" alt="">
+      <div class="word"><span id="appName">KRÓL KUFLA</span><span id="tagline">talia imprezowa</span></div>
+    </div>
+    <div class="spacer"></div>
+    <button class="chip" id="btnBackPlayers">‹ <span id="lblPlayersChip">Gracze</span></button>
+  </header>
+  <div class="home-body">
+    <h1 id="homeTitle">Wybierz tryb gry</h1>
+    <p class="home-sub" id="homeSub">Talia decyduje, jak ostro się zrobi.</p>
+
+    <div class="section-label" id="lblDeck">Talia</div>
+    <div class="carousel-wrap">
+      <button class="car-arrow car-prev" id="carPrev" aria-label="prev">‹</button>
+      <div class="carousel" id="deckHome"></div>
+      <button class="car-arrow car-next" id="carNext" aria-label="next">›</button>
+    </div>
+    <div class="carousel-dots" id="deckDots"></div>
+
+    <button class="cta-start" id="btnStart">Rozpocznij grę</button>
+    <button class="rules-link" id="btnRulesPreview">Zobacz zasady stołu</button>
+  </div>
+</div>
+
+<!-- ========== EKRAN GRY ========== -->
+<div class="screen" id="screenGame">
+  <header>
+    <div class="brand">
+      <img class="mark" src="assets/logo-mark.png" alt="">
+      <div class="word">KRÓL KUFLA<span id="deckName">talia klasyczna</span></div>
+    </div>
+    <div class="spacer"></div>
+    <button class="chip" id="btnRules">Zasady</button>
+    <button class="chip" id="btnMenu">Menu</button>
+  </header>
+
+  <div class="meta">
+    <span id="left">52 karty</span>
+    <div class="bar"><i id="fill"></i></div>
+    <div class="crowns"><b></b><b></b><b></b><b></b></div>
+  </div>
+
+  <main>
+    <div class="stack" id="stack">
+      <div class="stack-halo"></div>
+      <div class="stack-glow"></div>
+      <div class="card" id="card">
+        <div class="face back">
+          <div class="crest">
+            <svg viewBox="0 0 100 100" id="crestSvg">
+              <circle class="ring" cx="50" cy="50" r="46"/>
+              <circle class="ring2" cx="50" cy="50" r="40"/>
+            </svg>
+            <img class="mark" src="assets/crown.jpg" alt="">
+          </div>
+          <small id="tapHint">dotknij, żeby losować</small>
+        </div>
+        <div class="face front" id="front"></div>
+      </div>
+    </div>
+
+    <div class="sheet" id="sheet">
+      <div class="idle" id="idle">Talia potasowana. Dotknij karty, żeby zacząć.</div>
+      <div id="ruleBox" style="display:none">
+        <div class="rule-flag" id="ruleFlag" style="display:none"><span class="suit-icon"><svg viewBox="0 0 100 100"><use href="#s-star"/></svg></span> <span id="ruleFlagText">Nowa zasada!</span></div>
+        <div class="eyebrow" id="eyebrow">karta</div>
+        <h2 id="title">—</h2>
+        <p id="desc">—</p>
+        <div class="hint" id="hint" style="display:none"></div>
+        <button class="roll" id="btnRoll" style="display:none"></button>
+        <div class="pick-row" id="pickRow"></div>
+        <button class="roll done" id="btnDone"><span class="suit-icon"><svg viewBox="0 0 100 100"><use href="#s-check"/></svg></span><span id="btnDoneLabel">Wykonane</span></button>
+        <button class="roll done" id="btnAgain" style="display:none"><span class="suit-icon"><svg viewBox="0 0 100 100"><use href="#s-refresh"/></svg></span><span id="btnAgainLabel">Nowa gra</span></button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- modal -->
+<div class="modal" id="mRules"><div class="panel">
+  <h3 id="housePanelTitle">Zasady stołu</h3>
+  <div class="sub" id="housePanelSub">Wszystko, co ustaliliście przy ósemkach, dziewiątkach i królach.</div>
+
+  <div class="gen">
+    <div class="genrow" id="cats">
+      <button class="cat on" data-cat="picie">Picie</button>
+      <button class="cat" data-cat="mowa">Mowa</button>
+      <button class="cat" data-cat="ruch">Ruch</button>
+      <button class="cat" data-cat="kary">Kary</button>
+      <button class="cat" data-cat="chore">Dziwne</button>
+    </div>
+    <div class="genout" id="genOut">Nie masz pomysłu na zasadę? Wylosuj.</div>
+    <div class="genbtns">
+      <button class="gbtn primary" id="gRoll"><span class="suit-icon"><svg viewBox="0 0 100 100"><use href="#s-dice"/></svg></span><span id="gRollLabel">Losuj zasadę</span></button>
+      <button class="gbtn" id="gKeep" disabled>+ Dodaj do stołu</button>
+    </div>
+  </div>
+
+  <ul class="house" id="hList"></ul>
+  <div class="empty" id="hEmpty">Jeszcze żadnych zasad. Wypadnie 8, 9 albo król — dopiszecie tutaj.</div>
+  <div class="row"><input id="hName" placeholder="Nowa zasada" maxlength="90"><button id="hAdd">Dodaj</button></div>
+  <button class="close" data-close id="btnCloseRules">Gotowe</button>
+</div></div>
+
+<script>
+/* ============ DANE MASCI ============ */
+const SUITS=[{s:'♠',id:'spade',c:'black'},{s:'♥',id:'heart',c:'red'},{s:'♦',id:'diamond',c:'red'},{s:'♣',id:'club',c:'black'}];
+const SUIT_PATHS={
+  diamond:'M50,4 C64,26 88,44 88,50 C88,56 64,74 50,96 C36,74 12,56 12,50 C12,44 36,26 50,4 Z',
+  heart:'M50,92 C18,68 4,46 4,29 C4,12 17,3 32,6 C43,8 48,16 50,25 C52,16 57,8 68,6 C83,3 96,12 96,29 C96,46 82,68 50,92 Z',
+  spade:'M50,8 C18,32 4,54 4,71 C4,88 17,97 32,94 C43,92 48,84 50,75 C52,84 57,92 68,94 C83,97 96,88 96,71 C96,54 82,32 50,8 Z M46,80 C46,90 40,94 36,98 L64,98 C60,94 54,90 54,80 Z',
+  club:'M70,32 A20,20 0 1,1 30,32 A20,20 0 1,1 70,32 Z M52,62 A20,20 0 1,1 12,62 A20,20 0 1,1 52,62 Z M88,62 A20,20 0 1,1 48,62 A20,20 0 1,1 88,62 Z M44,60 C40,72 30,80 22,96 L78,96 C70,80 60,72 56,60 Z'
+};
+const RANKS=['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+
+/* ============ TRESC PL/EN ============ */
+const LABEL={
+  pl:{J:'JOPEK',Q:'DAMA',K:'KRÓL',A:'AS'},
+  en:{J:'JACK',Q:'QUEEN',K:'KING',A:'ACE'}
+};
+
+const KLASYK_PL={
+ '2':{t:'Shot',d:'Pijesz shota. Bez dyskusji, bez negocjacji.'},
+ '3':{t:'Trzy shoty',d:'Trzy shoty — możesz rozdać je pomiędzy siebie i jedną wybraną osobę.'},
+ '4':{t:'Chłopacy piją',d:'Wszyscy chłopacy przy stole piją.'},
+ '5':{t:'Dziewczyny piją',d:'Wszystkie dziewczyny przy stole piją.'},
+ '6':{t:'Wszyscy piją',d:'Cały stół unosi szkło. Kto ostatni — dolewka.'},
+ '7':{t:'Siódemka',d:'Liczycie w kółko od 1. Każda siódemka i każda liczba z siódemką (7, 17, 27…) oraz wielokrotności — zamiast liczby klaśnięcie. Kto się pomyli, pije.',h:'Na kartce było samo „7” — to najczęstsza wersja tej karty.'},
+ '8':{t:'Zasada gry',d:'Ustalasz jedną zasadę obowiązującą do końca gry. Dopisz ją w Zasadach stołu.',r:true},
+ '9':{t:'Zasada picia',d:'Ustalasz zasadę dotyczącą picia — np. „pijemy tylko lewą ręką”. Dopisz ją w Zasadach stołu.',r:true},
+ '10':{t:'Wybierasz przyjaciela',d:'Wskazujesz osobę, która od teraz pije zawsze wtedy, co ty.',p:true},
+ 'J':{t:'Ręce do góry',d:'Podnosisz ręce. Ostatnia osoba, która to zauważy i zrobi to samo — pije.'},
+ 'Q':{t:'Królowa pytań',d:'Odpowiadasz wyłącznie pytaniami. Kto odpowie normalnie — pije. Obowiązuje do następnej damy.'},
+ 'K':{t:'Kategorie',d:'Podajesz kategorię, np. „marki piwa”. Idziecie w kółko, kto powtórzy albo utknie — pije.',k:true},
+ 'A':{t:'Rymy',d:'Rzucasz słowo. Każdy po kolei rymuje. Kto nie da rady — pije.'}
+};
+const KLASYK_EN={
+ '2':{t:'Shot',d:'Drink a shot. No discussion, no negotiating.'},
+ '3':{t:'Three Shots',d:'Split three shots between yourself and one other person.'},
+ '4':{t:'Guys Drink',d:'All guys at the table drink.'},
+ '5':{t:'Girls Drink',d:'All girls at the table drink.'},
+ '6':{t:'Everyone Drinks',d:'The whole table drinks. Last to raise a glass tops up.'},
+ '7':{t:'Sevens',d:'Count around from 1. Every seven and every number containing one (7, 17, 27…) and multiples get a clap instead. Mess up, you drink.',h:'The original card just said "7" - this is the most common version.'},
+ '8':{t:'Make a Rule',d:'Set one rule that lasts the rest of the game. Add it under House Rules.',r:true},
+ '9':{t:'Drinking Rule',d:'Set a rule about drinking, e.g. "only left-handed sips". Add it under House Rules.',r:true},
+ '10':{t:'Pick a Friend',d:'Point at someone who now drinks whenever you do.',p:true},
+ 'J':{t:'Hands Up',d:'Raise your hands. Last person to notice and copy you drinks.'},
+ 'Q':{t:'Question Master',d:'You may only answer in questions. Answer normally, you drink. Lasts until the next queen.'},
+ 'K':{t:'Categories',d:'Name a category, e.g. "beer brands". Go around the table - repeat or stall, you drink.',k:true},
+ 'A':{t:'Rhyme Time',d:'Throw out a word. Everyone rhymes in turn. Can’t keep up, you drink.'}
+};
+
+const NOWA_PL={
+ '2':{t:'Wodospad',d:'Zaczynasz pić, reszta rusza za tobą po kolei. Nikt nie odstawia szkła, dopóki nie odstawi go osoba przed nim.'},
+ '3':{t:'Podwójne kłopoty',d:'Wskazujesz dwie osoby. Obie piją, a potem przez rundę mówią o sobie w liczbie mnogiej.',p:true},
+ '4':{t:'Podłoga to lawa',d:'Kładziesz nogi na krześle. Ostatnia osoba, która oderwie stopy od podłogi — pije.'},
+ '5':{t:'Lustro',d:'Wybierasz osobę, która do następnej karty powtarza każdy twój ruch. Przegapi coś — pije.',p:true},
+ '6':{t:'Statua',d:'W dowolnym momencie do końca gry możesz zamrozić się w bezruchu. Kto zauważy ostatni — pije.'},
+ '7':{t:'Niebo',d:'Palec w górę. Ostatnia osoba z palcem w powietrzu pije.'},
+ '8':{t:'Zakazane słowo',d:'Ustalasz jedno słowo, którego nikt nie może wypowiedzieć. Kto powie — pije. Dopisz je w Zasadach stołu.',r:true},
+ '9':{t:'Beczka',d:'Rzucasz temat, np. „wakacje”. Każdy dorzuca jedno zdanie historii. Kto się zatnie albo zaśmieje — pije.'},
+ '10':{t:'Spowiedź',d:'Opowiadasz coś, czego nikt przy stole o tobie nie wie. Kto już to wiedział — pije.'},
+ 'J':{t:'Mistrz kciuka',d:'Kiedy chcesz, kładziesz kciuk na blacie. Ostatni, który zrobi to samo — pije.'},
+ 'Q':{t:'Akcent',d:'Wybierasz akcent albo sposób mówienia dla całego stołu. Kto wypadnie z roli — pije.'},
+ 'K':{t:'Prawo króla',d:'Wprowadzasz dowolną zasadę i możesz jedną istniejącą skasować. Dopisz zmianę w Zasadach stołu.',r:true,k:true},
+ 'A':{t:'Pojedynek',d:'Wyzywasz jedną osobę: kamień-papier-nożyce, do dwóch wygranych. Przegrany pije podwójnie.',p:true}
+};
+const NOWA_EN={
+ '2':{t:'Waterfall',d:'You start drinking, everyone follows in order. No one stops until the person before them stops.'},
+ '3':{t:'Double Trouble',d:'Point at two people. Both drink, then speak only in "we" for the round.',p:true},
+ '4':{t:'Floor Is Lava',d:'Feet up on your chair. Last person to touch the floor drinks.'},
+ '5':{t:'Mirror',d:'Pick someone who must copy your every move until the next card. Slip up, they drink.',p:true},
+ '6':{t:'Statue',d:'At any point until the next card, freeze completely still. Last to notice drinks.'},
+ '7':{t:'Sky',d:'Finger up. Last person with a finger in the air drinks.'},
+ '8':{t:'Forbidden Word',d:'Pick one word nobody may say. Say it, you drink. Add it under House Rules.',r:true},
+ '9':{t:'The Barrel',d:'Throw out a topic, e.g. "summer trips". Everyone adds one sentence to the story. Stall or laugh, you drink.'},
+ '10':{t:'Confession',d:'Share something nobody at the table knows about you. Already knew it, you drink.'},
+ 'J':{t:'Thumb Master',d:'Whenever you like, put your thumb on the table. Last to copy you drinks.'},
+ 'Q':{t:'Accent',d:'Pick an accent or way of speaking for the whole table. Break character, you drink.'},
+ 'K':{t:'King’s Law',d:'Introduce any rule and scrap one existing rule. Update House Rules.',r:true,k:true},
+ 'A':{t:'Duel',d:'Challenge one person to rock-paper-scissors, best of three. Loser drinks double.',p:true}
+};
+
+const CHAOS_PL={
+ '2':{t:'Bramkarz',d:'Do następnej dwójki jesteś bramkarzem — każdy, kto chce się napić, musi najpierw zapytać ciebie o zgodę. Kto zapomni, pije podwójnie.'},
+ '3':{t:'Trójkąt',d:'Wskazujesz dwie osoby. Od teraz wasza trójka pije razem — zawsze, gdy pije którekolwiek z was.',p:true},
+ '4':{t:'Cztery kąty',d:'Wszyscy wskazują palcem w róg pokoju. Kto wskaże ten sam róg co ty — pije razem z tobą.'},
+ '5':{t:'Kciuk mistrza',d:'Palce na stole. Ostatnia osoba z ręką na blacie pije — ale ty wybierasz, czy pije łyk, czy dolewa innym.'},
+ '6':{t:'Sześć sekund',d:'Podajesz kategorię i wskazujesz osobę. Ma 6 sekund na trzy odpowiedzi. Nie zdąży — pije.',p:true},
+ '7':{t:'Echo',d:'Do końca rundy każdy musi powtórzyć ostatnie słowo osoby, która mówiła przed nim. Kto zapomni — pije.'},
+ '8':{t:'Nowa waluta',d:'Ustalasz, co zastępuje słowo „pij" — np. „hydraulik". Kto powie normalnie, pije. Dopisz do Zasad stołu.',r:true},
+ '9':{t:'Dziewiąta fala',d:'Wybierasz kierunek. Idziecie w kółko i każdy pije o łyk więcej niż poprzednik — aż ktoś odpadnie i postawi resztę stołu wodę.'},
+ '10':{t:'Zamiana miejsc',d:'Wszyscy wstają i siadają na innym krześle. Ostatnia osoba, która usiądzie — pije i ciągnie następną kartę.'},
+ 'J':{t:'Cichy jopek',d:'Do następnego jopka nie wolno wymawiać twojego imienia. Kto je powie — pije.'},
+ 'Q':{t:'Dama decyduje',d:'Wybierasz dwie osoby, które muszą się zgodzić w jednej sprawie. Nie dogadają się w 30 sekund — obie piją.',p:true},
+ 'K':{t:'Dekret',d:'Ustalasz zasadę, której ty jeden nie musisz przestrzegać. Dopisz ją w Zasadach stołu.',r:true,k:true},
+ 'A':{t:'As w rękawie',d:'Zatrzymujesz tę kartę. Raz w grze możesz ją zagrać, żeby oddać komuś swoje picie.'}
+};
+const CHAOS_EN={
+ '2':{t:'Gatekeeper',d:'Until the next two, you’re the gatekeeper - anyone who wants to drink must ask your permission first. Forget, drink double.'},
+ '3':{t:'Trio',d:'Point at two people. From now on your three drink together, whenever any of you drinks.',p:true},
+ '4':{t:'Four Corners',d:'Everyone points at a corner of the room. Same corner as you, they drink with you.'},
+ '5':{t:'Master Thumb',d:'Hands on the table. Last hand down drinks - but you choose if it’s a sip or they pour for everyone.'},
+ '6':{t:'Six Seconds',d:'Name a category and point at someone. 6 seconds, three answers. Too slow, they drink.',p:true},
+ '7':{t:'Echo',d:'Until the round ends, everyone must repeat the last word the previous speaker said. Forget, drink.'},
+ '8':{t:'New Currency',d:'Pick a word to replace "drink", e.g. "plumber". Say the real word, you drink. Add it to House Rules.',r:true},
+ '9':{t:'Ninth Wave',d:'Pick a direction. Go around, each drinks one more sip than the last, until someone drops out and buys the table water.'},
+ '10':{t:'Musical Chairs',d:'Everyone stands and takes a different seat. Last to sit drinks and draws the next card.'},
+ 'J':{t:'Silent Jack',d:'Until the next jack, nobody may say your name. Say it, drink.'},
+ 'Q':{t:'Queen Decides',d:'Point at two people who must agree on something. No deal in 30 seconds, both drink.',p:true},
+ 'K':{t:'Decree',d:'Set a rule that you alone are exempt from. Add it under House Rules.',r:true,k:true},
+ 'A':{t:'Ace Up Your Sleeve',d:'Keep this card. Once per game, play it to pass your drink to someone else.'}
+};
+
+const TRZEZWO_PL={
+ '2':{t:'Fant',d:'Robisz 10 pajacyków albo 15 sekund deski — wybierasz.'},
+ '3':{t:'Trzy prawdy',d:'Trzy szczere zdania o sobie. Jedno może być kłamstwem — stół zgaduje które.'},
+ '4':{t:'Chłopacy w akcji',d:'Wszyscy chłopacy robią 10 przysiadów.'},
+ '5':{t:'Dziewczyny w akcji',d:'Wszystkie dziewczyny robią 10 przysiadów.'},
+ '6':{t:'Wszyscy wstają',d:'Cały stół wstaje i tańczy 15 sekund. Kto pierwszy usiądzie — dodatkowy fant.'},
+ '7':{t:'Siódemka',d:'Liczycie od 1, przy każdej siódemce klaśnięcie. Kto się pomyli — fant.'},
+ '8':{t:'Zasada gry',d:'Ustalasz zasadę obowiązującą do końca gry. Dopisz ją w Zasadach stołu.',r:true},
+ '9':{t:'Beczka',d:'Rzucasz temat, każdy dorzuca zdanie historii. Kto się zatnie — fant.'},
+ '10':{t:'Wybierasz przyjaciela',d:'Wskazana osoba wykonuje z tobą każde wyzwanie do końca gry.',p:true},
+ 'J':{t:'Ręce do góry',d:'Podnosisz ręce. Ostatnia osoba, która to powtórzy — fant.'},
+ 'Q':{t:'Królowa pytań',d:'Mówisz wyłącznie pytaniami. Kto odpowie normalnie — fant.'},
+ 'K':{t:'Kategorie',d:'Podajesz kategorię. Kto powtórzy albo utknie — fant.',k:true},
+ 'A':{t:'Rymy',d:'Rzucasz słowo, każdy rymuje. Kto nie da rady — fant.'}
+};
+const TRZEZWO_EN={
+ '2':{t:'Forfeit',d:'Do 10 jumping jacks or hold a 15-second plank - your choice.'},
+ '3':{t:'Three Truths',d:'Say three honest things about yourself. One can be a lie - table guesses which.'},
+ '4':{t:'Guys in Action',d:'All guys do 10 squats.'},
+ '5':{t:'Girls in Action',d:'All girls do 10 squats.'},
+ '6':{t:'Everyone Up',d:'The whole table stands and dances for 15 seconds. First to sit gets an extra forfeit.'},
+ '7':{t:'Sevens',d:'Count from 1, clap on every seven. Mess up, forfeit.'},
+ '8':{t:'Make a Rule',d:'Set a rule for the rest of the game. Add it under House Rules.',r:true},
+ '9':{t:'The Barrel',d:'Throw out a topic, everyone adds a sentence to the story. Stall, forfeit.'},
+ '10':{t:'Pick a Friend',d:'This person does every challenge with you until the game ends.',p:true},
+ 'J':{t:'Hands Up',d:'Raise your hands. Last to copy you does a forfeit.'},
+ 'Q':{t:'Question Master',d:'Speak only in questions. Answer normally, forfeit.'},
+ 'K':{t:'Categories',d:'Name a category. Repeat or stall, forfeit.',k:true},
+ 'A':{t:'Rhyme Time',d:'Throw out a word, everyone rhymes. Can’t keep up, forfeit.'}
+};
+
+const DECKS={
+  pl:{klasyk:KLASYK_PL,nowa:NOWA_PL,chaos:CHAOS_PL,trzezwo:TRZEZWO_PL},
+  en:{klasyk:KLASYK_EN,nowa:NOWA_EN,chaos:CHAOS_EN,trzezwo:TRZEZWO_EN}
+};
+
+const DECK_META={
+  pl:{
+    klasyk:{name:'talia klasyczna',title:'Klasyczna',desc:'2 – shot, 3 – trzy shoty, 4 – chłopacy, 5 – dziewczyny, 6 – wszyscy, jopek – ręce do góry, dama – królowa pytań…'},
+    nowa:{name:'nowa fala',title:'Nowa Fala',desc:'Świeży zestaw: wodospad, lustro, statua, zakazane słowo, podwójne kłopoty i inne.'},
+    chaos:{name:'chaos',title:'Chaos',desc:'Ostrzejszy zestaw: bramkarz, dziewiąta fala, zamiana miejsc, dekret króla, as w rękawie.'},
+    mix:{name:'miks talii',title:'Miks',desc:'Losuje z trzech talii — nikt nie wie, co wypadnie.'},
+    trzezwo:{name:'bez alkoholu',title:'Bez alkoholu',desc:'Te same karty, zamiast picia — wyzwania i fanty.'}
+  },
+  en:{
+    klasyk:{name:'classic deck',title:'Classic',desc:'2 - shot, 3 - three shots, 4 - guys, 5 - girls, 6 - everyone, jack - hands up, queen - question master…'},
+    nowa:{name:'new wave',title:'New Wave',desc:'A fresh set: waterfall, mirror, statue, forbidden word, double trouble and more.'},
+    chaos:{name:'chaos',title:'Chaos',desc:'A harder set: gatekeeper, ninth wave, musical chairs, king’s decree, ace up your sleeve.'},
+    mix:{name:'mixed deck',title:'Mixed',desc:'Draws from three decks - nobody knows what’s coming.'},
+    trzezwo:{name:'alcohol-free',title:'Alcohol-free',desc:'Same cards, but instead of drinking - challenges and forfeits.'}
+  }
+};
+const DECK_ORDER=['klasyk','nowa','chaos','mix','trzezwo'];
+const DIFFICULTY={klasyk:1,trzezwo:1,nowa:2,mix:2,chaos:3};
+
+const FINALE={
+  pl:{
+    alco:{t:'Kufel króla',d:'Czwarty król na stole. Ty dopijasz wszystko, co wylądowało w kuflu. Powodzenia.'},
+    dry:{t:'Wielki finał',d:'Czwarty król. Stół wymyśla ci jedno wyzwanie — musisz je wykonać.'}
+  },
+  en:{
+    alco:{t:'King’s Cup',d:'The fourth king is on the table. You finish everything that landed in the cup. Good luck.'},
+    dry:{t:'The Grand Finale',d:'Fourth king drawn. The table invents one challenge - you have to do it.'}
+  }
+};
+
+const CATS={
+  pl:{picie:'Picie',mowa:'Mowa',ruch:'Ruch',kary:'Kary',chore:'Dziwne'},
+  en:{picie:'Drinking',mowa:'Talking',ruch:'Movement',kary:'Penalties',chore:'Weird'}
+};
+
+const BANK={
+pl:{
+picie:[
+ 'Pijemy wyłącznie lewą ręką (leworęczni — prawą).',
+ 'Nikt nie odstawia szkła na stół — tylko na podłogę.',
+ 'Zanim się napijesz, musisz powiedzieć toast. Dwa razy ten sam toast — pijesz podwójnie.',
+ 'Kto pije, mruga do osoby po swojej prawej. Zapomni — jeszcze raz.',
+ 'Ostatnia osoba, która się napiła, nie może odezwać się do następnej karty.',
+ 'Każdy pije trzymając szkło dwoma palcami. Kto złapie całą dłonią — dolewka.',
+ 'Zanim wypijesz, wypowiadasz nazwisko dowolnego piłkarza. Powtórzysz cudze — pijesz drugi raz.',
+ 'Kto sięga po swoje szkło, musi najpierw dotknąć stołu trzy razy.',
+ 'Co czwarta kolejka to szklanka wody dla całego stołu — bez wyjątków.',
+ 'Kto zamawia lub nalewa, nalewa najpierw osobie po lewej.',
+ 'Nie wolno pić w tym samym momencie co ktoś inny. Zbieżność — oboje jeszcze raz.',
+ 'Twoje szkło ma imię. Kto nazwie je inaczej — pije.'
+],
+mowa:[
+ 'Zakaz używania słowa „nie". Kto powie — pije.',
+ 'Nikt nie mówi do nikogo po imieniu. Tylko przezwiska.',
+ 'Zakaz zaimków: ja, ty, my, oni. Kto się potknie — pije.',
+ 'Każde zdanie musi mieć minimum sześć słów.',
+ 'Zakaz przekleństw. Kto zaklnie, stawia kolejkę zdrowaśek — czyli pije.',
+ 'Każdy mówi o sobie w trzeciej osobie.',
+ 'Kto się roześmieje w ciągu najbliższych dwóch kart — pije.',
+ 'Zakaz pytań. Kto zada pytanie — pije.',
+ 'Każdy dodaje na końcu zdania to samo słowo, np. „ziomuś".',
+ 'Nie wolno mówić „dzięki", „proszę" ani „przepraszam".',
+ 'Wszyscy mówią szeptem do następnego króla. Kto podniesie głos — pije.'
+],
+ruch:[
+ 'Nikt nie kładzie łokci na stole. Kto położy — pije.',
+ 'Kto wychodzi do toalety, mówi o tym całemu stołowi i wraca z nowym faktem o sobie.',
+ 'Zakaz wskazywania palcem. Wskazuje się łokciem.',
+ 'Kto sięga po telefon — pije. Telefony leżą ekranem do dołu.',
+ 'Po każdej wyciągniętej karcie wszyscy klaszczą raz. Kto się spóźni — pije.',
+ 'Kto wstaje od stołu, robi to z rękami nad głową.',
+ 'Osoba po lewej od ciągnącego kartę czyta ją na głos, zawsze.',
+ 'Nogi na podłodze przez całą grę. Kto podkurczy — pije.',
+ 'Kto kicha, kaszle albo ziewa — pije, a stół mówi „na zdrowie".',
+ 'Przy każdej karcie z sercem wszyscy stukają się szkłem.'
+],
+kary:[
+ 'Kto łamie zasadę drugi raz, ciągnie dwie karty naraz.',
+ 'Kto się pomyli, wybiera: łyk albo trzy pajacyki.',
+ 'Za każdą złamaną zasadę dostajesz literę. Zbierzesz K-U-F-E-L — dopijasz kufel.',
+ 'Kto łamie zasadę, przez rundę siedzi bez krzesła.',
+ 'Kto się pomyli, oddaje swoją następną kartę osobie po prawej.',
+ 'Za złamanie zasady: 20 sekund opowiadania o czymś, na czym się nie znasz.',
+ 'Kto łamie zasadę trzeci raz, wypija szklankę wody, zanim wróci do gry.',
+ 'Kto zgłosi cudze przewinienie, a się pomyli — pije sam.'
+],
+chore:[
+ 'Wszyscy mają nowe imiona wylosowane przez osobę po lewej.',
+ 'Do końca gry stół ma jedno wspólne zwierzę-maskotkę. Kto o nim zapomni w rozmowie — pije.',
+ 'Ktokolwiek powie nazwę dowolnego serialu, cały stół krzyczy „SPOILER" i pije.',
+ 'Nikt nie może siedzieć w tej samej pozycji dwie karty pod rząd.',
+ 'Kto ciągnie kartę, robi to z zamkniętymi oczami.',
+ 'Ostatnia osoba, która weszła do pokoju, jest sędzią. Sędzia ma zawsze rację.',
+ 'Kiedy ktoś powie „zasada", wszyscy odpowiadają „stołu". Kto milczy — pije.',
+ 'Wszyscy udają, że jest zima. Kto się nie trzęsie przy nowej karcie — pije.',
+ 'Raz na grę możesz krzyknąć „ZMIANA" i odwrócić kierunek gry.',
+ 'Kto pierwszy zauważy kolejnego asa, może skasować jedną zasadę ze stołu.'
+]},
+en:{
+picie:[
+ 'Drink only with your left hand (lefties use the right).',
+ 'Nobody sets a glass on the table - floor only.',
+ 'Say a toast before every drink. Repeat a toast, drink again.',
+ 'Whoever drinks winks at the person on their right. Forget, drink again.',
+ 'The last person to drink can’t speak until the next card.',
+ 'Hold your glass with two fingers only. Grab it with your whole hand, refill.',
+ 'Say any footballer’s name before you drink. Repeat someone else’s, drink twice.',
+ 'Touch the table three times before reaching for your glass.',
+ 'Every fourth round is a glass of water for the whole table - no exceptions.',
+ 'Whoever pours, pours for the person on their left first.',
+ 'Never drink at the exact same moment as someone else. Overlap, both drink again.',
+ 'Your glass has a name. Call it something else, drink.'
+],
+mowa:[
+ 'No saying "no". Say it, drink.',
+ 'Nobody uses names - nicknames only.',
+ 'No pronouns: I, you, we, they. Slip up, drink.',
+ 'Every sentence needs at least six words.',
+ 'No swearing. Swear, buy the table a round - i.e. drink.',
+ 'Everyone talks about themselves in third person.',
+ 'Laugh within the next two cards, drink.',
+ 'No questions. Ask one, drink.',
+ 'Everyone adds the same word at the end of a sentence, e.g. "buddy".',
+ 'No saying "thanks", "please" or "sorry".',
+ 'Everyone whispers until the next king. Raise your voice, drink.'
+],
+ruch:[
+ 'No elbows on the table. Put one down, drink.',
+ 'Announce it when you go to the bathroom and come back with a new fact about yourself.',
+ 'No pointing with your finger - use your elbow.',
+ 'Reach for your phone, drink. Phones face down.',
+ 'Everyone claps once after each card is drawn. Late, drink.',
+ 'Stand up from the table with your arms overhead.',
+ 'The person to the left of the drawer always reads the card aloud.',
+ 'Feet on the floor for the whole game. Tuck them up, drink.',
+ 'Sneeze, cough or yawn, drink - table says "bless you".',
+ 'Everyone clinks glasses on every heart card.'
+],
+kary:[
+ 'Break a rule twice, draw two cards at once.',
+ 'Mess up: choose a sip or three jumping jacks.',
+ 'Get a letter for every broken rule. Spell M-U-G, finish your cup.',
+ 'Break a rule, sit without a chair for the round.',
+ 'Mess up, hand your next card to the person on your right.',
+ 'Break a rule: 20 seconds talking about something you know nothing about.',
+ 'Break a rule a third time, drink a glass of water before rejoining.',
+ 'Call out someone else’s mistake and be wrong, you drink instead.'
+],
+chore:[
+ 'Everyone gets a new name picked by the person on their left.',
+ 'The table shares one mascot animal for the game. Forget to mention it, drink.',
+ 'Say the name of any TV show, the whole table shouts "SPOILER" and drinks.',
+ 'Nobody sits in the same position for two cards in a row.',
+ 'Draw your card with your eyes closed.',
+ 'The last person who entered the room is the judge. The judge is always right.',
+ 'When someone says "rule", everyone answers "of the table". Stay silent, drink.',
+ 'Everyone pretends it’s winter. Don’t shiver on the next card, drink.',
+ 'Once per game you may shout "SWITCH" and reverse the turn order.',
+ 'First to spot the next ace may erase one house rule.'
+]}
+};
+
+const UI={
+  pl:{
+    appName:'KRÓL KUFLA', tagline:'talia imprezowa',
+    homeTitle:'Wybierz tryb gry', homeSub:'Talia decyduje, jak ostro się zrobi.',
+    lblDeck:'Talia',
+    playersHint:'Dodaj imiona, a karty typu „wybierasz przyjaciela” same wylosują osobę.',
+    playerPlaceholder:'Imię', add:'Dodaj', playersEmpty:'Na razie pusto.',
+    startBtn:'Rozpocznij grę',
+    rulesChip:'Zasady', menuChip:'Menu',
+    idleText:'Talia potasowana. Dotknij karty, żeby zacząć.', tapHint:'dotknij, żeby losować',
+    rollPlayer:'Losuj gracza',
+    deckOutTitle:'koniec talii', deckOutHead:'Karty się skończyły', deckOutDesc:'52 karty za wami. Zagrajcie jeszcze raz albo wróćcie do menu.',
+    housePanelTitle:'Zasady stołu', housePanelSub:'Wszystko, co ustaliliście przy ósemkach, dziewiątkach i królach.',
+    genPlaceholder:'Nie masz pomysłu na zasadę? Wylosuj.', genRoll:'Losuj zasadę', genKeep:'+ Dodaj do stołu',
+    houseEmpty:'Jeszcze żadnych zasad. Wypadnie 8, 9 albo król — dopiszecie tutaj.',
+    housePlaceholder:'Nowa zasada', close:'Gotowe', tableFallback:'stół',
+    finaleSuffix:' · finał', cardsWord:n=>n===1?'karta':(n%10>=2&&n%10<=4&&(n<12||n>14)?'karty':'kart'),
+    tapToPlay:'Dotknij, aby zagrać', switchingLabel:'Przełączamy na tryb',
+    difficultyLabel:n=>['Łagodnie','Ostrzej','Chaos'][n-1],
+    playersTitle:'Kto gra?', nextBtn:'Dalej', playersChip:'Gracze', viewRules:'Zobacz zasady stołu',
+    pickingLabel:'LOSUJEMY, KTO ZACZYNA', starterMsg:name=>name+', zaczynasz! Dotknij karty.',
+    newRuleFlag:'Nowa zasada!', assignLabel:'albo wskaż kogoś:',
+    turnLabel:'KTO TERAZ?', turnRandom:'Losuj gracza', turnManual:'Wskaż gracza', doneBtn:'Wykonane',
+    backBtn:'‹ Wróć', againBtn:'Nowa gra',
+    tooManyPlayers:n=>'Maksymalnie '+n+' graczy.',
+    duplicateName:v=>'„'+v+'” już jest na liście.',
+    needPlayers:'Dodaj przynajmniej 2 graczy.',
+    menuTitle:'Menu', menuSub:'Szybki dostęp do ustawień gry.',
+    soundOn:'Dźwięk: włączony', soundOnSub:'Muzyka i efekty w tle',
+    soundOff:'Dźwięk: wyciszony', soundOffSub:'Stuknij, żeby włączyć',
+    menuRulesLabel:'Zasady stołu', menuRulesSub:'Zobacz i dopisz zasady',
+    menuHomeLabel:'Menu główne', menuHomeSub:'Wróć do wyboru trybu',
+    menuCloseBtn:'Zamknij',
+    ageTitle:'Zanim zaczniemy',
+    ageText:'Ta gra zawiera treści przeznaczone dla dorosłych i odwołuje się do spożywania alkoholu. Jeśli grasz z alkoholem — rób to odpowiedzialnie i nie prowadź pojazdów.',
+    ageYesLabel:'Mam ukończone 18 lat', ageNoLabel:'Nie mam 18 lat',
+    ageBlockTitle:'Wróć, gdy będziesz pełnoletni', ageBlockText:'Ta gra jest dostępna wyłącznie dla osób pełnoletnich.'
+  },
+  en:{
+    appName:'KING OF THE MUG', tagline:'party card deck',
+    homeTitle:'Choose your mode', homeSub:'The deck decides how wild it gets.',
+    lblDeck:'Deck',
+    playersHint:'Add names and "pick a friend" cards will draw someone automatically.',
+    playerPlaceholder:'Name', add:'Add', playersEmpty:'Nobody yet.',
+    startBtn:'Start game',
+    rulesChip:'Rules', menuChip:'Menu',
+    idleText:'Deck shuffled. Tap the card to begin.', tapHint:'tap to draw',
+    rollPlayer:'Pick a player',
+    deckOutTitle:'deck empty', deckOutHead:'Out of cards', deckOutDesc:'52 cards down. Play again or head back to the menu.',
+    housePanelTitle:'House rules', housePanelSub:'Everything you agreed on at the eights, nines and kings.',
+    genPlaceholder:'Stuck for a rule? Roll one.', genRoll:'Roll a rule', genKeep:'+ Add to the table',
+    houseEmpty:'No rules yet. An 8, 9 or king will come up - add them here.',
+    housePlaceholder:'New rule', close:'Done', tableFallback:'table',
+    finaleSuffix:' · finale', cardsWord:n=>n===1?'card':'cards',
+    tapToPlay:'Tap to play', switchingLabel:'Switching to mode',
+    difficultyLabel:n=>['Easy','Rowdy','Chaos'][n-1],
+    playersTitle:'Who\'s playing?', nextBtn:'Next', playersChip:'Players', viewRules:'View house rules',
+    pickingLabel:'PICKING WHO STARTS', starterMsg:name=>name+' starts! Tap the card.',
+    newRuleFlag:'New rule!', assignLabel:'or pick someone:',
+    turnLabel:'WHO\'S NEXT?', turnRandom:'Pick a player', turnManual:'Choose player', doneBtn:'Done',
+    backBtn:'‹ Back', againBtn:'New game',
+    tooManyPlayers:n=>'Maximum '+n+' players.',
+    duplicateName:v=>'"'+v+'" is already on the list.',
+    needPlayers:'Add at least 2 players.',
+    menuTitle:'Menu', menuSub:'Quick access to game settings.',
+    soundOn:'Sound: on', soundOnSub:'Music and background effects',
+    soundOff:'Sound: muted', soundOffSub:'Tap to turn back on',
+    menuRulesLabel:'House rules', menuRulesSub:'View and add rules',
+    menuHomeLabel:'Main menu', menuHomeSub:'Back to mode selection',
+    menuCloseBtn:'Close',
+    ageTitle:'Before we start',
+    ageText:'This game contains adult content and references alcohol consumption. If you\'re drinking, please do it responsibly and never drink and drive.',
+    ageYesLabel:'I am 18 or older', ageNoLabel:'I am under 18',
+    ageBlockTitle:'Come back once you\'re of legal age', ageBlockText:'This game is available to adults only.'
+  }
+};
+
+/* ============ STAN ============ */
+let lang='pl', mode='klasyk', deck=[], drawn=null, kings=0, players=[], house=[], busy=false;
+let lastShown=null, rotation=0;
+let gameOver=false, awaitingDone=false, currentStarter=null, picking=false;
+const MAX_PLAYERS=12;
+
+const $=id=>document.getElementById(id);
+const rnd=n=>Math.floor(Math.random()*n);
+/* escapowanie - imiona graczy i tresci zasad trafiaja do innerHTML */
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+/* timery animacji losowania - kasowane przy resecie, zeby nie "kradly" kart z nowej talii */
+let drawTimers=[];
+function trackTimer(fn,ms){const id=setTimeout(fn,ms);drawTimers.push(id);return id;}
+function clearDrawTimers(){drawTimers.forEach(clearTimeout);drawTimers=[];}
+/* timery losowania gracza */
+let pickTimers=[],pickInterval=null;
+function clearPickTimers(){pickTimers.forEach(clearTimeout);pickTimers=[];if(pickInterval){clearInterval(pickInterval);pickInterval=null;}}
+
+function build(){
+  deck=[];
+  for(const su of SUITS) for(const r of RANKS) deck.push({r,...su});
+  for(let i=deck.length-1;i>0;i--){const j=rnd(i+1);[deck[i],deck[j]]=[deck[j],deck[i]];}
+}
+function reset(){
+  clearDrawTimers();clearPickTimers();
+  build();kings=0;drawn=null;busy=false;lastShown=null;rotation=0;
+  gameOver=false;awaitingDone=false;
+  $('card').style.transition='none';
+  $('card').style.transform='';
+  $('card').style.opacity='';
+  $('card').classList.remove('shine');
+  $('stack').classList.remove('glow-red','glow-black','glow-gold');
+  document.querySelectorAll('.crowns b').forEach(b=>b.classList.remove('gained'));
+  $('front').innerHTML='';
+  requestAnimationFrame(()=>{$('card').style.transition='';});
+  $('idle').style.display='flex';$('ruleBox').style.display='none';
+  $('btnAgain').style.display='none';
+  if(!currentStarter) $('idle').textContent=UI[lang].idleText;
+  $('sheet').classList.add('show');   /* panel musi byc widoczny, inaczej komunikat startowy jest niewidzialny */
+  updateMeta();
+}
+function updateMeta(){
+  const n=deck.length,t=UI[lang];
+  $('left').textContent=n+' '+t.cardsWord(n);
+  $('fill').style.width=(n/52*100)+'%';
+  document.querySelectorAll('.crowns b').forEach((b,i)=>b.classList.toggle('on',i<kings));
+  $('deckName').textContent=DECK_META[lang][mode].name;
+}
+/* dla trybu "mix" losujemy KLUCZ talii raz i zapamietujemy go,
+   dzieki czemu zmiana jezyka pokazuje te sama zasade w innym jezyku */
+function pickDeckKey(){
+  return mode==='mix' ? ['klasyk','nowa','chaos'][rnd(3)] : mode;
+}
+function resolveShown(c,finale,deckKey){
+  if(finale) return (mode==='trzezwo'?FINALE[lang].dry:FINALE[lang].alco);
+  return DECKS[lang][deckKey][c.r];
+}
+
+/* ============ NAWIGACJA MIĘDZY EKRANAMI ============ */
+let screenTimers=[];
+function showScreen(id){
+  const target=$(id);
+  if(!target||target.classList.contains('active')) return;
+  /* skasuj oczekujace przejscia - inaczej szybkie klikniecia zostawiaja dwa aktywne ekrany */
+  screenTimers.forEach(clearTimeout);screenTimers=[];
+  target.classList.remove('leaving');
+  const olds=[...document.querySelectorAll('.screen.active,.screen.leaving')].filter(s=>s!==target);
+  if(!olds.length){target.classList.add('active');return;}
+  olds.forEach(s=>{s.classList.remove('active');s.classList.add('leaving');});
+  screenTimers.push(setTimeout(()=>olds.forEach(s=>s.classList.remove('leaving')),240));
+  screenTimers.push(setTimeout(()=>{
+    document.querySelectorAll('.screen.active').forEach(s=>{if(s!==target)s.classList.remove('active');});
+    target.classList.add('active');
+  },220));
+}
+$('titleTap').addEventListener('click',()=>{
+  snd.start();                    /* pierwszy gest uzytkownika - tu wolno odpalic audio */
+  showScreen('screenPlayers');buzz(15);
+});
+$('btnPlayersNext').addEventListener('click',()=>{
+  if(players.length<2){flashHint(UI[lang].needPlayers);buzz(30);return;}
+  showScreen('screenHome');buzz(15);
+});
+/* bęben losujący - jak w automacie kasynowym: przewija imiona, zwalnia i laduje na zwyciezcy */
+const REEL_ROWS=22,REEL_ROWH=64;
+function spinReel(el,dur,cb){
+  const winner=players[rnd(players.length)];
+  const wrap=el.parentElement;
+  wrap.classList.remove('landed');
+  const seq=[];
+  for(let i=0;i<REEL_ROWS-1;i++) seq.push(players[rnd(players.length)]);
+  seq.push(winner);
+  el.innerHTML=seq.map(n=>'<div class="reel-row">'+esc(n)+'</div>').join('');
+  el.style.transition='none';
+  el.style.transform='translateY(0)';
+  void el.offsetWidth;
+  const dist=(REEL_ROWS-1)*REEL_ROWH;
+  el.style.transition='transform '+dur+'s cubic-bezier(.13,.85,.22,1)';
+  requestAnimationFrame(()=>{el.style.transform='translateY(-'+dist+'px)';});
+  wrap.classList.add('spinning');
+  /* rozmycie znika stopniowo razem ze zwalnianiem bebna */
+  pickTimers.push(setTimeout(()=>wrap.classList.remove('spinning'),dur*1000*.72));
+  snd.duck(dur+.9);snd.spinWhirr(dur);
+  /* tykniecia rozstawione po krzywej easeOutCubic - odzwierciedlaja zwalniajacy bęben */
+  for(let r=1;r<REEL_ROWS;r++){
+    const p=r/(REEL_ROWS-1);
+    pickTimers.push(setTimeout(()=>{buzz(5);snd.tick();},(1-Math.pow(1-p,3))*dur*1000));
+  }
+  pickTimers.push(setTimeout(()=>{
+    wrap.classList.add('spinning');wrap.classList.remove('spinning');
+    wrap.classList.add('landed');
+    /* trafienie - blysk, pierscien i iskry prosto z bebna */
+    const rr=wrap.getBoundingClientRect(),rx=rr.left+rr.width/2,ry=rr.top+rr.height/2;
+    flash();auroraHot();
+    shockwave('#17E5C4',rx,ry,420);
+    burst('#17E5C4',46,'star',rx,ry);
+    sparkles(20,'#FFF3D6',rx,ry,rr.width*.6);
+    vignette('rgba(23,229,196,.32)',900);
+    buzz([20,30,20,30,70]);snd.clunk();snd.fanfare();
+    pickTimers.push(setTimeout(()=>{picking=false;cb(winner);},650));
+  },dur*1000+30));
+}
+function runPlayerPick(cb){
+  if(picking) return;
+  picking=true;
+  clearPickTimers();
+  const t=UI[lang];
+  $('pickLabel').textContent=t.pickingLabel;
+  showScreen('screenPlayerPick');
+  spinReel($('pickName'),2.8,cb);
+}
+let switchInterval=null;
+const LOAD_MS=1700;
+$('btnStart').addEventListener('click',()=>{
+  const t=UI[lang],dlv=DIFFICULTY[mode];
+  const sw=$('screenModeSwitch');
+  sw.className='screen lvl'+dlv;
+  $('switchLabel').textContent=t.switchingLabel;
+  $('switchMode').textContent=DECK_META[lang][mode].title.toUpperCase();
+  $('switchFill').style.width='0%';
+  $('switchPct').textContent='0%';
+  showScreen('screenModeSwitch');
+  snd.duck(LOAD_MS/1000+.4);snd.deckSting(mode);
+  if(switchInterval) clearInterval(switchInterval);
+  const startT=Date.now();
+  switchInterval=setInterval(()=>{
+    const pct=Math.min(100,Math.round((Date.now()-startT)/LOAD_MS*100));
+    $('switchFill').style.width=pct+'%';
+    $('switchPct').textContent=pct+'%';
+    /* iskry sypia sie z czola paska w miare ladowania */
+    if(pct%7===0&&pct<100){
+      const br=$('switchFill').parentElement.getBoundingClientRect();
+      sparkles(2,dlv===3?'#FF2E63':dlv===2?'#FFB627':'#17E5C4',br.left+br.width*pct/100,br.top+br.height/2,10);
+    }
+    if(pct>=100){
+      clearInterval(switchInterval);switchInterval=null;
+      buzz(dlv===3?[20,40,20,40,90]:dlv===2?[20,50]:18);
+      const br=$('switchFill').parentElement.getBoundingClientRect();
+      const bx=br.left+br.width,by=br.top+br.height/2;
+      flash();auroraHot();
+      shockwave(dlv===3?'#FF2E63':'#FFB627',bx-br.width/2,by,340);
+      burst(dlv===3?'#FF2E63':dlv===2?'#FFB627':'#17E5C4',30,'star',bx-br.width/2,by);
+      snd.clunk();
+    }
+  },LOAD_MS/100);
+  setTimeout(()=>{
+    if(players.length>=2){
+      runPlayerPick(winner=>{
+        currentStarter=winner;
+        reset();showScreen('screenGame');
+        $('idle').textContent=t.starterMsg(winner);
+      });
+    } else {
+      currentStarter=null;
+      reset();showScreen('screenGame');
+    }
+  },LOAD_MS+250);
+});
+$('btnMenu').addEventListener('click',()=>{
+  showScreen('screenHome');buzz(12);
+});
+$('btnBackPlayers').addEventListener('click',()=>{
+  showScreen('screenPlayers');buzz(12);
+});
+$('btnRulesPreview').addEventListener('click',()=>openModal('mRules'));
+
+/* ============ WYBOR TALII (karuzela) ============ */
+function renderDeckOptions(){
+  const t=DECK_META[lang],dl=UI[lang].difficultyLabel;
+  $('deckHome').innerHTML=DECK_ORDER.map(key=>{
+    const lvl=DIFFICULTY[key];
+    const dots=[1,2,3].map(i=>'<i class="'+(i<=lvl?'on':'')+'"></i>').join('');
+    return '<div class="deck-card'+(key===mode?' on':'')+'" data-deck="'+key+'"><div class="deck-icon"><img src="assets/icons/deck-'+key+'.png" alt=""></div><b>'+t[key].title+'</b><span>'+t[key].desc+'</span>'
+      +'<div class="diff">'+dots+'<em>'+dl(lvl)+'</em></div></div>';
+  }).join('');
+  $('deckDots').innerHTML=DECK_ORDER.map((k,i)=>'<button data-i="'+i+'" class="'+(k===mode?'on':'')+'"></button>').join('');
+  bindCarousel();
+}
+function syncDeckSelection(){
+  $('deckHome').querySelectorAll('.deck-card').forEach(x=>x.classList.toggle('on',x.dataset.deck===mode));
+  $('deckDots').querySelectorAll('button').forEach((d,i)=>d.classList.toggle('on',DECK_ORDER[i]===mode));
+}
+function goToDeck(i){
+  const key=DECK_ORDER[Math.max(0,Math.min(DECK_ORDER.length-1,i))];
+  if(!key)return;
+  mode=key;
+  const el=$('deckHome').querySelector('[data-deck="'+key+'"]');
+  if(el) el.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'});
+  syncDeckSelection();updateMeta();buzz(10);snd.select();
+  /* iskry z ikony wybranej talii */
+  if(el){const r=el.getBoundingClientRect();sparkles(7,DECK_HUE[key],r.left+r.width/2,r.top+r.height*.28,r.width*.28);}
+}
+const DECK_HUE={klasyk:'#FFB627',nowa:'#17E5C4',chaos:'#FF2E63',mix:'#8A4FFF',trzezwo:'#17E5C4'};
+function bindCarousel(){
+  const track=$('deckHome');
+  track.querySelectorAll('.deck-card').forEach(el=>el.addEventListener('click',()=>goToDeck(DECK_ORDER.indexOf(el.dataset.deck))));
+  $('deckDots').querySelectorAll('button').forEach((d,i)=>d.addEventListener('click',()=>goToDeck(i)));
+  $('carPrev').onclick=()=>goToDeck(DECK_ORDER.indexOf(mode)-1);
+  $('carNext').onclick=()=>goToDeck(DECK_ORDER.indexOf(mode)+1);
+  let sT;
+  track.onscroll=()=>{
+    clearTimeout(sT);
+    sT=setTimeout(()=>{
+      const card=track.querySelector('.deck-card');
+      if(!card)return;
+      const cw=card.offsetWidth+14;
+      const idx=Math.round(track.scrollLeft/cw);
+      const key=DECK_ORDER[Math.max(0,Math.min(DECK_ORDER.length-1,idx))];
+      if(key&&key!==mode){mode=key;syncDeckSelection();updateMeta();buzz(8);}
+    },120);
+  };
+}
+
+/* ============ JEZYK ============ */
+function applyLang(){
+  const t=UI[lang];
+  document.documentElement.lang=lang;
+  document.querySelectorAll('.lang-toggle button').forEach(b=>b.classList.toggle('on',b.dataset.lang===lang));
+  $('appName').textContent=t.appName; $('tagline').textContent=t.tagline;
+  $('appName3').textContent=t.appName; $('tagline3').textContent=t.tagline;
+  $('titleAppName').textContent=t.appName; $('titleTagline').textContent=t.tagline;
+  $('tapPrompt').textContent=t.tapToPlay;
+  $('homeTitle').textContent=t.homeTitle; $('homeSub').textContent=t.homeSub;
+  $('lblDeck').textContent=t.lblDeck;
+  $('playersTitle').textContent=t.playersTitle;
+  $('playersHint').textContent=t.playersHint;
+  $('pName').placeholder=t.playerPlaceholder; $('pAdd').textContent=t.add;
+  $('pEmpty').textContent=t.playersEmpty;
+  $('btnPlayersNext').textContent=t.nextBtn;
+  $('lblPlayersChip').textContent=t.playersChip;
+  $('btnRulesPreview').textContent=t.viewRules;
+  $('btnStart').textContent=t.startBtn;
+  $('btnRules').textContent=t.rulesChip; $('btnMenu').textContent=t.menuChip;
+  $('btnDoneLabel').textContent=t.doneBtn;
+  $('idle').textContent=currentStarter?t.starterMsg(currentStarter):t.idleText;
+  $('tapHint').textContent=t.tapHint;
+  $('btnAgainLabel').textContent=t.againBtn;
+  $('turnBack').textContent=t.backBtn;
+  $('housePanelTitle').textContent=t.housePanelTitle; $('housePanelSub').textContent=t.housePanelSub;
+  $('hName').placeholder=t.housePlaceholder; $('hAdd').textContent=t.add;
+  $('hEmpty').textContent=t.houseEmpty;
+  $('btnCloseRules').textContent=t.close;
+  $('menuTitle').textContent=t.menuTitle; $('menuSub').textContent=t.menuSub;
+  $('menuRulesLabel').textContent=t.menuRulesLabel; $('menuRulesSub').textContent=t.menuRulesSub;
+  $('menuHomeLabel').textContent=t.menuHomeLabel; $('menuHomeSub').textContent=t.menuHomeSub;
+  $('menuClose').textContent=t.menuCloseBtn;
+  syncMenuSound();
+  $('ageTitle').textContent=t.ageTitle; $('ageText').textContent=t.ageText;
+  $('ageYesLabel').textContent=t.ageYesLabel; $('ageNoLabel').textContent=t.ageNoLabel;
+  $('ageBlockTitle').textContent=t.ageBlockTitle; $('ageBlockText').textContent=t.ageBlockText;
+  document.querySelectorAll('#cats .cat').forEach(b=>b.textContent=CATS[lang][b.dataset.cat]);
+  genText='';$('genOut').textContent=t.genPlaceholder;$('gKeep').disabled=true;
+  $('gRollLabel').textContent=t.genRoll;$('gKeep').textContent=t.genKeep;
+
+  renderDeckOptions();
+  updateMeta();
+  drawHouse();
+
+  if($('ruleBox').style.display==='block'){
+    if(lastShown){
+      /* przetlumacz aktualnie pokazana karte na nowy jezyk */
+      lastShown.shown=resolveShown(lastShown.c,lastShown.finale,lastShown.deckKey);
+      paintSheet(lastShown.c,lastShown.shown,lastShown.finale);
+    } else if(gameOver){
+      $('eyebrow').textContent=t.deckOutTitle;
+      $('title').textContent=t.deckOutHead;
+      $('desc').textContent=t.deckOutDesc;
+    }
+  }
+}
+document.querySelectorAll('.lang-toggle button').forEach(b=>b.addEventListener('click',()=>{
+  if(b.dataset.lang===lang) return;
+  lang=b.dataset.lang;applyLang();buzz(10);
+}));
+
+/* ============ LOSOWANIE ============ */
+$('stack').addEventListener('click',draw);
+function paintSheet(c,shown,finale){
+  const t=UI[lang];
+  $('eyebrow').textContent=(LABEL[lang][c.r]||c.r)+' '+c.s+(finale?t.finaleSuffix:'');
+  $('title').textContent=shown.t;
+  $('desc').textContent=shown.d;
+  $('hint').style.display=shown.h?'block':'none';
+  if(shown.h)$('hint').textContent=shown.h;
+  const canPick=shown.p&&players.length>1;
+  $('btnRoll').style.display=canPick?'inline-flex':'none';
+  $('btnRoll').innerHTML=icon('target')+esc(t.rollPlayer);
+  $('pickRow').innerHTML=canPick
+    ?'<span class="pick-label">'+esc(t.assignLabel)+'</span>'+players.map((p,i)=>'<button class="pick-chip" data-i="'+i+'">'+esc(p)+'</button>').join('')
+    :'';
+}
+$('pickRow').addEventListener('click',e=>{
+  const b=e.target.closest('.pick-chip');
+  if(!b)return;
+  $('btnRoll').innerHTML=icon('arrow-right')+esc(players[+b.dataset.i]);
+  burst('#FFB627',22,'star');buzz(18);
+});
+function draw(){
+  if(busy) return;
+  /* karta odkryta i czekamy na "Wykonane" - stukniecie w karte uruchamia ten sam flow */
+  if(awaitingDone){ $('btnDone').click(); return; }
+  if(!deck.length){ if(!gameOver) endGame(); return; }
+  busy=true;
+  buzz(12);snd.card();
+  $('sheet').classList.remove('show');
+  $('ruleFlag').style.display='none';
+  $('ruleFlag').classList.remove('show');
+
+  const card=$('card'),crest=card.querySelector('.crest');
+  const showingFront=rotation%360!==0;
+
+  const pull=()=>{
+    const c=deck.pop();
+    drawn=c;
+    const deckKey=pickDeckKey();
+    const isKing=c.r==='K';
+    if(isKing) kings++;
+    const finale=isKing&&kings===4;
+    const shown=resolveShown(c,finale,deckKey);
+    lastShown={c,shown,finale,deckKey,isKing};
+    renderFront(c);
+    updateMeta();
+  };
+
+  const reveal=()=>{
+    const {c,shown,finale,isKing}=lastShown;
+    currentStarter=null;
+    $('idle').style.display='none';
+    $('ruleBox').style.display='block';
+    $('btnDone').style.display='flex';
+    $('btnAgain').style.display='none';
+    paintSheet(c,shown,finale);
+    $('sheet').classList.add('show');
+    if(shown.r||shown.k){
+      const t=UI[lang],flag=$('ruleFlag');
+      $('ruleFlagText').textContent=t.newRuleFlag;
+      flag.style.display='inline-flex';
+      flag.classList.add('show');
+      trackTimer(()=>{snd.sparkle();sparkles(14,'#FFB627',innerWidth/2,innerHeight*.62,120);},120);
+      trackTimer(()=>openModal('mRules'),950);
+    }
+
+    /* polysk przelatujacy po karcie + poswiata w kolorze karty */
+    /* krole zawsze na zloto - to kamien milowy rozgrywki */
+    const red=c.c==='red',hue=isKing?'#FFB627':red?'#FF2E63':'#17E5C4';
+    card.classList.remove('shine');void card.offsetWidth;card.classList.add('shine');
+    const st=$('stack');
+    st.classList.remove('glow-red','glow-black','glow-gold');
+    st.classList.add(isKing?'glow-gold':red?'glow-red':'glow-black');
+
+    /* fala uderzeniowa wychodzi ze srodka karty */
+    const r=st.getBoundingClientRect(),cxp=r.left+r.width/2,cyp=r.top+r.height/2;
+    shockwave(hue,cxp,cyp,finale?520:300);
+    burst(hue, finale?110:34, c.id, cxp, cyp);
+    sparkles(finale?26:9,hue,cxp,cyp,r.width*.8);
+
+    if(finale){
+      /* CZWARTY KROL - pelny arsenal */
+      flash();auroraHot();
+      vignette('rgba(255,182,39,.45)',1500);
+      confettiRain(90);
+      trackTimer(()=>{shockwave('#FFB627',cxp,cyp,700);burst('#FFB627',60,'crown',cxp,cyp);},260);
+      trackTimer(()=>{shockwave('#FF2E63',cxp,cyp,860);sparkles(34,'#FFF3D6',cxp,cyp,260);},520);
+      document.body.classList.add('shake');trackTimer(()=>document.body.classList.remove('shake'),520);
+      buzz([30,60,30,60,120,60,200]);snd.jackpot();
+    } else if(isKing){
+      /* zwykly krol - narastajaca celebracja */
+      auroraHot();
+      vignette('rgba(255,182,39,.3)',900);
+      trackTimer(()=>{shockwave('#FFB627',cxp,cyp,420);burst('#FFB627',26,'crown',cxp,cyp);},180);
+      buzz([20,40,20,40,90]);snd.king(kings);
+      const dot=document.querySelectorAll('.crowns b')[kings-1];
+      if(dot){dot.classList.remove('gained');void dot.offsetWidth;dot.classList.add('gained');}
+    } else {
+      vignette(red?'rgba(255,46,99,.22)':'rgba(23,229,196,.2)',650);
+      buzz(22);snd.reveal();
+    }
+    busy=false;
+    /* przy 2+ graczach karta czeka na "Wykonane"; solo mozna dobierac od razu */
+    awaitingDone=players.length>=2;
+  };
+
+  if(!showingFront){
+    /* pierwsza karta z talii - pelny obrot z rewersu na przod */
+    crest.classList.remove('dealing');void crest.offsetWidth;crest.classList.add('dealing');
+    rotation+=180;
+    card.style.transform='rotateY('+rotation+'deg)';
+    trackTimer(pull,420);
+    trackTimer(reveal,860);
+  } else {
+    /* kolejna karta - szybkie przelozenie, rewers nigdy nie wraca */
+    card.style.transition='transform .26s cubic-bezier(.4,0,.7,1), opacity .22s ease';
+    card.style.transform='rotateY('+rotation+'deg) translateY(24px) scale(.93)';
+    card.style.opacity='0';
+    trackTimer(()=>{
+      pull();
+      card.style.transition='none';
+      card.style.transform='rotateY('+rotation+'deg) translateY(-24px) scale(.93)';
+      void card.offsetWidth;
+      card.style.transition='transform .34s cubic-bezier(.2,.9,.2,1), opacity .28s ease';
+      card.style.opacity='1';
+      card.style.transform='rotateY('+rotation+'deg)';
+      trackTimer(()=>{card.style.transition='';reveal();},340);
+    },260);
+  }
+}
+
+function icon(id){return '<span class="suit-icon"><svg viewBox="0 0 100 100"><use href="#s-'+id+'"/></svg></span>';}
+function renderFront(c){
+  $('front').innerHTML=
+    '<div class="corner '+c.c+'">'+c.r+icon(c.id)+'</div>'+
+    '<div class="pip '+c.c+'">'+icon(c.id)+'</div>'+
+    '<div class="corner br '+c.c+'">'+c.r+icon(c.id)+'</div>';
+}
+
+function endGame(){
+  if(gameOver) return;          /* bez tego kazde stukniecie w karte sypalo kolejnym konfetti */
+  gameOver=true;awaitingDone=false;
+  const t=UI[lang];
+  $('idle').style.display='none';$('ruleBox').style.display='block';
+  lastShown=null;
+  $('eyebrow').textContent=t.deckOutTitle;
+  $('title').textContent=t.deckOutHead;
+  $('desc').textContent=t.deckOutDesc;
+  $('hint').style.display='none';$('btnRoll').style.display='none';
+  $('pickRow').innerHTML='';$('ruleFlag').style.display='none';
+  $('btnDone').style.display='none';
+  $('btnAgain').style.display='flex';
+  $('sheet').classList.add('show');
+  flash();auroraHot();vignette('rgba(255,182,39,.4)',1600);
+  burst('#FFB627',70,'diamond');
+  confettiRain(120);
+  shockwave('#FFB627',innerWidth/2,innerHeight*.42,640);
+  sparkles(30,'#FFF3D6',innerWidth/2,innerHeight*.42,220);
+  snd.jackpot();buzz([30,60,30,60,120,60,200]);
+}
+$('btnAgain').addEventListener('click',()=>{
+  currentStarter=null;
+  reset();
+  buzz(20);burst('#17E5C4',40,'club');
+  if(players.length>=2) runPlayerPick(w=>{currentStarter=w;$('idle').textContent=UI[lang].starterMsg(w);showScreen('screenGame');});
+});
+
+$('btnRoll').addEventListener('click',()=>{
+  const p=players[rnd(players.length)];
+  $('btnRoll').innerHTML=icon('arrow-right')+esc(p);
+  burst('#FFB627',22,'star');buzz(18);
+});
+
+/* ============ "KTO TERAZ" PO KAZDEJ KARCIE ============ */
+function backToGame(name){
+  picking=false;awaitingDone=false;
+  $('screenTurnPick').classList.remove('picking');
+  showScreen('screenGame');
+  $('idle').style.display='flex';$('ruleBox').style.display='none';
+  currentStarter=name||null;
+  $('idle').textContent=name?UI[lang].starterMsg(name):UI[lang].idleText;
+  $('sheet').classList.add('show');   /* panel widoczny, inaczej komunikat "kto zaczyna" jest niewidzialny */
+  $('stack').classList.remove('glow-red','glow-black','glow-gold');
+  $('card').classList.remove('shine');
+  /* odwroc karte z powrotem na rewers - "talia gotowa", zamiast pokazywac poprzednia karte */
+  if(rotation%360!==0){
+    const card=$('card');
+    rotation+=180;
+    card.style.transition='transform .5s cubic-bezier(.4,.15,.2,1)';
+    card.style.transform='rotateY('+rotation+'deg)';
+    trackTimer(()=>{$('front').innerHTML='';},300);
+  }
+}
+function showTurnOptions(){
+  const t=UI[lang];
+  $('turnLabel').textContent=t.turnLabel;
+  $('turnRandomLabel').textContent=t.turnRandom;
+  $('turnManualLabel').textContent=t.turnManual;
+  $('turnBack').textContent=t.backBtn;
+  $('turnOptions').style.display='flex';
+  $('turnPickGrid').style.display='none';
+  $('turnReel').style.display='none';
+  $('screenTurnPick').classList.remove('picking');
+}
+$('btnDone').addEventListener('click',()=>{
+  if(picking) return;
+  buzz(12);
+  /* zadanie odhaczone - krotka nagroda wizualna */
+  const br=$('btnDone').getBoundingClientRect();
+  burst('#17E5C4',16,'star',br.left+br.width/2,br.top+br.height/2);
+  sparkles(8,'#17E5C4',br.left+br.width/2,br.top+br.height/2,br.width*.35);
+  clearDrawTimers();   /* gracz juz przeszedl dalej - nie pozwol autopopupowi zasad wyskoczyc na kolejnym ekranie */
+  if(players.length>=2){
+    clearPickTimers();
+    showTurnOptions();
+    showScreen('screenTurnPick');
+  } else {
+    backToGame(null);
+  }
+});
+$('turnRandom').addEventListener('click',()=>{
+  if(picking) return;            /* bez tego podwojny klik odpalal kilka animacji naraz */
+  picking=true;
+  clearPickTimers();
+  $('screenTurnPick').classList.add('picking');
+  $('turnOptions').style.display='none';
+  $('turnReel').style.display='block';
+  spinReel($('turnResult'),2.4,winner=>backToGame(winner));
+});
+$('turnManual').addEventListener('click',()=>{
+  if(picking) return;
+  $('turnOptions').style.display='none';
+  const grid=$('turnPickGrid');
+  grid.style.display='flex';
+  grid.innerHTML=players.map((p,i)=>
+    '<button class="player-chip" data-i="'+i+'"><span class="player-avatar" style="background:'+AVATAR_BG[i%3]+'">'+esc(initials(p))+'</span>'+esc(p)+'</button>'
+  ).join('');
+});
+$('turnPickGrid').addEventListener('click',e=>{
+  const b=e.target.closest('.player-chip');
+  if(!b||picking)return;
+  picking=true;
+  const r=b.getBoundingClientRect(),bx=r.left+r.width/2,by=r.top+r.height/2;
+  buzz(18);burst('#FFB627',24,'star',bx,by);shockwave('#FFB627',bx,by,240);
+  sparkles(12,'#FFF3D6',bx,by,r.width*.6);snd.clunk();snd.reveal();
+  pickTimers.push(setTimeout(()=>backToGame(players[+b.dataset.i]),250));
+});
+/* wyjscie z ekranu "Kto teraz?" - wraca do opcji albo do gry */
+$('turnBack').addEventListener('click',()=>{
+  if(picking) return;
+  buzz(10);
+  if($('turnPickGrid').style.display!=='none'){ showTurnOptions(); }
+  else { awaitingDone=true; showScreen('screenGame'); }
+});
+
+/* ornamentalny pierścień na rewersie - generowany proceduralnie, unikalny co wczytanie */
+(function ornament(){
+  const svg=$('crestSvg'),n=28+rnd(9),ns='http://www.w3.org/2000/svg';
+  for(let i=0;i<n;i++){
+    const a=(i/n)*Math.PI*2,r1=43,r2=Math.random()<.3?37:40.5;
+    const x1=50+Math.cos(a)*r1,y1=50+Math.sin(a)*r1;
+    const x2=50+Math.cos(a)*r2,y2=50+Math.sin(a)*r2;
+    const line=document.createElementNS(ns,'line');
+    line.setAttribute('x1',x1);line.setAttribute('y1',y1);
+    line.setAttribute('x2',x2);line.setAttribute('y2',y2);
+    line.setAttribute('stroke','rgba(255,182,39,'+(.25+Math.random()*.35)+')');
+    line.setAttribute('stroke-width','.8');
+    svg.appendChild(line);
+  }
+})();
+
+/* ============ EFEKTY ============ */
+const cv=$('fx'),cx=cv.getContext('2d');let parts=[];
+function size(){cv.width=innerWidth*devicePixelRatio;cv.height=innerHeight*devicePixelRatio;cx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);}
+size();addEventListener('resize',size);
+const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+SUIT_PATHS.star='M50,4 L61,36 L96,36 L68,57 L79,90 L50,70 L21,90 L32,57 L4,36 L39,36 Z';
+const SUIT_2D={};for(const k in SUIT_PATHS) SUIT_2D[k]=new Path2D(SUIT_PATHS[k]);
+const PALETTE=['#FFB627','#FF2E63','#17E5C4','#8A4FFF','#FFF3D6'];
+function burst(color,n,shape,ox,oy){
+  if(reduce)return;
+  const x=ox??innerWidth/2,y=oy??innerHeight*0.42;
+  for(let i=0;i<n;i++){
+    const a=Math.random()*Math.PI*2,sp=2+Math.random()*9;
+    const roll=Math.random();
+    parts.push({k:'p',x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-3,l:1,d:.014,
+      g:roll<.34?shape:roll<.62?'dot':'bar',
+      c:Math.random()<.35?PALETTE[rnd(PALETTE.length)]:color,
+      s:(9+Math.random()*14)/100,rot:Math.random()*6,vr:(Math.random()-.5)*.35,
+      w:2+Math.random()*3,h:7+Math.random()*9});
+  }
+}
+/* rozchodzacy sie pierscien - "uderzenie" w momencie odkrycia */
+function shockwave(color,ox,oy,max){
+  if(reduce)return;
+  parts.push({k:'w',x:ox??innerWidth/2,y:oy??innerHeight*0.42,r:6,vr:(max||260)/26,l:1,d:.038,c:color,lw:5});
+}
+/* migoczace iskierki - unosza sie i gasna */
+function sparkles(n,color,ox,oy,spread){
+  if(reduce)return;
+  const x=ox??innerWidth/2,y=oy??innerHeight*0.42,sp=spread??140;
+  for(let i=0;i<n;i++){
+    parts.push({k:'s',x:x+(Math.random()-.5)*sp*2,y:y+(Math.random()-.5)*sp,
+      vx:(Math.random()-.5)*1.1,vy:-.5-Math.random()*1.5,l:1,d:.012+Math.random()*.012,
+      c:color||PALETTE[rnd(PALETTE.length)],s:1.5+Math.random()*3.2,ph:Math.random()*6.28});
+  }
+}
+/* deszcz konfetti z gory ekranu - na wielki final */
+function confettiRain(n){
+  if(reduce)return;
+  for(let i=0;i<n;i++){
+    parts.push({k:'p',x:Math.random()*innerWidth,y:-20-Math.random()*innerHeight*.5,
+      vx:(Math.random()-.5)*2.4,vy:2+Math.random()*3,l:1,d:.0042,g:Math.random()<.5?'bar':'dot',
+      c:PALETTE[rnd(PALETTE.length)],s:(10+Math.random()*12)/100,
+      rot:Math.random()*6,vr:(Math.random()-.5)*.4,w:3+Math.random()*3,h:9+Math.random()*10,grav:.06});
+  }
+}
+const PARTS_MAX=900;   /* twardy limit - zabezpieczenie przed spamem klikniec na slabszych telefonach */
+(function loop(){
+  cx.clearRect(0,0,innerWidth,innerHeight);
+  parts=parts.filter(p=>p.l>0);
+  if(parts.length>PARTS_MAX) parts.splice(0,parts.length-PARTS_MAX);
+  for(const p of parts){
+    if(p.k==='w'){                                   /* pierscien */
+      p.r+=p.vr;p.vr*=.94;p.l-=p.d;
+      cx.save();cx.globalAlpha=Math.max(p.l,0)*.85;
+      cx.strokeStyle=p.c;cx.lineWidth=p.lw*p.l;
+      cx.beginPath();cx.arc(p.x,p.y,p.r,0,Math.PI*2);cx.stroke();
+      cx.restore();continue;
+    }
+    if(p.k==='s'){                                   /* iskra */
+      p.x+=p.vx;p.y+=p.vy;p.vy*=.985;p.l-=p.d;p.ph+=.22;
+      const tw=.45+.55*Math.abs(Math.sin(p.ph));
+      cx.save();cx.globalAlpha=Math.max(p.l,0)*tw;
+      cx.fillStyle=p.c;cx.shadowColor=p.c;cx.shadowBlur=12;
+      cx.beginPath();cx.arc(p.x,p.y,p.s,0,Math.PI*2);cx.fill();
+      cx.restore();continue;
+    }
+    p.x+=p.vx;p.y+=p.vy;p.vy+=(p.grav??.28);p.vx*=.99;p.l-=p.d;p.rot+=p.vr;
+    cx.save();cx.globalAlpha=Math.max(p.l,0);cx.translate(p.x,p.y);cx.rotate(p.rot);
+    cx.fillStyle=p.c;
+    if(p.g==='dot'){cx.beginPath();cx.arc(0,0,7*p.s,0,Math.PI*2);cx.fill();}
+    else if(p.g==='bar'){cx.fillRect(-p.w/2,-p.h/2,p.w,p.h);}
+    else{cx.scale(p.s,p.s);cx.translate(-50,-50);cx.fill(SUIT_2D[p.g]);}
+    cx.restore();
+  }
+  requestAnimationFrame(loop);
+})();
+
+/* ---- unoszace sie symbole kart w tle ---- */
+(function floaters(){
+  if(reduce)return;
+  const host=$('floaters'),ids=['spade','heart','diamond','club','crown','mug'];
+  const hues=['rgba(255,182,39,.9)','rgba(255,46,99,.85)','rgba(23,229,196,.85)','rgba(138,79,255,.85)'];
+  for(let i=0;i<14;i++){
+    const s=document.createElement('span');
+    const size=26+Math.random()*54;
+    s.style.cssText=
+      'left:'+(Math.random()*100)+'%;width:'+size+'px;height:'+size+'px;'+
+      'color:'+hues[rnd(hues.length)]+';'+
+      '--o:'+(0.07+Math.random()*0.1).toFixed(3)+';'+
+      '--r:'+(Math.random()<.5?-1:1)*(120+Math.random()*260)+'deg;'+
+      'animation-duration:'+(22+Math.random()*26).toFixed(1)+'s;'+
+      'animation-delay:'+(-Math.random()*40).toFixed(1)+'s;';
+    s.innerHTML='<svg viewBox="0 0 100 100"><use href="#s-'+ids[rnd(ids.length)]+'"/></svg>';
+    host.appendChild(s);
+  }
+})();
+
+/* ---- karta przechyla sie za palcem (efekt 3D) ---- */
+(function cardTilt(){
+  if(reduce)return;
+  const st=$('stack');if(!st)return;
+  let raf=null;
+  const move=e=>{
+    if(raf)return;
+    raf=requestAnimationFrame(()=>{
+      raf=null;
+      const r=st.getBoundingClientRect();
+      const px=(e.clientX-r.left)/r.width-.5, py=(e.clientY-r.top)/r.height-.5;
+      st.classList.add('tilting');
+      st.style.transform='perspective(900px) rotateY('+(px*14).toFixed(2)+'deg) rotateX('+(-py*14).toFixed(2)+'deg)';
+    });
+  };
+  const clear=()=>{st.classList.remove('tilting');st.style.transform='';};
+  st.addEventListener('pointermove',move,{passive:true});
+  st.addEventListener('pointerleave',clear,{passive:true});
+  st.addEventListener('pointerup',clear,{passive:true});
+  st.addEventListener('pointercancel',clear,{passive:true});
+})();
+
+/* ---- blysk, winieta, fala pod palcem ---- */
+function flash(){
+  if(reduce)return;
+  const f=$('flash');f.classList.remove('go');void f.offsetWidth;f.classList.add('go');
+}
+function vignette(color,ms){
+  if(reduce)return;
+  const v=$('vig');
+  v.style.background='radial-gradient(circle at 50% 45%, transparent 42%, '+color+' 115%)';
+  v.classList.add('go');
+  setTimeout(()=>v.classList.remove('go'),ms||700);
+}
+function auroraHot(){
+  const a=$('aurora');a.classList.remove('hot');void a.offsetWidth;a.classList.add('hot');
+}
+/* fala rozchodzaca sie z miejsca dotkniecia - dziala na kazdym przycisku */
+document.addEventListener('pointerdown',e=>{
+  if(reduce)return;
+  const b=e.target.closest('.roll,.chip,.gbtn,.turn-opt,.player-chip,.deck-card,.close,.global-menu-btn,.opt,#btnStart,#btnPlayersNext,#pAdd,#hAdd');
+  if(!b)return;
+  const r=b.getBoundingClientRect(),d=Math.max(r.width,r.height)*1.6;
+  const s=document.createElement('span');
+  s.className='rip';
+  s.style.cssText='width:'+d+'px;height:'+d+'px;left:'+(e.clientX-r.left)+'px;top:'+(e.clientY-r.top)+'px';
+  b.appendChild(s);
+  setTimeout(()=>s.remove(),600);
+},{passive:true});
+function buzz(p){if(navigator.vibrate)navigator.vibrate(p);}
+
+/* ============ DZWIEK (generowany proceduralnie - zero plikow) ============ */
+const snd=(function(){
+  let ctx=null,master=null,musicBus=null,drumBus=null,delayIn=null;
+  let started=false,muted=false,tick=null,noiseBuf=null;
+  let step=0,nextT=0;
+  const BPM=124, STEP=60/BPM/4;          /* 16stka */
+  const midi=n=>440*Math.pow(2,(n-69)/12);
+  /* Am - F - C - G : klasyczna, energetyczna progresja taneczna, 1 akord na takt */
+  const BASS=[45,41,48,43];
+  const STAB=[[69,72,76],[65,69,72],[72,76,79],[67,71,74]];
+  const P={
+    kick:[1,0,0,0, 1,0,0,0, 1,0,0,0, 1,0,0,0],   /* four-on-the-floor */
+    clap:[0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],   /* 2 i 4 */
+    bass:[1,0,1,0, 0,0,1,0, 1,0,1,0, 0,0,1,0],   /* bujajaca, synkopowana */
+    stab:[0,0,0,0, 0,0,1,0, 0,0,0,0, 0,0,1,0]
+  };
+
+  function build(){
+    const AC=window.AudioContext||window.webkitAudioContext;
+    if(!AC) return false;
+    ctx=new AC();
+    master=ctx.createGain();master.gain.value=0;
+    const comp=ctx.createDynamicsCompressor();  /* trzyma miks w ryzach na glosniku telefonu */
+    comp.threshold.value=-12;comp.ratio.value=4;comp.attack.value=.004;comp.release.value=.15;
+    master.connect(comp);comp.connect(ctx.destination);
+
+    drumBus=ctx.createGain();drumBus.gain.value=.62;drumBus.connect(master);
+    musicBus=ctx.createGain();musicBus.gain.value=.42;musicBus.connect(master);
+
+    /* krotki delay na stabach - daje przestrzen bez usypiania */
+    delayIn=ctx.createDelay(1);delayIn.delayTime.value=STEP*3;
+    const fb=ctx.createGain();fb.gain.value=.28;
+    const dlp=ctx.createBiquadFilter();dlp.type='lowpass';dlp.frequency.value=2600;
+    delayIn.connect(fb);fb.connect(delayIn);delayIn.connect(dlp);dlp.connect(master);
+
+    noiseBuf=ctx.createBuffer(1,ctx.sampleRate*2,ctx.sampleRate);
+    const d=noiseBuf.getChannelData(0);
+    for(let i=0;i<d.length;i++) d[i]=Math.random()*2-1;
+    return true;
+  }
+  function noise(){const s=ctx.createBufferSource();s.buffer=noiseBuf;s.loop=true;return s;}
+
+  function kick(t,v){
+    const o=ctx.createOscillator(),g=ctx.createGain();
+    o.frequency.setValueAtTime(160,t);
+    o.frequency.exponentialRampToValueAtTime(48,t+.08);
+    g.gain.setValueAtTime(v,t);
+    g.gain.exponentialRampToValueAtTime(.001,t+.32);
+    o.connect(g);g.connect(drumBus);o.start(t);o.stop(t+.34);
+    /* klik ataku - przebija sie na malym glosniku */
+    const c=noise(),cf=ctx.createBiquadFilter(),cg=ctx.createGain();
+    cf.type='bandpass';cf.frequency.value=2200;
+    cg.gain.setValueAtTime(.25,t);cg.gain.exponentialRampToValueAtTime(.001,t+.02);
+    c.connect(cf);cf.connect(cg);cg.connect(drumBus);c.start(t);c.stop(t+.03);
+  }
+  function clap(t){
+    [0,.012,.024].forEach(off=>{
+      const s=noise(),f=ctx.createBiquadFilter(),g=ctx.createGain();
+      f.type='bandpass';f.frequency.value=1500;f.Q.value=1.1;
+      g.gain.setValueAtTime(.3,t+off);
+      g.gain.exponentialRampToValueAtTime(.001,t+off+.035);
+      s.connect(f);f.connect(g);g.connect(drumBus);s.start(t+off);s.stop(t+off+.04);
+    });
+    const s=noise(),f=ctx.createBiquadFilter(),g=ctx.createGain();
+    f.type='bandpass';f.frequency.value=1200;f.Q.value=.8;
+    g.gain.setValueAtTime(.22,t+.024);
+    g.gain.exponentialRampToValueAtTime(.001,t+.19);
+    s.connect(f);f.connect(g);g.connect(drumBus);s.start(t+.024);s.stop(t+.2);
+  }
+  function hat(t,v,open){
+    const dur=open?.19:.042;
+    const s=noise(),f=ctx.createBiquadFilter(),g=ctx.createGain();
+    f.type='highpass';f.frequency.value=8200;
+    g.gain.setValueAtTime(v,t);
+    g.gain.exponentialRampToValueAtTime(.001,t+dur);
+    s.connect(f);f.connect(g);g.connect(drumBus);s.start(t);s.stop(t+dur+.02);
+  }
+  function bass(t,note){
+    const dur=STEP*1.7;
+    const o=ctx.createOscillator(),o2=ctx.createOscillator();
+    const f=ctx.createBiquadFilter(),g=ctx.createGain();
+    o.type='sawtooth';o.frequency.value=midi(note);
+    o2.type='square';o2.frequency.value=midi(note-12);o2.detune.value=6;
+    f.type='lowpass';f.Q.value=7;
+    f.frequency.setValueAtTime(1600,t);
+    f.frequency.exponentialRampToValueAtTime(320,t+dur*.85);
+    g.gain.setValueAtTime(.0001,t);
+    g.gain.linearRampToValueAtTime(.42,t+.01);
+    g.gain.exponentialRampToValueAtTime(.001,t+dur);
+    o.connect(f);o2.connect(f);f.connect(g);g.connect(musicBus);
+    o.start(t);o.stop(t+dur+.02);o2.start(t);o2.stop(t+dur+.02);
+  }
+  function stab(t,notes){
+    const dur=STEP*2.2;
+    const g=ctx.createGain();
+    g.gain.setValueAtTime(.0001,t);
+    g.gain.linearRampToValueAtTime(.16,t+.006);
+    g.gain.exponentialRampToValueAtTime(.001,t+dur);
+    const f=ctx.createBiquadFilter();f.type='lowpass';f.frequency.value=3400;f.Q.value=1;
+    g.connect(f);f.connect(musicBus);f.connect(delayIn);
+    notes.forEach(n=>{
+      const o=ctx.createOscillator();
+      o.type='sawtooth';o.frequency.value=midi(n);o.detune.value=Math.random()*10-5;
+      o.connect(g);o.start(t);o.stop(t+dur+.02);
+    });
+  }
+
+  function playStep(s,t){
+    const i=s%16, bar=Math.floor(s/16), ch=bar%4;
+    if(P.kick[i]) kick(t,.95);
+    if(P.clap[i]) clap(t);
+    /* osemkowe hi-haty z akcentem na "and" - stad ten bujajacy puls */
+    if(i%2===0) hat(t, i%4===2?.19:.085, false);
+    if(i===14 && bar%2===1) hat(t,.16,true);
+    if(P.bass[i]) bass(t,BASS[ch]);
+    if(P.stab[i]) stab(t,STAB[ch]);
+    /* co 8 taktow maly fill zamiast pustki */
+    if(bar%8===7 && i>=12 && i%2===0){ clap(t); hat(t,.2,false); }
+  }
+  function schedule(){
+    if(!ctx) return;
+    while(nextT < ctx.currentTime+.25){
+      playStep(step,nextT);
+      nextT+=STEP;step++;
+    }
+  }
+
+  /* ---- efekty ---- */
+  function swish(){
+    if(!ctx||muted) return;
+    const t=ctx.currentTime,len=.26;
+    const s=noise(),f=ctx.createBiquadFilter(),g=ctx.createGain();
+    f.type='bandpass';f.Q.value=1.3;
+    f.frequency.setValueAtTime(2600,t);
+    f.frequency.exponentialRampToValueAtTime(700,t+len);
+    g.gain.setValueAtTime(.22,t);
+    g.gain.exponentialRampToValueAtTime(.001,t+len);
+    s.connect(f);f.connect(g);g.connect(master);s.start(t);s.stop(t+len+.02);
+  }
+  function blip(hz,dur,vol){
+    if(!ctx||muted) return;
+    const t=ctx.currentTime;
+    const o=ctx.createOscillator(),g=ctx.createGain();
+    o.type='square';o.frequency.setValueAtTime(hz,t);
+    o.frequency.exponentialRampToValueAtTime(hz*1.5,t+dur*.6);
+    g.gain.setValueAtTime(.0001,t);
+    g.gain.linearRampToValueAtTime(vol,t+.008);
+    g.gain.exponentialRampToValueAtTime(.001,t+dur);
+    o.connect(g);g.connect(master);g.connect(delayIn);
+    o.start(t);o.stop(t+dur+.02);
+  }
+  function riser(){
+    if(!ctx||muted) return;
+    const t=ctx.currentTime,len=.5;
+    const s=noise(),f=ctx.createBiquadFilter(),g=ctx.createGain();
+    f.type='bandpass';f.Q.value=4;
+    f.frequency.setValueAtTime(500,t);
+    f.frequency.exponentialRampToValueAtTime(6000,t+len);
+    g.gain.setValueAtTime(.001,t);
+    g.gain.linearRampToValueAtTime(.2,t+len*.8);
+    g.gain.exponentialRampToValueAtTime(.001,t+len+.12);
+    s.connect(f);f.connect(g);g.connect(master);s.start(t);s.stop(t+len+.15);
+  }
+  function tone(freq,t,dur,type,vol){
+    const o=ctx.createOscillator(),g=ctx.createGain();
+    o.type=type;o.frequency.value=freq;
+    g.gain.setValueAtTime(.0001,t);
+    g.gain.linearRampToValueAtTime(vol,t+.02);
+    g.gain.exponentialRampToValueAtTime(.001,t+dur);
+    o.connect(g);g.connect(master);g.connect(delayIn);
+    o.start(t);o.stop(t+dur+.02);
+  }
+  /* charakterystyczny "sting" dla kazdej talii - gra przy starcie ekranu ladowania */
+  function deckSting(key){
+    if(!ctx||muted) return;
+    const t=ctx.currentTime;
+    if(key==='klasyk'){
+      /* cieply, elegancki arpeggio w gore */
+      [60,64,67,72].forEach((n,i)=>tone(midi(n),t+i*.09,.5,'triangle',.16));
+    } else if(key==='chaos'){
+      /* zlowieszczy, rozstrojony dron + niski rumor */
+      [42,48].forEach((n,i)=>{
+        const o=ctx.createOscillator(),g=ctx.createGain(),f=ctx.createBiquadFilter();
+        o.type='sawtooth';o.frequency.value=midi(n);o.detune.value=i?-16:10;
+        f.type='lowpass';f.frequency.setValueAtTime(220,t);f.frequency.exponentialRampToValueAtTime(700,t+.9);
+        g.gain.setValueAtTime(.0001,t);
+        g.gain.linearRampToValueAtTime(.16,t+.15);
+        g.gain.exponentialRampToValueAtTime(.001,t+1.1);
+        o.connect(f);f.connect(g);g.connect(master);o.start(t);o.stop(t+1.12);
+      });
+      const s=noise(),f=ctx.createBiquadFilter(),g=ctx.createGain();
+      f.type='lowpass';f.frequency.value=200;
+      g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(.22,t+.05);g.gain.exponentialRampToValueAtTime(.001,t+.5);
+      s.connect(f);f.connect(g);g.connect(master);s.start(t);s.stop(t+.52);
+    } else if(key==='trzezwo'){
+      /* czyste, krotkie "plink-plink" */
+      tone(midi(84),t,.35,'sine',.18);
+      tone(midi(91),t+.14,.3,'sine',.14);
+    } else if(key==='nowa'){
+      /* swiezy, jasny sweep w gore */
+      const s=noise(),f=ctx.createBiquadFilter(),g=ctx.createGain();
+      f.type='bandpass';f.Q.value=2;
+      f.frequency.setValueAtTime(600,t);
+      f.frequency.exponentialRampToValueAtTime(4200,t+.55);
+      g.gain.setValueAtTime(.0001,t);
+      g.gain.linearRampToValueAtTime(.2,t+.3);
+      g.gain.exponentialRampToValueAtTime(.001,t+.6);
+      s.connect(f);f.connect(g);g.connect(master);s.start(t);s.stop(t+.62);
+      tone(midi(79),t+.32,.35,'square',.14);
+    } else {
+      /* mix - nieprzewidywalne, glitchowe stukniecia */
+      [0,.07,.11,.2].forEach(off=>tone(midi(60+rnd(24)),t+off,.14,'square',.12));
+    }
+  }
+  /* przycisza muzyke w tle na sec sekund, zeby wybic na pierwszy plan sting/bęben */
+  function duck(sec){
+    if(!ctx) return;
+    const t=ctx.currentTime,downT=.15,upT=.35;
+    [[drumBus,.62],[musicBus,.42]].forEach(([bus,base])=>{
+      bus.gain.cancelScheduledValues(t);
+      bus.gain.setValueAtTime(base,t);
+      bus.gain.linearRampToValueAtTime(base*.15,t+downT);
+      bus.gain.setValueAtTime(base*.15,t+Math.max(downT,sec-upT));
+      bus.gain.linearRampToValueAtTime(base,t+sec);
+    });
+  }
+  function spinWhirr(dur){
+    if(!ctx||muted) return;
+    const t=ctx.currentTime;
+    const s=noise(),f=ctx.createBiquadFilter(),g=ctx.createGain();
+    f.type='bandpass';f.Q.value=1.4;
+    f.frequency.setValueAtTime(1400,t);
+    f.frequency.exponentialRampToValueAtTime(220,t+dur*.92);
+    g.gain.setValueAtTime(.0001,t);
+    g.gain.linearRampToValueAtTime(.15,t+.12);
+    g.gain.setValueAtTime(.15,t+dur*.8);
+    g.gain.exponentialRampToValueAtTime(.001,t+dur);
+    s.connect(f);f.connect(g);g.connect(master);s.start(t);s.stop(t+dur+.05);
+  }
+  function clunk(){
+    if(!ctx||muted) return;
+    const t=ctx.currentTime;
+    const o=ctx.createOscillator(),g=ctx.createGain();
+    o.type='sine';o.frequency.setValueAtTime(160,t);
+    o.frequency.exponentialRampToValueAtTime(60,t+.18);
+    g.gain.setValueAtTime(.28,t);
+    g.gain.exponentialRampToValueAtTime(.001,t+.22);
+    o.connect(g);g.connect(master);o.start(t);o.stop(t+.24);
+  }
+  /* ---- rozszerzona paleta efektow ---- */
+  function tap(){                                   /* miekkie klikniecie UI */
+    if(!ctx||muted) return;
+    const t=ctx.currentTime;
+    const o=ctx.createOscillator(),g=ctx.createGain();
+    o.type='sine';o.frequency.setValueAtTime(1100,t);
+    o.frequency.exponentialRampToValueAtTime(600,t+.05);
+    g.gain.setValueAtTime(.09,t);
+    g.gain.exponentialRampToValueAtTime(.001,t+.06);
+    o.connect(g);g.connect(master);o.start(t);o.stop(t+.07);
+  }
+  function deny(){                                  /* blad / odmowa */
+    if(!ctx||muted) return;
+    const t=ctx.currentTime;
+    [220,175].forEach((f,i)=>{
+      const o=ctx.createOscillator(),g=ctx.createGain();
+      o.type='square';o.frequency.value=f;
+      g.gain.setValueAtTime(.0001,t+i*.1);
+      g.gain.linearRampToValueAtTime(.12,t+i*.1+.01);
+      g.gain.exponentialRampToValueAtTime(.001,t+i*.1+.11);
+      o.connect(g);g.connect(master);o.start(t+i*.1);o.stop(t+i*.1+.13);
+    });
+  }
+  function join(){                                  /* gracz dopisany - wznoszaco */
+    if(!ctx||muted) return;
+    const t=ctx.currentTime;
+    [72,79].forEach((n,i)=>tone(midi(n),t+i*.07,.2,'triangle',.13));
+  }
+  function sparkle(){                               /* iskrzenie - nowa zasada */
+    if(!ctx||muted) return;
+    const t=ctx.currentTime;
+    [96,100,103,108].forEach((n,i)=>tone(midi(n),t+i*.055,.28,'sine',.085));
+  }
+  function modalUp(){
+    if(!ctx||muted) return;
+    const t=ctx.currentTime;
+    const o=ctx.createOscillator(),g=ctx.createGain();
+    o.type='sine';o.frequency.setValueAtTime(320,t);
+    o.frequency.exponentialRampToValueAtTime(760,t+.16);
+    g.gain.setValueAtTime(.0001,t);
+    g.gain.linearRampToValueAtTime(.11,t+.03);
+    g.gain.exponentialRampToValueAtTime(.001,t+.2);
+    o.connect(g);g.connect(master);o.start(t);o.stop(t+.22);
+  }
+  function modalDown(){
+    if(!ctx||muted) return;
+    const t=ctx.currentTime;
+    const o=ctx.createOscillator(),g=ctx.createGain();
+    o.type='sine';o.frequency.setValueAtTime(700,t);
+    o.frequency.exponentialRampToValueAtTime(300,t+.15);
+    g.gain.setValueAtTime(.09,t);
+    g.gain.exponentialRampToValueAtTime(.001,t+.17);
+    o.connect(g);g.connect(master);o.start(t);o.stop(t+.19);
+  }
+  /* korona nr n (1-4): kazda kolejna wyzej i grubiej - narastajace napiecie */
+  function king(n){
+    if(!ctx||muted) return;
+    const t=ctx.currentTime,base=60+(n-1)*4;
+    duck(1.1);
+    [0,4,7,12].forEach((iv,i)=>tone(midi(base+iv),t+i*.06,.55+n*.1,'triangle',.13+n*.012));
+    const s=noise(),f=ctx.createBiquadFilter(),g=ctx.createGain();
+    f.type='bandpass';f.Q.value=3;
+    f.frequency.setValueAtTime(800,t);
+    f.frequency.exponentialRampToValueAtTime(5200,t+.4);
+    g.gain.setValueAtTime(.001,t);
+    g.gain.linearRampToValueAtTime(.09+n*.02,t+.3);
+    g.gain.exponentialRampToValueAtTime(.001,t+.5);
+    s.connect(f);f.connect(g);g.connect(master);s.start(t);s.stop(t+.52);
+  }
+  /* wielki final - czwarty krol */
+  function jackpot(){
+    if(!ctx||muted) return;
+    const t=ctx.currentTime;
+    duck(2.6);
+    riser();
+    /* wznoszaca fanfara na akordzie durowym */
+    const CHORD=[60,64,67,72];
+    [0,.16,.3,.46].forEach((off,i)=>{
+      tone(midi(CHORD[i]),t+off,1.1,'sawtooth',.1);
+      tone(midi(CHORD[i]+12),t+off,.9,'triangle',.075);
+    });
+    setTimeout(()=>{ if(ctx&&!muted){ const t2=ctx.currentTime;
+      [72,76,79,84].forEach((n,i)=>tone(midi(n),t2+i*.07,1.4,'sawtooth',.11)); } },700);
+    /* talerz - szeroki szum opadajacy */
+    const s=noise(),f=ctx.createBiquadFilter(),g=ctx.createGain();
+    f.type='highpass';f.frequency.value=5000;
+    g.gain.setValueAtTime(.24,t+.45);
+    g.gain.exponentialRampToValueAtTime(.001,t+2.4);
+    s.connect(f);f.connect(g);g.connect(master);s.start(t+.45);s.stop(t+2.5);
+  }
+  function fade(to,sec){
+    if(!master) return;
+    const t=ctx.currentTime;
+    master.gain.cancelScheduledValues(t);
+    master.gain.setValueAtTime(Math.max(master.gain.value,.0001),t);
+    master.gain.linearRampToValueAtTime(to,t+sec);
+  }
+  return {
+    /* wolno wystartowac dopiero po gescie uzytkownika (polityka autoplay) */
+    start(){
+      if(started) return;
+      if(!ctx&&!build()) return;
+      started=true;
+      if(ctx.state==='suspended') ctx.resume();
+      step=0;nextT=ctx.currentTime+.1;
+      schedule();tick=setInterval(schedule,25);
+      if(!muted) fade(.55,1.2);
+    },
+    toggle(){
+      muted=!muted;
+      if(!muted&&ctx&&ctx.state==='suspended') ctx.resume();
+      fade(muted?0:.55,muted?.35:.8);
+      return muted;
+    },
+    isMuted(){return muted;},
+    card:swish,
+    reveal(){blip(660,.16,.16);},
+    tick(){blip(1800,.02,.07);},
+    select(){blip(720,.06,.1);},
+    deckSting,duck,spinWhirr,clunk,
+    tap,deny,join,sparkle,modalUp,modalDown,king,jackpot,
+    fanfare(){riser();setTimeout(()=>{blip(880,.12,.2);},380);setTimeout(()=>blip(1320,.22,.2),500);},
+    suspend(){if(ctx&&ctx.state==='running'&&started) ctx.suspend();},
+    resume(){if(ctx&&ctx.state==='suspended'&&started&&!muted) ctx.resume();}
+  };
+})();
+
+function syncMenuSound(){
+  const m=snd.isMuted(),t=UI[lang];
+  $('menuSoundLabel').textContent=m?t.soundOff:t.soundOn;
+  $('menuSoundSub').textContent=m?t.soundOffSub:t.soundOnSub;
+  $('menuSound').classList.toggle('on',!m);
+}
+$('menuSound').addEventListener('click',()=>{snd.toggle();syncMenuSound();buzz(10);});
+$('globalMenuBtn').addEventListener('click',()=>{openModal('mMenu');buzz(10);});
+$('menuRules').addEventListener('click',()=>{$('mMenu').classList.remove('open');openModal('mRules');});
+$('menuHome').addEventListener('click',()=>{$('mMenu').classList.remove('open');showScreen('screenHome');buzz(12);});
+/* nie graj w tle - oszczedza baterie telefonu */
+document.addEventListener('visibilitychange',()=>{document.hidden?snd.suspend():snd.resume();});
+
+/* ============ MODAL ZASAD ============ */
+function openModal(id){$(id).classList.add('open');snd.modalUp();}
+document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',e=>{e.target.closest('.modal').classList.remove('open');snd.modalDown();}));
+document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m){m.classList.remove('open');snd.modalDown();}}));
+
+/* uniwersalne klikniecie UI - jeden dzwiek na kazdy interaktywny element */
+document.addEventListener('pointerdown',e=>{
+  const b=e.target.closest('button,.deck-card,.stack');
+  if(!b||b.disabled)return;
+  /* elementy z wlasnym, mocniejszym dzwiekiem pomijamy, zeby sie nie nakladalo */
+  if(b.closest('#stack')||b.id==='btnStart'||b.classList.contains('turn-opt')||b.classList.contains('deck-card'))return;
+  snd.tap();
+},{passive:true});
+$('btnRules').addEventListener('click',()=>openModal('mRules'));
+
+/* gracze */
+const AVATAR_BG=['linear-gradient(135deg,#FFB627,#ff9d2e)','linear-gradient(135deg,#17E5C4,#0fc7ab)','linear-gradient(135deg,#FF2E63,#ff6f91)'];
+function initials(name){
+  return name.trim().split(/\s+/).slice(0,2).map(w=>(w[0]||'').toUpperCase()).join('')||'?';
+}
+function drawPlayers(){
+  $('pList').innerHTML=players.map((p,i)=>
+    '<button class="player-chip" data-i="'+i+'"><span class="player-avatar" style="background:'+AVATAR_BG[i%3]+'">'+esc(initials(p))+'</span>'+esc(p)+'</button>'
+  ).join('');
+  $('pEmpty').style.display=players.length?'none':'block';
+  document.querySelectorAll('#pList .player-chip').forEach(t=>t.addEventListener('click',()=>{players.splice(+t.dataset.i,1);drawPlayers();}));
+}
+function flashHint(msg){
+  const el=$('pEmpty');
+  snd.deny();
+  el.textContent=msg;el.style.display='block';el.style.color='var(--pink)';
+  setTimeout(()=>{el.style.color='';el.textContent=UI[lang].playersEmpty;el.style.display=players.length?'none':'block';},2200);
+}
+$('pAdd').addEventListener('click',()=>{
+  const v=$('pName').value.trim();
+  if(!v)return;
+  if(players.length>=MAX_PLAYERS){flashHint(UI[lang].tooManyPlayers(MAX_PLAYERS));buzz(30);return;}
+  if(players.some(p=>p.toLowerCase()===v.toLowerCase())){flashHint(UI[lang].duplicateName(v));buzz(30);return;}
+  players.push(v);$('pName').value='';drawPlayers();buzz(10);snd.join();
+  const chip=document.querySelector('#pList .player-chip:last-child');
+  if(chip){const r=chip.getBoundingClientRect();sparkles(6,'#17E5C4',r.left+r.width/2,r.top+r.height/2,r.width*.5);}
+});
+$('pName').addEventListener('keydown',e=>{if(e.key==='Enter')$('pAdd').click()});
+
+/* zasady stołu */
+function drawHouse(){
+  $('hList').innerHTML=house.map((h,i)=>{
+    const label=h.kind==='rank'?(LABEL[lang][h.key]||h.key):h.kind==='cat'?CATS[lang][h.key]:UI[lang].tableFallback;
+    return '<li><b>'+esc(label)+'</b><span>'+esc(h.t)+'</span><button data-i="'+i+'">×</button></li>';
+  }).join('');
+  $('hEmpty').style.display=house.length?'none':'block';
+  document.querySelectorAll('#hList button').forEach(b=>b.addEventListener('click',()=>{house.splice(+b.dataset.i,1);drawHouse();}));
+}
+$('hAdd').addEventListener('click',()=>{
+  const v=$('hName').value.trim();if(!v)return;
+  house.push({kind:drawn?'rank':'table',key:drawn?drawn.r:null,t:v});
+  $('hName').value='';drawHouse();burst('#FFB627',18,'star');
+});
+$('hName').addEventListener('keydown',e=>{if(e.key==='Enter')$('hAdd').click()});
+
+/* generator zasad */
+let genCat='picie', genText='';
+document.querySelectorAll('.cat').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.cat').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');genCat=b.dataset.cat;buzz(8);
+}));
+$('gRoll').addEventListener('click',()=>{
+  const list=BANK[lang][genCat];
+  let t;do{t=list[rnd(list.length)];}while(list.length>1&&t===genText);
+  genText=t;
+  const out=$('genOut');out.textContent=t;
+  out.classList.remove('pop');void out.offsetWidth;out.classList.add('pop');
+  $('gKeep').disabled=false;buzz(14);
+});
+$('gKeep').addEventListener('click',()=>{
+  if(!genText)return;
+  house.push({kind:'cat',key:genCat,t:genText});drawHouse();
+  $('gKeep').disabled=true;burst('#FFB627',20,'star');buzz(18);
+});
+
+/* start */
+applyLang();drawPlayers();
+const AGE_OK=localStorage.getItem('kk-age-ok')==='1';
+setTimeout(()=>{
+  $('screenSplash').classList.add('exit');
+  setTimeout(()=>showScreen(AGE_OK?'screenTitle':'screenAge'),480);
+},1500);
+$('ageYes').addEventListener('click',()=>{
+  localStorage.setItem('kk-age-ok','1');
+  buzz(15);showScreen('screenTitle');
+});
+$('ageNo').addEventListener('click',()=>{showScreen('screenAgeBlock');});
+
+/* PWA - instalowalnosc wymaga zarejestrowanego Service Workera */
+if('serviceWorker' in navigator){
+  addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+}
+</script>
+</body>
+</html>
