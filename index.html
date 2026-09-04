@@ -99,6 +99,8 @@ body{
 #screenModeSwitch.lvl3{animation:screenIn .5s cubic-bezier(.2,.9,.2,1), shake .5s .3s}
 #screenModeSwitch.lvl2 .switch-mode{color:var(--amber);text-shadow:0 0 20px rgba(255,182,39,.5)}
 #screenModeSwitch.lvl1 .switch-mode{color:var(--mint);text-shadow:0 0 18px rgba(23,229,196,.5)}
+#screenModeSwitch.lvl4 .switch-mode{color:var(--amber);text-shadow:0 0 30px rgba(255,182,39,.9)}
+#screenModeSwitch.lvl4{animation:screenIn .6s cubic-bezier(.2,.9,.2,1)}
 @keyframes modeGlitch{0%,100%{transform:translateX(0)}50%{transform:translateX(2px)}}
 .switch-mode.pop{animation:pop .4s cubic-bezier(.2,.9,.2,1)}
 
@@ -226,6 +228,23 @@ header{
 .deck-icon{width:52px;height:52px;margin-bottom:10px;filter:drop-shadow(0 4px 10px rgba(0,0,0,.35));transition:filter .25s,transform .25s}
 .deck-icon img{width:100%;height:100%;object-fit:contain;display:block}
 .deck-card.on .deck-icon{filter:drop-shadow(0 4px 16px rgba(255,182,39,.6));transform:scale(1.08)}
+.deck-icon.crest-icon{color:var(--amber)}
+.deck-icon.crest-icon svg{width:100%;height:100%}
+
+/* ---------- talia premium (zablokowana) ---------- */
+.deck-card.locked{border-color:rgba(255,182,39,.35);background:rgba(255,182,39,.05)}
+.premium-badge{
+  position:absolute;top:14px;right:14px;display:flex;align-items:center;gap:5px;
+  background:var(--amber);color:#1A0E29;font-family:var(--body);font-weight:700;font-size:10px;
+  letter-spacing:.08em;text-transform:uppercase;padding:4px 9px 4px 6px;border-radius:999px;
+}
+.premium-badge .suit-icon{width:11px;height:11px}
+.deck-card.locked{position:relative}
+.unlock-row{display:flex;align-items:center;gap:8px;margin-top:12px;color:var(--amber);font-weight:700;font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+.unlock-row .suit-icon{width:15px;height:15px}
+.unlock-price{margin-left:auto;font-size:11px;color:var(--ivory-dim);text-transform:none;letter-spacing:0;font-weight:600}
+.deck-card.locked.denied{animation:lockDenied .4s}
+@keyframes lockDenied{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
 .diff{display:flex;align-items:center;gap:4px;margin-top:12px}
 .diff i{width:16px;height:5px;border-radius:3px;background:rgba(246,240,230,.14);display:block;transition:background .2s}
 .diff i.on{background:var(--pink)}
@@ -614,6 +633,7 @@ main>.sheet{margin-bottom:auto}
   <symbol id="s-star" viewBox="0 0 100 100"><path d="M50,4 L61,36 L96,36 L68,57 L79,90 L50,70 L21,90 L32,57 L4,36 L39,36 Z"/></symbol>
   <symbol id="s-arrow-right" viewBox="0 0 100 100"><path d="M10,42 L60,42 L60,25 L92,50 L60,75 L60,58 L10,58 Z"/></symbol>
   <symbol id="s-menu" viewBox="0 0 100 100"><path d="M15,25 L85,25 L85,35 L15,35 Z M15,45 L85,45 L85,55 L15,55 Z M15,65 L85,65 L85,75 L15,75 Z"/></symbol>
+  <symbol id="s-lock" viewBox="0 0 100 100"><path d="M32,48 L32,30 A18,18 0 0,1 68,30 L68,48 L58,48 L58,32 A8,8 0 0,0 42,32 L42,48 Z"/><path d="M20,46 L80,46 L80,88 L20,88 Z"/></symbol>
 </defs>
 </svg>
 <div id="mesh"></div>
@@ -868,6 +888,36 @@ const KLASYK_PL={
  'K':{t:'Kategorie',d:'Podajesz kategorię, np. „marki piwa”. Idziecie w kółko, kto powtórzy albo utknie — pije.',k:true},
  'A':{t:'Rymy',d:'Rzucasz słowo. Każdy po kolei rymuje. Kto nie da rady — pije.'}
 };
+const ARYSTOKRACJA_PL={
+ '2':{t:'Toast',d:'Wskazujesz osobę i wznosisz za nią toast. Ona pije, ale musi wcześniej powiedzieć coś miłego pod Twoim adresem.'},
+ '3':{t:'Trójprzysięga',d:'Ty i dwie wybrane osoby pijecie razem na „raz, dwa, trzy”. Kto się spóźni — dopija sam.'},
+ '4':{t:'Fraszka herbowa',d:'Układasz w locie dwuwiersz o osobie po swojej lewej. Jeśli się nie rymuje albo stół uzna, że słaby — pijecie oboje.'},
+ '5':{t:'Dwór składa hołd',d:'Wszyscy przy stole kłaniają się Tobie po kolei. Kto się spóźni albo zapomni — pije.'},
+ '6':{t:'Uczta',d:'Cały stół pije za pomyślność gospodarza wieczoru — wskazujesz, kto nim jest.'},
+ '7':{t:'Herb rodowy',d:'Wymyślasz swój „herb” — gest i okrzyk. Odtąd, gdy go pokażesz, każdy musi go powtórzyć. Kto nie zdąży — pije. Obowiązuje do końca gry.'},
+ '8':{t:'Edykt dworski',d:'Ustalasz jedną zasadę obowiązującą do końca gry. Dopisz ją w Zasadach stołu.',r:true},
+ '9':{t:'Zasada kielicha',d:'Ustalasz zasadę dotyczącą picia — coś bardziej wyrafinowanego niż zwykle. Dopisz ją w Zasadach stołu.',r:true},
+ '10':{t:'Pasujesz na giermka',d:'Wskazujesz osobę, która od teraz pije zawsze, gdy Ty unosisz kieliszek — nawet bez picia.',p:true},
+ 'J':{t:'Błazen dworski',d:'Do końca rundy musisz mówić rymowankami. Kto Cię przyłapie na zwykłej mowie — Ty pijesz.'},
+ 'Q':{t:'Księżna intryg',d:'Szepczesz jednej osobie sekretne zadanie dla kogoś innego. Ta osoba musi je wykonać, nie wiedząc dlaczego — albo pije.'},
+ 'K':{t:'Dekret Króla',d:'Wydajesz dekret obowiązujący do końca gry — coś, co wszyscy muszą robić albo czego nie wolno robić. Kto złamie — pije.',k:true},
+ 'A':{t:'Pojedynek o koronę',d:'Wyzywasz wybraną osobę na pojedynek (papier-kamień-nożyce albo rymowany pojedynek na słowa). Przegrany dopija swój kufel.'}
+};
+const ARYSTOKRACJA_EN={
+ '2':{t:'The Toast',d:'Point at someone and raise a toast to them. They drink — but only after saying something nice about you first.'},
+ '3':{t:'Triple Oath',d:'You and two chosen people drink together on "one, two, three." Whoever lags behind finishes alone.'},
+ '4':{t:'Heraldic Couplet',d:'Improvise a two-line rhyme about the person on your left. If it doesn\'t rhyme, or the table judges it weak, you both drink.'},
+ '5':{t:'The Court Bows',d:'Everyone at the table bows to you in turn. Whoever\'s late or forgets drinks.'},
+ '6':{t:'The Feast',d:'The whole table drinks to the health of tonight\'s host — you decide who that is.'},
+ '7':{t:'Family Crest',d:'Invent your own "crest" — a gesture and a shout. From now on, whenever you show it, everyone must copy it. Too slow, you drink. Lasts the rest of the game.'},
+ '8':{t:'Court Edict',d:'Set one rule that lasts the rest of the game. Add it under House Rules.',r:true},
+ '9':{t:'Goblet Rule',d:'Set a rule about drinking — something a bit more refined than usual. Add it under House Rules.',r:true},
+ '10':{t:'Knight a Squire',d:'Point at someone who now drinks whenever you raise your glass — even if you don\'t drink yourself.',p:true},
+ 'J':{t:'Court Jester',d:'Until the next round, you must speak only in rhyme. Caught talking normally, you drink.'},
+ 'Q':{t:'Duchess of Intrigue',d:'Whisper a secret task to one person, meant for someone else. That person must complete it without knowing why - or drink.'},
+ 'K':{t:'King\'s Decree',d:'Issue a decree that lasts the rest of the game — something everyone must or mustn\'t do. Break it, you drink.',k:true},
+ 'A':{t:'Duel for the Crown',d:'Challenge someone to a duel (rock-paper-scissors, or a rhyming word battle). The loser finishes their cup.'}
+};
 const KLASYK_EN={
  '2':{t:'Shot',d:'Drink a shot. No discussion, no negotiating.'},
  '3':{t:'Three Shots',d:'Split three shots between yourself and one other person.'},
@@ -978,8 +1028,8 @@ const TRZEZWO_EN={
 };
 
 const DECKS={
-  pl:{klasyk:KLASYK_PL,nowa:NOWA_PL,chaos:CHAOS_PL,trzezwo:TRZEZWO_PL},
-  en:{klasyk:KLASYK_EN,nowa:NOWA_EN,chaos:CHAOS_EN,trzezwo:TRZEZWO_EN}
+  pl:{klasyk:KLASYK_PL,nowa:NOWA_PL,chaos:CHAOS_PL,trzezwo:TRZEZWO_PL,arystokracja:ARYSTOKRACJA_PL},
+  en:{klasyk:KLASYK_EN,nowa:NOWA_EN,chaos:CHAOS_EN,trzezwo:TRZEZWO_EN,arystokracja:ARYSTOKRACJA_EN}
 };
 
 const DECK_META={
@@ -988,18 +1038,20 @@ const DECK_META={
     nowa:{name:'nowa fala',title:'Nowa Fala',desc:'Świeży zestaw: wodospad, lustro, statua, zakazane słowo, podwójne kłopoty i inne.'},
     chaos:{name:'chaos',title:'Chaos',desc:'Ostrzejszy zestaw: bramkarz, dziewiąta fala, zamiana miejsc, dekret króla, as w rękawie.'},
     mix:{name:'miks talii',title:'Miks',desc:'Losuje z trzech talii — nikt nie wie, co wypadnie.'},
-    trzezwo:{name:'bez alkoholu',title:'Bez alkoholu',desc:'Te same karty, zamiast picia — wyzwania i fanty.'}
+    trzezwo:{name:'bez alkoholu',title:'Bez alkoholu',desc:'Te same karty, zamiast picia — wyzwania i fanty.'},
+    arystokracja:{name:'arystokracja',title:'Arystokracja',desc:'Talia premium: toasty, edykty, pojedynki i dworskie intrygi. Dla koneserów.'}
   },
   en:{
     klasyk:{name:'classic deck',title:'Classic',desc:'2 - shot, 3 - three shots, 4 - guys, 5 - girls, 6 - everyone, jack - hands up, queen - question master…'},
     nowa:{name:'new wave',title:'New Wave',desc:'A fresh set: waterfall, mirror, statue, forbidden word, double trouble and more.'},
     chaos:{name:'chaos',title:'Chaos',desc:'A harder set: gatekeeper, ninth wave, musical chairs, king’s decree, ace up your sleeve.'},
     mix:{name:'mixed deck',title:'Mixed',desc:'Draws from three decks - nobody knows what’s coming.'},
-    trzezwo:{name:'alcohol-free',title:'Alcohol-free',desc:'Same cards, but instead of drinking - challenges and forfeits.'}
+    trzezwo:{name:'alcohol-free',title:'Alcohol-free',desc:'Same cards, but instead of drinking - challenges and forfeits.'},
+    arystokracja:{name:'aristocracy',title:'Aristocracy',desc:'The premium deck: toasts, edicts, duels and court intrigue. For connoisseurs.'}
   }
 };
-const DECK_ORDER=['klasyk','nowa','chaos','mix','trzezwo'];
-const DIFFICULTY={klasyk:1,trzezwo:1,nowa:2,mix:2,chaos:3};
+const DECK_ORDER=['klasyk','nowa','chaos','mix','trzezwo','arystokracja'];
+const DIFFICULTY={klasyk:1,trzezwo:1,nowa:2,mix:2,chaos:3,arystokracja:4};
 
 const FINALE={
   pl:{
@@ -1162,7 +1214,7 @@ const UI={
     housePlaceholder:'Nowa zasada', close:'Gotowe', tableFallback:'stół',
     finaleSuffix:' · finał', cardsWord:n=>n===1?'karta':(n%10>=2&&n%10<=4&&(n<12||n>14)?'karty':'kart'),
     tapToPlay:'Dotknij, aby zagrać', switchingLabel:'Przełączamy na tryb',
-    difficultyLabel:n=>['Łagodnie','Ostrzej','Chaos'][n-1],
+    difficultyLabel:n=>['Łagodnie','Ostrzej','Chaos','Ekskluzywne'][n-1],
     playersTitle:'Kto gra?', nextBtn:'Dalej', playersChip:'Gracze', viewRules:'Zobacz zasady stołu',
     pickingLabel:'LOSUJEMY, KTO ZACZYNA', starterMsg:name=>name+', zaczynasz! Dotknij karty.',
     newRuleFlag:'Nowa zasada!', assignLabel:'albo wskaż kogoś:',
@@ -1180,7 +1232,9 @@ const UI={
     ageTitle:'Zanim zaczniemy',
     ageText:'Ta gra zawiera treści przeznaczone dla dorosłych i odwołuje się do spożywania alkoholu. Jeśli grasz z alkoholem — rób to odpowiedzialnie i nie prowadź pojazdów.',
     ageYesLabel:'Mam ukończone 18 lat', ageNoLabel:'Nie mam 18 lat',
-    ageBlockTitle:'Wróć, gdy będziesz pełnoletni', ageBlockText:'Ta gra jest dostępna wyłącznie dla osób pełnoletnich.'
+    ageBlockTitle:'Wróć, gdy będziesz pełnoletni', ageBlockText:'Ta gra jest dostępna wyłącznie dla osób pełnoletnich.',
+    unlockLabel:'Odblokuj', premiumBadge:'Premium',
+    premiumOnlyOnPlay:'Zakup dostępny tylko w wersji z Google Play.'
   },
   en:{
     appName:'KING OF THE MUG', tagline:'party card deck',
@@ -1199,7 +1253,7 @@ const UI={
     housePlaceholder:'New rule', close:'Done', tableFallback:'table',
     finaleSuffix:' · finale', cardsWord:n=>n===1?'card':'cards',
     tapToPlay:'Tap to play', switchingLabel:'Switching to mode',
-    difficultyLabel:n=>['Easy','Rowdy','Chaos'][n-1],
+    difficultyLabel:n=>['Easy','Rowdy','Chaos','Exclusive'][n-1],
     playersTitle:'Who\'s playing?', nextBtn:'Next', playersChip:'Players', viewRules:'View house rules',
     pickingLabel:'PICKING WHO STARTS', starterMsg:name=>name+' starts! Tap the card.',
     newRuleFlag:'New rule!', assignLabel:'or pick someone:',
@@ -1217,12 +1271,15 @@ const UI={
     ageTitle:'Before we start',
     ageText:'This game contains adult content and references alcohol consumption. If you\'re drinking, please do it responsibly and never drink and drive.',
     ageYesLabel:'I am 18 or older', ageNoLabel:'I am under 18',
-    ageBlockTitle:'Come back once you\'re of legal age', ageBlockText:'This game is available to adults only.'
+    ageBlockTitle:'Come back once you\'re of legal age', ageBlockText:'This game is available to adults only.',
+    unlockLabel:'Unlock', premiumBadge:'Premium',
+    premiumOnlyOnPlay:'Purchases are only available in the Google Play version.'
   }
 };
 
 /* ============ STAN ============ */
 let lang='pl', mode='klasyk', deck=[], drawn=null, kings=0, players=[], house=[], busy=false;
+let premiumUnlocked=localStorage.getItem('kk-premium')==='1';
 let lastShown=null, rotation=0;
 let gameOver=false, awaitingDone=false, currentStarter=null, picking=false;
 const MAX_PLAYERS=12;
@@ -1356,6 +1413,7 @@ function runPlayerPick(cb){
 let switchInterval=null;
 const LOAD_MS=1700;
 $('btnStart').addEventListener('click',()=>{
+  if(mode==='arystokracja'&&!premiumUnlocked){ buyPremium(); return; }
   const t=UI[lang],dlv=DIFFICULTY[mode];
   const sw=$('screenModeSwitch');
   sw.className='screen lvl'+dlv;
@@ -1410,15 +1468,23 @@ $('btnRulesPreview').addEventListener('click',()=>openModal('mRules'));
 
 /* ============ WYBOR TALII (karuzela) ============ */
 function renderDeckOptions(){
-  const t=DECK_META[lang],dl=UI[lang].difficultyLabel;
+  const t=DECK_META[lang],dl=UI[lang].difficultyLabel,ui=UI[lang];
   $('deckHome').innerHTML=DECK_ORDER.map(key=>{
     const lvl=DIFFICULTY[key];
     const dots=[1,2,3].map(i=>'<i class="'+(i<=lvl?'on':'')+'"></i>').join('');
-    return '<div class="deck-card'+(key===mode?' on':'')+'" data-deck="'+key+'"><div class="deck-icon"><img src="assets/icons/deck-'+key+'.png" alt=""></div><b>'+t[key].title+'</b><span>'+t[key].desc+'</span>'
-      +'<div class="diff">'+dots+'<em>'+dl(lvl)+'</em></div></div>';
+    const isPremium=key==='arystokracja',locked=isPremium&&!premiumUnlocked;
+    const iconHtml=isPremium
+      ?'<div class="deck-icon crest-icon"><span class="suit-icon"><svg viewBox="0 0 100 100"><use href="#s-crown"/></svg></span></div>'
+      :'<div class="deck-icon"><img src="assets/icons/deck-'+key+'.png" alt=""></div>';
+    const badge=isPremium?'<div class="premium-badge">'+icon('lock')+ui.premiumBadge+'</div>':'';
+    const tail=locked
+      ?'<div class="unlock-row">'+icon('lock')+ui.unlockLabel+'<span class="unlock-price" data-price-for="'+key+'"></span></div>'
+      :'<div class="diff">'+dots+'<em>'+dl(lvl)+'</em></div>';
+    return '<div class="deck-card'+(key===mode?' on':'')+(locked?' locked':'')+'" data-deck="'+key+'">'+badge+iconHtml+'<b>'+t[key].title+'</b><span>'+t[key].desc+'</span>'+tail+'</div>';
   }).join('');
   $('deckDots').innerHTML=DECK_ORDER.map((k,i)=>'<button data-i="'+i+'" class="'+(k===mode?'on':'')+'"></button>').join('');
   bindCarousel();
+  refreshPremiumPrice();
 }
 function syncDeckSelection(){
   $('deckHome').querySelectorAll('.deck-card').forEach(x=>x.classList.toggle('on',x.dataset.deck===mode));
@@ -1437,7 +1503,10 @@ function goToDeck(i){
 const DECK_HUE={klasyk:'#FFB627',nowa:'#17E5C4',chaos:'#FF2E63',mix:'#8A4FFF',trzezwo:'#17E5C4'};
 function bindCarousel(){
   const track=$('deckHome');
-  track.querySelectorAll('.deck-card').forEach(el=>el.addEventListener('click',()=>goToDeck(DECK_ORDER.indexOf(el.dataset.deck))));
+  track.querySelectorAll('.deck-card').forEach(el=>el.addEventListener('click',()=>{
+    if(el.classList.contains('locked')){ goToDeck(DECK_ORDER.indexOf(el.dataset.deck)); buyPremium(); return; }
+    goToDeck(DECK_ORDER.indexOf(el.dataset.deck));
+  }));
   $('deckDots').querySelectorAll('button').forEach((d,i)=>d.addEventListener('click',()=>goToDeck(i)));
   $('carPrev').onclick=()=>goToDeck(DECK_ORDER.indexOf(mode)-1);
   $('carNext').onclick=()=>goToDeck(DECK_ORDER.indexOf(mode)+1);
@@ -2407,8 +2476,62 @@ $('gKeep').addEventListener('click',()=>{
   $('gKeep').disabled=true;burst('#FFB627',20,'star');buzz(18);
 });
 
+/* ============ ZAKUPY W APLIKACJI (Google Play Billing przez Digital Goods API) ============
+   Dziala WYLACZNIE wewnatrz appki zainstalowanej z Google Play (TWA) - w zwyklej
+   przegladarce navigator.getDigitalGoodsService nie istnieje i cala sekcja jest no-opem,
+   talia premium zostaje po prostu zablokowana. Wymaga w Play Console utworzonego produktu
+   jednorazowego o identyfikatorze PREMIUM_SKU oraz wlaczonej flagi "Google Play billing"
+   przy pakowaniu przez PWABuilder. */
+const PREMIUM_SKU='premium_deck_arystokracja';
+let digitalGoods=null;
+
+async function initBilling(){
+  if(!('getDigitalGoodsService' in window.navigator)) return;
+  try{
+    digitalGoods=await navigator.getDigitalGoodsService('https://play.google.com/billing');
+    if(!digitalGoods) return;
+    const purchases=await digitalGoods.listPurchases();
+    if(purchases.some(p=>p.itemId===PREMIUM_SKU)){
+      premiumUnlocked=true;
+      localStorage.setItem('kk-premium','1');
+      renderDeckOptions();
+    }
+  }catch(e){ /* poza appka z Play - normalne, gramy dalej bez platnosci */ }
+}
+
+async function refreshPremiumPrice(){
+  const el=$('deckHome')?.querySelector('[data-price-for="arystokracja"]');
+  if(!el||!digitalGoods) return;
+  try{
+    const details=await digitalGoods.getDetails([PREMIUM_SKU]);
+    if(!details.length) return;
+    const p=details[0].price;
+    el.textContent=new Intl.NumberFormat(lang==='pl'?'pl-PL':'en-US',{style:'currency',currency:p.currency}).format(p.value);
+  }catch(e){ /* cena niedostepna - zostaw puste miejsce */ }
+}
+
+async function buyPremium(){
+  if(picking||busy) return;
+  if(!digitalGoods){
+    const card=$('deckHome')?.querySelector('[data-deck="arystokracja"]');
+    if(card){card.classList.remove('denied');void card.offsetWidth;card.classList.add('denied');}
+    snd.deny();buzz(30);
+    return;
+  }
+  try{
+    const request=new PaymentRequest([{supportedMethods:'https://play.google.com/billing',data:{sku:PREMIUM_SKU}}]);
+    const response=await request.show();
+    await response.complete('success');
+    await digitalGoods.acknowledge(response.details.purchaseToken,'onetime');
+    premiumUnlocked=true;
+    localStorage.setItem('kk-premium','1');
+    buzz([20,40,20,40,90]);flash();confettiRain(60);snd.jackpot();
+    renderDeckOptions();
+  }catch(e){ /* uzytkownik anulowal platnosc - nic nie robimy */ }
+}
+
 /* start */
-applyLang();drawPlayers();
+applyLang();drawPlayers();initBilling();
 const AGE_OK=localStorage.getItem('kk-age-ok')==='1';
 setTimeout(()=>{
   $('screenSplash').classList.add('exit');
