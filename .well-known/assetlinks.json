@@ -3,6 +3,6 @@
       "target": {
         "namespace": "android_app",
         "package_name": "com.archiduklas.krolkufla",
-        "sha256_cert_fingerprints": ["47:4B:8B:D0:FE:C9:E3:74:45:8F:2A:4B:A5:35:DB:0F:84:9F:4A:E5:71:7F:8E:7E:2E:25:94:AA:7F:C2:EC:3A"]
+        "sha256_cert_fingerprints": ["D6:5A:7C:BF:E8:15:41:0F:E1:18:E9:A3:96:35:0B:68:91:19:16:B6:9E:A2:A1:33:F5:1D:CF:85:1B:DA:2D:6E"]
       }
     }]
