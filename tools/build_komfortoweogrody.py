@@ -58,6 +58,10 @@ HERO = '1-m2Wpy8JeOpFqDGKe.jpg'
 
 # ---------- ikony ----------
 I = {
+ 'copy': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>',
+ 'layers': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 2 10 5-10 5L2 7z"/><path d="m2 17 10 5 10-5M2 12l10 5 10-5"/></svg>',
+ 'cube': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 16V8a2 2 0 0 0-1-1.7l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.7l7 4a2 2 0 0 0 2 0l7-4a2 2 0 0 0 1-1.7z"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/></svg>',
+ 'medal': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="6"/><path d="M15.5 13.5 17 22l-5-3-5 3 1.5-8.5"/></svg>',
  'phone': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>',
  'mail': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg>',
  'pin': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>',
@@ -82,6 +86,38 @@ NAV = [('', 'Strona główna', 'home'), ('oferta/', 'Oferta', 'oferta'), ('galer
 SERVICES = ['Projektowanie ogrodów', 'Zakładanie ogrodów', 'Pielęgnacja ogrodów', 'Instalacje nawadniające',
             'Oświetlenie ogrodowe', 'Układanie kostki brukowej', 'Trawniki i nasadzenia', 'Oczka wodne',
             'Przycinanie żywopłotów', 'Koszenie trawy']
+
+FAQ = [
+    ('Czym zajmuje się firma Komfortowe Ogrody?',
+     'Zajmujemy się kompleksowo ogrodami: projektujemy je, zakładamy od podstaw i stale pielęgnujemy. Działamy od 2013 roku, a zaufało nam ponad 150 klientów.'),
+    ('Czy przed realizacją przygotowujecie projekt ogrodu?',
+     'Tak. Przygotowujemy szkic koncepcyjny oraz wizualizację 3D, dzięki czemu jeszcze przed rozpoczęciem prac widzisz, jak będzie wyglądał Twój ogród.'),
+    ('Jakie prace obejmuje zakładanie ogrodu?',
+     'Wykonujemy ogród od A do Z: niwelację terenu, instalacje nawadniające, oświetlenie, układanie kostki brukowej, trawniki i nasadzenia oraz oczka wodne.'),
+    ('Czy zajmujecie się stałą pielęgnacją ogrodów?',
+     'Tak. Formujemy rośliny, przycinamy żywopłoty, kosimy trawę i wykonujemy opryski ochronne roślin, żeby ogród był zadbany przez cały rok.'),
+    ('Gdzie działacie i jak się z Wami skontaktować?',
+     'Nasza siedziba to ul. Henryka Sienkiewicza 19, 87-700 Aleksandrów Kujawski. Zadzwoń pod numer +48 600 927 502 lub napisz na kontakt@komfortoweogrody.pl – jesteśmy dostępni od poniedziałku do soboty w godzinach 7:00–18:00.'),
+]
+
+def faq_ld():
+    return {'@context': 'https://schema.org', '@type': 'FAQPage', 'mainEntity': [
+        {'@type': 'Question', 'name': q, 'acceptedAnswer': {'@type': 'Answer', 'text': a}} for q, a in FAQ]}
+
+def faq_html():
+    items = ''.join(f'''
+        <details><summary>{q}<span class="pm" aria-hidden="true"></span></summary><div class="ans"><p>{a}</p></div></details>''' for q, a in FAQ)
+    return f'''<section class="section section--sand" id="faq">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow eyebrow--dark">Pytania i odpowiedzi</span>
+        <h2>Najczęściej <span class="mark">zadawane pytania</span></h2>
+        <p>Wszystko, co warto wiedzieć, zanim zaczniemy pracę nad Twoim ogrodem.</p>
+      </div>
+      <div class="faq" data-stagger>{items}
+      </div>
+    </div>
+  </section>'''
 
 def local_business():
     return {
@@ -242,6 +278,7 @@ def footer(root):
     </div>
   </div>
 </footer>
+<a class="fab" href="tel:{BIZ['phone_tel']}" aria-label="Zadzwoń: {BIZ['phone_display']}">{I['phone']}<span class="fab__tip">Zadzwoń: {BIZ['phone_display']}</span></a>
 <nav class="action-bar" aria-label="Szybki kontakt">
   <a href="tel:{BIZ['phone_tel']}">{I['phone']}Zadzwoń</a>
   <a href="mailto:{BIZ['email']}">{I['mail']}Napisz</a>
@@ -277,7 +314,7 @@ def cta_band(root):
     <div class="wrap">
       <div class="cta-band reveal">
         <div>
-          <h2>Porozmawiajmy o Twoim ogrodzie</h2>
+          <h2>Porozmawiajmy o <span class="shine">Twoim ogrodzie</span></h2>
           <p>Chętnie odpowiemy na wszystkie Państwa pytania dotyczące ogrodów. Zadzwoń lub napisz – {BIZ['hours_label']}.</p>
         </div>
         <div class="cta-band__actions">
@@ -311,13 +348,24 @@ CARD_IMG = ['1-mjEvxLGk6DIPkV3x.png', '2-YbNvXDK9lgFDjNJY.png', 'dsc_0570-A1awGr
 # =====================================================================
 # STRONA GŁÓWNA
 # =====================================================================
+def words(text, start=0, cls=''):
+    c = f' {cls}' if cls else ''
+    return ' '.join(f'<span class="w{c}" style="--i:{start+i}">{w}</span>' for i, w in enumerate(text.split()))
+
+MARQUEE = ['Projektowanie ogrodów', 'Wizualizacje 3D', 'Zakładanie ogrodów', 'Instalacje nawadniające', 'Oświetlenie ogrodowe',
+           'Kostka brukowa', 'Trawniki i nasadzenia', 'Oczka wodne', 'Przycinanie żywopłotów', 'Koszenie trawy', 'Pielęgnacja zieleni']
+
+def marquee():
+    ul = ''.join(f'<li>{m}</li>' for m in MARQUEE)
+    return f'''<div class="marquee" aria-label="Zakres usług"><div class="marquee__track"><ul>{ul}</ul><ul aria-hidden="true">{ul}</ul></div></div>'''
+
 def build_home():
     r = ''
     cards = ''
     for i, (slug, name, text, items, _, _) in enumerate(OFFER):
         chips = ''.join(f'<li>{x}</li>' for x in items[:4])
         cards += f'''
-        <article class="service-card reveal">
+        <article class="service-card tilt spot">
           <div class="service-card__media">
             {img(CARD_IMG[i], name, 600, 450, sizes='(min-width: 880px) 390px, 100vw')}
             <span class="service-card__num" aria-hidden="true">0{i+1}</span>
@@ -332,14 +380,16 @@ def build_home():
     stars = I['star'] * 5
     body = head('Zakładanie ogrodów Aleksandrów Kujawski | Komfortowe Ogrody',
                 'Projektowanie, zakładanie i pielęgnacja ogrodów w Aleksandrowie Kujawskim od 2013 r. Ponad 150 zadowolonych klientów. Zadzwoń: 600 927 502.',
-                '', r) + header('home', r) + f'''
+                '', r, [faq_ld()]) + header('home', r) + f'''
 <main id="tresc">
   <section class="hero">
-    {img(HERO, '', 1920, 1080, cls='hero__bg', lazy=False, sizes='100vw')}
+    {img(HERO, '', 1920, 1080, cls='hero__bg', lazy=False, sizes='100vw', extra='data-parallax')}
+    <canvas class="leaves" aria-hidden="true"></canvas>
     <div class="wrap">
       <div class="hero__content">
         <span class="eyebrow">Komfortowe Ogrody · od 2013 roku</span>
-        <h1>Zakładanie i pielęgnacja ogrodów <span class="accent">w Aleksandrowie Kujawskim</span></h1>
+        <h1>{words('Zakładanie i pielęgnacja ogrodów')} <span class="accent">{words('w Aleksandrowie Kujawskim', 4, 'shine')}</span></h1>
+        <p class="hero__rotator">Projekt · wykonanie · pielęgnacja – <span data-rotate='["projektujemy.","zakładamy.","pielęgnujemy.","dbamy o komfort."]'>projektujemy.</span><span class="caret" aria-hidden="true"></span></p>
         <p class="hero__lead">Zaprojektujemy, wykonamy oraz będziemy odpowiednio pielęgnować Państwa ogrody, tak abyście cały czas czuli się w nich <strong>KOMFORTOWO</strong>!</p>
         <div class="hero__actions">
           <a class="btn btn--lime" href="kontakt/">Skontaktuj się</a>
@@ -354,15 +404,16 @@ def build_home():
     </div>
     <span class="hero__scroll" aria-hidden="true"></span>
   </section>
+  {marquee()}
 
   <section class="section" id="oferta">
     <div class="wrap">
       <div class="section-head reveal">
         <span class="eyebrow eyebrow--dark">Nasza oferta</span>
-        <h2>Ogród od projektu po stałą opiekę</h2>
+        <h2>Ogród od projektu <span class="mark">po stałą opiekę</span></h2>
         <p>Profesjonalne zakładanie i pielęgnacja ogrodów, aby były funkcjonalne i piękne.</p>
       </div>
-      <div class="services">{cards}
+      <div class="services" data-stagger>{cards}
       </div>
     </div>
   </section>
@@ -370,20 +421,53 @@ def build_home():
   <section class="section section--sand">
     <div class="wrap about">
       <div class="about__text reveal">
+        <svg class="vine" viewBox="0 0 120 220" aria-hidden="true"><path d="M60 215C58 170 70 150 62 120S40 70 58 40 70 12 66 4"/><path d="M62 150c14-6 28-4 38 4M60 100C44 94 30 96 20 104M60 60c12-8 24-10 36-6"/><ellipse class="lf" cx="102" cy="154" rx="12" ry="6"/><ellipse class="lf" cx="18" cy="104" rx="12" ry="6"/><ellipse class="lf" cx="98" cy="54" rx="11" ry="5.5"/><ellipse class="lf" cx="66" cy="6" rx="8" ry="5"/></svg>
         <span class="eyebrow eyebrow--dark">O nas</span>
         <h2>Komfortowe Ogrody</h2>
         <p class="big">Zaprojektujemy, wykonamy oraz będziemy odpowiednio pielęgnować Państwa ogrody, tak abyście cały czas czuli się w nich <span class="kom">KOMFORTOWO</span>!</p>
         <p>Od początku poszerzamy naszą wiedzę oraz umiejętności, dzięki czemu nasi klienci obdarzyli nas swoim zaufaniem.</p>
-        <div class="stats">
+        <div class="stats" data-stagger>
           <div class="stat"><b data-count>150+</b><span>zaufanych klientów</span></div>
           <div class="stat"><b data-years-since="2013" data-count>13+</b><span>lat doświadczenia</span></div>
           <div class="stat"><b>3 w 1</b><span>projekt, wykonanie i pielęgnacja</span></div>
         </div>
       </div>
       <div class="about__media reveal">
-        {img('7-mnlv0JvKBZSgwxp6.jpg', 'Ogród zrealizowany przez Komfortowe Ogrody', 720, 900, sizes='(min-width: 880px) 520px, 100vw')}
+        {img('7-mnlv0JvKBZSgwxp6.jpg', 'Ogród zrealizowany przez Komfortowe Ogrody', 720, 900, sizes='(min-width: 880px) 520px, 100vw', cls='img-reveal')}
         <div class="about__badge"><b>2013</b><span>tworzymy ogrody<br>od ponad dekady</span></div>
       </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow eyebrow--dark">Dlaczego my</span>
+        <h2>Jeden wykonawca, <span class="mark">pełen komfort</span></h2>
+        <p>Nie musisz szukać osobno projektanta, ekipy i ogrodnika – wszystko załatwisz u nas.</p>
+      </div>
+      <div class="benefits" data-stagger>
+        <div class="benefit spot"><span class="ico">{I['layers']}</span><h3>Wszystko w jednym miejscu</h3><p>Projekt, wykonanie i stała pielęgnacja – jeden kontakt przez cały czas życia ogrodu.</p></div>
+        <div class="benefit spot"><span class="ico">{I['cube']}</span><h3>Wizualizacja 3D</h3><p>Zanim wbijemy pierwszą łopatę, zobaczysz swój ogród na szkicu koncepcyjnym i w 3D.</p></div>
+        <div class="benefit spot"><span class="ico">{I['medal']}</span><h3>Doświadczenie od 2013</h3><p>Od początku poszerzamy wiedzę i umiejętności – ponad dekada pracy z ogrodami.</p></div>
+        <div class="benefit spot"><span class="ico">{I['users']}</span><h3>150+ klientów</h3><p>Ponad 150 osób powierzyło nam swoje ogrody. Zobacz efekty w galerii przed i po.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--sand">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow eyebrow--dark">Jak pracujemy</span>
+        <h2>Od pierwszej rozmowy <span class="mark">do pięknego ogrodu</span></h2>
+        <p>Prosty proces w czterech krokach – wiesz, co dzieje się na każdym etapie.</p>
+      </div>
+      <ol class="process">
+        <li class="step"><span class="step__dot">1</span><h3>Rozmowa</h3><p>Dzwonisz lub piszesz i opowiadasz, jaki ogród sobie wymarzyłeś.</p></li>
+        <li class="step"><span class="step__dot">2</span><h3>Projekt</h3><p>Przygotowujemy szkic koncepcyjny i wizualizację 3D Twojego ogrodu.</p></li>
+        <li class="step"><span class="step__dot">3</span><h3>Realizacja</h3><p>Zakładamy ogród od A do Z: teren, nawadnianie, oświetlenie, nasadzenia.</p></li>
+        <li class="step"><span class="step__dot">4</span><h3>Pielęgnacja</h3><p>Dbamy o ogród przez cały rok, żeby zawsze był zadbany i zdrowy.</p></li>
+      </ol>
     </div>
   </section>
 
@@ -406,21 +490,21 @@ def build_home():
     <div class="wrap">
       <div class="section-head reveal">
         <span class="eyebrow">Opinie</span>
-        <h2>Co mówią o nas klienci</h2>
+        <h2>Co mówią o nas <span class="mark">klienci</span></h2>
         <p>Zaufaj naszym klientom, którzy doceniają nasze usługi ogrodnicze.</p>
       </div>
-      <div class="reviews">
-        <figure class="review reveal">
+      <div class="reviews" data-stagger>
+        <figure class="review spot">
           <div class="stars" role="img" aria-label="Ocena 5 na 5">{stars}</div>
           <blockquote>„Dzięki Komfortowym Ogrodom mój ogród wygląda pięknie i jest łatwy w pielęgnacji. Ich nowoczesne rozwiązania naprawdę zaoszczędziły mi czas i pieniądze.”</blockquote>
           <figcaption><span class="avatar" aria-hidden="true">MS</span><span><b>Marek Stanisławski</b><span>Aleksandrów Kujawski</span></span></figcaption>
         </figure>
-        <figure class="review reveal">
+        <figure class="review spot">
           <div class="stars" role="img" aria-label="Ocena 5 na 5">{stars}</div>
           <blockquote>„Komfortowe ogrody to profesjonaliści, którzy znają się na rzeczy. Polecam!”</blockquote>
           <figcaption><span class="avatar" aria-hidden="true">AB</span><span><b>Anna Borejko</b><span>Toruń</span></span></figcaption>
         </figure>
-        <div class="review-cta reveal">
+        <div class="review-cta">
           <span class="g">{I['google']}</span>
           <h3>Opinie w Google</h3>
           <p>Zobacz wszystkie opinie naszych klientów w wizytówce Google i podziel się swoją.</p>
@@ -429,6 +513,8 @@ def build_home():
       </div>
     </div>
   </section>
+
+  {faq_html()}
 
   <div style="height:clamp(64px,9vw,112px)"></div>
   {cta_band(r)}
@@ -447,15 +533,15 @@ def build_offer():
         trim = '255.5066079295154;317.1806167400881;669.6035242290749;264.3171806167401' if pic.startswith('s1-') else None
         blocks += f'''
       <article class="offer-block" id="{slug}">
-        <div class="offer-block__media reveal">
-          {img(pic, name, 760, 608, sizes='(min-width: 880px) 560px, 100vw', trim=trim)}
+        <div class="offer-block__media">
+          {img(pic, name, 760, 608, sizes='(min-width: 880px) 560px, 100vw', trim=trim, cls='img-reveal')}
           <span class="offer-block__num" aria-hidden="true">0{i+1}</span>
         </div>
         <div class="reveal">
           <span class="eyebrow eyebrow--dark">Usługa 0{i+1}</span>
           <h2>{name}</h2>
           <p>{text}</p>
-          <ul class="checklist">{lis}</ul>
+          <ul class="checklist" data-stagger>{lis}</ul>
           <a class="btn btn--primary" href="{r}kontakt/">Zapytaj o {name.split()[0].lower()}</a>
         </div>
       </article>'''
@@ -463,7 +549,7 @@ def build_offer():
                 'Projekty ogrodów z wizualizacją 3D, nawadnianie, oświetlenie, kostka brukowa, trawniki, oczka wodne i pielęgnacja zieleni – Aleksandrów Kujawski.',
                 'oferta/', r, [breadcrumbs_ld('Oferta', 'oferta/')]) + header('oferta', r) + f'''
 <main id="tresc">
-  {page_hero('Nasza oferta', 'Profesjonalne zakładanie i pielęgnacja ogrodów, aby były funkcjonalne i piękne. Od projektu, przez kompleksowe wykonanie, po stałą opiekę nad zielenią.', 'Oferta', 'e-YlevO5P81RUZJbyy.JPG', r)}
+  {page_hero('Nasza <span class="shine">oferta</span>', 'Profesjonalne zakładanie i pielęgnacja ogrodów, aby były funkcjonalne i piękne. Od projektu, przez kompleksowe wykonanie, po stałą opiekę nad zielenią.', 'Oferta', 'e-YlevO5P81RUZJbyy.JPG', r)}
 
   <section class="section">
     <div class="wrap">{blocks}
@@ -474,11 +560,11 @@ def build_offer():
     <div class="wrap">
       <div class="section-head reveal">
         <span class="eyebrow eyebrow--dark">Z naszych realizacji</span>
-        <h2>Ogrody, w których czuć komfort</h2>
+        <h2>Ogrody, w których <span class="mark">czuć komfort</span></h2>
       </div>
       <div class="photo-pair">
-        {img('img_20240615_135533-YX4yKzDvqkflLBLo.jpg', 'Realizacja ogrodu – Komfortowe Ogrody', 760, 608, sizes='(min-width: 880px) 600px, 100vw', cls='reveal')}
-        {img('e-YlevO5P81RUZJbyy.JPG', 'Zadbany ogród po realizacji – Komfortowe Ogrody', 760, 608, sizes='(min-width: 880px) 600px, 100vw', cls='reveal', trim='205.8319039451115;0;205.8319039451115;0')}
+        {img('img_20240615_135533-YX4yKzDvqkflLBLo.jpg', 'Realizacja ogrodu – Komfortowe Ogrody', 760, 608, sizes='(min-width: 880px) 600px, 100vw', cls='img-reveal')}
+        {img('e-YlevO5P81RUZJbyy.JPG', 'Zadbany ogród po realizacji – Komfortowe Ogrody', 760, 608, sizes='(min-width: 880px) 600px, 100vw', cls='img-reveal', trim='205.8319039451115;0;205.8319039451115;0')}
       </div>
       <p style="text-align:center;margin-top:36px"><a class="btn btn--outline" href="{r}galeria/">Zobacz więcej realizacji</a></p>
     </div>
@@ -506,7 +592,7 @@ def build_gallery():
                 'Realizacje ogrodów przed i po: zakładanie ogrodów, trawniki, nasadzenia i pielęgnacja zieleni w Aleksandrowie Kujawskim. Zobacz różnicę!',
                 'galeria/', r, [breadcrumbs_ld('Galeria', 'galeria/')]) + header('galeria', r) + f'''
 <main id="tresc">
-  {page_hero('Galeria ogrodów', 'Zobacz nasze realizacje ogrodów, które zachwycają funkcjonalnością i pięknem. Przesuń suwak na zdjęciu, żeby porównać stan przed i po.', 'Galeria', AFTER[0], r)}
+  {page_hero('Galeria <span class="shine">ogrodów</span>', 'Zobacz nasze realizacje ogrodów, które zachwycają funkcjonalnością i pięknem. Przesuń suwak na zdjęciu, żeby porównać stan przed i po.', 'Galeria', AFTER[0], r)}
 
   <section class="section">
     <div class="wrap">
@@ -538,21 +624,24 @@ def build_contact():
                 f'Komfortowe Ogrody: tel. 600 927 502, {BIZ["email"]}, ul. {BIZ["street"]}, {BIZ["city"]}. Czynne {BIZ["hours_label"]}.',
                 'kontakt/', r, [breadcrumbs_ld('Kontakt', 'kontakt/')]) + header('kontakt', r) + f'''
 <main id="tresc">
-  {page_hero('Skontaktuj się z nami', 'Chętnie odpowiemy na wszystkie Państwa pytania dotyczące ogrodów. Zadzwoń, napisz albo odwiedź nas w Aleksandrowie Kujawskim.', 'Kontakt', '4-m5KwDlD3lECL8jyQ.png', r)}
+  {page_hero('Skontaktuj się <span class="shine">z nami</span>', 'Chętnie odpowiemy na wszystkie Państwa pytania dotyczące ogrodów. Zadzwoń, napisz albo odwiedź nas w Aleksandrowie Kujawskim.', 'Kontakt', '4-m5KwDlD3lECL8jyQ.png', r)}
 
   <section class="section">
     <div class="wrap">
-      <div class="contact-grid">
-        <a class="contact-card reveal" href="tel:{BIZ['phone_tel']}">
-          <span class="ico">{I['phone']}</span><small>Telefon</small><b>{BIZ['phone_display']}</b>
-        </a>
-        <a class="contact-card reveal" href="mailto:{BIZ['email']}">
-          <span class="ico">{I['mail']}</span><small>E-mail</small><b>{BIZ['email']}</b>
-        </a>
-        <a class="contact-card reveal" href="{BIZ['gmaps']}" target="_blank" rel="noopener">
-          <span class="ico">{I['pin']}</span><small>Adres</small><b>{BIZ['street']},<br>{BIZ['postal']} {BIZ['city']}</b>
-        </a>
-        <div class="contact-card reveal">
+      <div class="contact-grid" data-stagger>
+        <div class="contact-card spot">
+          <span class="ico">{I['phone']}</span><small>Telefon</small><a href="tel:{BIZ['phone_tel']}"><b>{BIZ['phone_display']}</b></a>
+          <button class="copy" type="button" data-copy="{BIZ['phone_display']}">{I['copy']}Kopiuj numer</button>
+        </div>
+        <div class="contact-card spot">
+          <span class="ico">{I['mail']}</span><small>E-mail</small><a href="mailto:{BIZ['email']}"><b>{BIZ['email']}</b></a>
+          <button class="copy" type="button" data-copy="{BIZ['email']}">{I['copy']}Kopiuj adres</button>
+        </div>
+        <div class="contact-card spot">
+          <span class="ico">{I['pin']}</span><small>Adres</small><a href="{BIZ['gmaps']}" target="_blank" rel="noopener"><b>{BIZ['street']},<br>{BIZ['postal']} {BIZ['city']}</b></a>
+          <button class="copy" type="button" data-copy="{ADDRESS_ONE_LINE}">{I['copy']}Kopiuj adres</button>
+        </div>
+        <div class="contact-card spot">
           <span class="ico">{I['clock']}</span><small>Godziny otwarcia</small>
           <span class="hours"><b>Pn–Sob: 7:00–18:00</b><br>Niedziela: zamknięte</span>
           <span class="open-status"></span>
@@ -567,14 +656,10 @@ def build_contact():
         <form class="form reveal" id="contact-form" novalidate>
           <h2>Napisz do nas</h2>
           <p>Opisz krótko, czego potrzebujesz – odpowiemy najszybciej, jak to możliwe.</p>
-          <label for="f-name">Imię i nazwisko</label>
-          <input id="f-name" name="name" type="text" placeholder="Wpisz swoje imię tutaj" autocomplete="name">
-          <label for="f-email">Adres e-mail*</label>
-          <input id="f-email" name="email" type="email" placeholder="Wpisz swój e-mail" autocomplete="email" required>
-          <label for="f-phone">Telefon</label>
-          <input id="f-phone" name="phone" type="tel" placeholder="Opcjonalnie" autocomplete="tel">
-          <label for="f-msg">Wiadomość*</label>
-          <textarea id="f-msg" name="message" rows="6" placeholder="Napisz swoją wiadomość" required></textarea>
+          <div class="field"><input id="f-name" name="name" type="text" placeholder=" " autocomplete="name"><label for="f-name">Imię i nazwisko</label></div>
+          <div class="field"><input id="f-email" name="email" type="email" placeholder=" " autocomplete="email" required><label for="f-email">Adres e-mail*</label></div>
+          <div class="field"><input id="f-phone" name="phone" type="tel" placeholder=" " autocomplete="tel"><label for="f-phone">Telefon (opcjonalnie)</label></div>
+          <div class="field"><textarea id="f-msg" name="message" rows="6" placeholder=" " required></textarea><label for="f-msg">Wiadomość*</label></div>
           <button class="btn btn--primary" type="submit">Wyślij zapytanie</button>
           <p class="form__note" role="status" aria-live="polite"></p>
         </form>
