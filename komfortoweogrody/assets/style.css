@@ -625,3 +625,10 @@ a.contact-card:hover{transform:translateY(-4px);box-shadow:var(--shadow);border-
 @media (prefers-reduced-motion:reduce){
   .sculpt-hero__text>*,.viewer{opacity:1}
 }
+
+/* Cena rzeźby */
+.price-tag{display:inline-flex;align-items:baseline;gap:14px;margin:26px 0 0;padding:14px 22px;border-radius:var(--radius);background:var(--green-50);border:1px solid rgba(40,115,25,.18)}
+.price-tag__label{font-size:14px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--green-800)}
+.price-tag__value{font-family:'Roboto Slab',serif;font-size:clamp(28px,3vw,38px);font-weight:700;line-height:1;color:var(--ink);white-space:nowrap}
+.sculpt-hero__text>*:nth-child(8){animation-delay:.56s}
+.cta-band p strong{color:#fff}
