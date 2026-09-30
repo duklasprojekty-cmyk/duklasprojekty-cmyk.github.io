@@ -279,7 +279,7 @@
   document.querySelectorAll('[data-stagger]').forEach(function(g){
     Array.prototype.forEach.call(g.children, function(c, i){ c.style.setProperty('--d', i); });
   });
-  var fx = document.querySelectorAll('[data-stagger], .img-reveal, .mark, .vine');
+  var fx = document.querySelectorAll('[data-stagger], .img-reveal, .mark, .vine, .area__map');
   if ('IntersectionObserver' in window && !reduce) {
     var fio = new IntersectionObserver(function(entries){
       entries.forEach(function(en){ if (en.isIntersecting) { en.target.classList.add('in'); fio.unobserve(en.target); } });
@@ -513,6 +513,110 @@
       loadMap();
     });
     try { if (localStorage.getItem('ko-map-consent') === '1') loadMap(); } catch (e) {}
+  }
+
+  // Inteligentny przycisk w hero: w godzinach pracy „Zadzwoń”, po godzinach „Napisz”
+  var smart = document.querySelector('[data-smart-cta]');
+  if (smart && status.length) {
+    var isOpen = status[0].classList.contains('is-open');
+    if (!isOpen) { smart.href = smart.getAttribute('data-closed-href'); smart.querySelector('span').textContent = smart.getAttribute('data-closed'); }
+  }
+
+  // Kalendarz ogrodnika: zakładki miesięcy, bieżący miesiąc domyślnie
+  var cal = document.querySelector('.cal');
+  if (cal) {
+    var tabs = cal.querySelectorAll('.cal__tab'), panels = cal.querySelectorAll('.cal__panel');
+    var month = 0;
+    try { month = parseInt(new Intl.DateTimeFormat('en-US', {timeZone: 'Europe/Warsaw', month: 'numeric'}).format(new Date()), 10) - 1; } catch (e) { month = new Date().getMonth(); }
+    tabs[month].classList.add('is-now');
+    var pick = function(i, focus){
+      tabs.forEach(function(t, k){ t.setAttribute('aria-selected', k === i); t.tabIndex = k === i ? 0 : -1; });
+      panels.forEach(function(p, k){ p.hidden = k !== i; });
+      if (focus) tabs[i].focus();
+    };
+    tabs.forEach(function(t, i){
+      t.addEventListener('click', function(){ pick(i); });
+      t.addEventListener('keydown', function(e){
+        if (e.key === 'ArrowRight') pick((i + 1) % 12, true);
+        if (e.key === 'ArrowLeft') pick((i + 11) % 12, true);
+      });
+    });
+    pick(month);
+  }
+
+  // Konfigurator zapytania o wycenę
+  var wiz = document.getElementById('wizard');
+  if (wiz) {
+    var wsteps = wiz.querySelectorAll('.wizard__step'), dots = wiz.querySelectorAll('.wizard__steps li'), bar = wiz.querySelector('.wizard__bar span');
+    var prev = wiz.querySelector('[data-prev]'), next = wiz.querySelector('[data-next]'), send = wiz.querySelector('[data-send]'), wnote = wiz.querySelector('.form__note');
+    var cur = 0;
+    var showStep = function(i){
+      cur = i;
+      wsteps.forEach(function(s, k){ s.classList.toggle('is-active', k === i); });
+      dots.forEach(function(d, k){ d.classList.toggle('is-active', k === i); d.classList.toggle('is-done', k < i); });
+      bar.style.width = ((i + 1) / wsteps.length * 100) + '%';
+      prev.hidden = i === 0; next.hidden = i === wsteps.length - 1; send.hidden = i !== wsteps.length - 1;
+      wnote.textContent = '';
+      var first = wsteps[i].querySelector('input:not([type=checkbox]):not([type=radio]):not([type=range]), textarea');
+      if (first && finePointer) first.focus({preventScroll: true});
+    };
+    var val = function(name){
+      var els = wiz.querySelectorAll('[name="' + name + '"]');
+      if (!els.length) return '';
+      if (els[0].type === 'checkbox') return Array.prototype.filter.call(els, function(e){ return e.checked; }).map(function(e){ return e.value; }).join(', ');
+      if (els[0].type === 'radio') { var c = Array.prototype.filter.call(els, function(e){ return e.checked; })[0]; return c ? c.value : ''; }
+      if (els[0].type === 'range') return els[0].value + ' m²';
+      return els[0].value.trim();
+    };
+    var updateSummary = function(){
+      document.querySelectorAll('[data-sum]').forEach(function(dd){
+        var v = val(dd.getAttribute('data-sum')) || '–';
+        if (dd.textContent !== v) { dd.textContent = v; dd.classList.add('flash'); setTimeout(function(){ dd.classList.remove('flash'); }, 600); }
+      });
+      var range = wiz.querySelector('#q-area');
+      if (range) { range.style.setProperty('--p', ((range.value - range.min) / (range.max - range.min) * 100) + '%'); document.getElementById('q-area-out').textContent = range.value + ' m²'; }
+      try { localStorage.setItem('ko-quote', JSON.stringify({zakres: val('zakres'), powierzchnia: wiz.querySelector('#q-area').value, teren: val('teren'), miejscowosc: val('miejscowosc'), termin: val('termin'), uwagi: val('uwagi')})); } catch (e) {}
+    };
+    wiz.addEventListener('input', updateSummary); wiz.addEventListener('change', updateSummary);
+    // przywrócenie niedokończonego zapytania
+    try {
+      var saved = JSON.parse(localStorage.getItem('ko-quote') || 'null');
+      if (saved) {
+        (saved.zakres || '').split(', ').forEach(function(v){ var e = wiz.querySelector('[name=zakres][value="' + v + '"]'); if (e) e.checked = true; });
+        if (saved.powierzchnia) wiz.querySelector('#q-area').value = saved.powierzchnia;
+        ['teren', 'termin'].forEach(function(n){ var e = saved[n] && wiz.querySelector('[name=' + n + '][value="' + saved[n] + '"]'); if (e) e.checked = true; });
+        if (saved.miejscowosc) wiz.querySelector('#q-city').value = saved.miejscowosc;
+        if (saved.uwagi) wiz.querySelector('#q-notes').value = saved.uwagi;
+      }
+    } catch (e) {}
+    updateSummary();
+    var validate = function(i){
+      if (i === 0 && !val('zakres')) { wnote.textContent = 'Zaznacz przynajmniej jedną usługę.'; return false; }
+      return true;
+    };
+    next.addEventListener('click', function(){ if (validate(cur)) showStep(cur + 1); });
+    prev.addEventListener('click', function(){ showStep(cur - 1); });
+    wiz.addEventListener('submit', function(e){
+      e.preventDefault();
+      if (wiz.elements.firma.value) { wnote.textContent = 'Dziękujemy!'; return; }
+      var email = wiz.elements.email, ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim());
+      email.classList.toggle('invalid', !ok);
+      if (!ok) { wnote.textContent = 'Podaj poprawny adres e-mail, żebyśmy mogli odpowiedzieć.'; wiz.classList.remove('shake'); void wiz.offsetWidth; wiz.classList.add('shake'); return; }
+      var lines = ['Zapytanie o wycenę ze strony komfortoweogrody.pl', '',
+        'Zakres: ' + (val('zakres') || '–'), 'Powierzchnia: ' + val('powierzchnia'), 'Teren: ' + (val('teren') || '–'),
+        'Miejscowość: ' + (val('miejscowosc') || '–'), 'Termin: ' + (val('termin') || '–'), 'Uwagi: ' + (val('uwagi') || '–'), '',
+        'Kontakt: ' + (val('name') || '–'), 'Telefon: ' + (val('phone') || '–'), 'E-mail: ' + email.value.trim()];
+      window.location.href = 'mailto:kontakt@komfortoweogrody.pl?subject=' + encodeURIComponent('Zapytanie o wycenę' + (val('name') ? ' – ' + val('name') : '')) + '&body=' + encodeURIComponent(lines.join('\n'));
+      wnote.textContent = 'Dziękujemy! Otwieramy Twój program pocztowy z gotowym zapytaniem.';
+      try { localStorage.removeItem('ko-quote'); } catch (er) {}
+    });
+    var copyBtn = document.querySelector('[data-copy-summary]');
+    if (copyBtn) copyBtn.addEventListener('click', function(){
+      var txt = Array.prototype.map.call(document.querySelectorAll('#summary div'), function(d){ return d.querySelector('dt').textContent + ': ' + d.querySelector('dd').textContent; }).join('\n');
+      var done = function(){ showToast('Skopiowano podsumowanie'); };
+      if (navigator.clipboard) navigator.clipboard.writeText(txt).then(done, done); else done();
+    });
+    showStep(0);
   }
 
   // Na podglądzie w github.io strona leży obok aplikacji Król Kufla, której service worker (cache-first)

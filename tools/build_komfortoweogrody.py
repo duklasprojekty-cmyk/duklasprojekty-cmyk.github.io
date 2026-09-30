@@ -58,6 +58,9 @@ HERO = '1-m2Wpy8JeOpFqDGKe.jpg'
 
 # ---------- ikony ----------
 I = {
+ 'calc': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 10h2M12 10h2M16 10h0M8 14h2M12 14h2M16 14h0M8 18h2M12 18h2M16 18h0"/></svg>',
+ 'sun': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>',
+ 'map': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3z"/><path d="M9 3v15M15 6v15"/></svg>',
  'copy': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>',
  'layers': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 2 10 5-10 5L2 7z"/><path d="m2 17 10 5 10-5M2 12l10 5 10-5"/></svg>',
  'cube': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 16V8a2 2 0 0 0-1-1.7l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.7l7 4a2 2 0 0 0 2 0l7-4a2 2 0 0 0 1-1.7z"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/></svg>',
@@ -80,7 +83,7 @@ I = {
  'google': '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M22.6 12.3c0-.8-.1-1.5-.2-2.3H12v4.3h5.9a5 5 0 0 1-2.2 3.3v2.8h3.6c2.1-1.9 3.3-4.8 3.3-8.1z"/><path fill="#34A853" d="M12 23c3 0 5.5-1 7.3-2.7l-3.6-2.8c-1 .7-2.2 1.1-3.7 1.1-2.9 0-5.3-1.9-6.2-4.5H2.1v2.9A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.8 14.1a6.6 6.6 0 0 1 0-4.2V7H2.1a11 11 0 0 0 0 10z"/><path fill="#EA4335" d="M12 5.4c1.6 0 3.1.6 4.2 1.7l3.2-3.2A11 11 0 0 0 2.1 7l3.7 2.9C6.7 7.3 9.1 5.4 12 5.4z"/></svg>',
 }
 
-NAV = [('', 'Strona główna', 'home'), ('oferta/', 'Oferta', 'oferta'), ('galeria/', 'Galeria', 'galeria'), ('rzezba/', 'Rzeźba', 'rzezba'), ('kontakt/', 'Kontakt', 'kontakt')]
+NAV = [('', 'Strona główna', 'home'), ('oferta/', 'Oferta', 'oferta'), ('galeria/', 'Galeria', 'galeria'), ('rzezba/', 'Rzeźba', 'rzezba'), ('wycena/', 'Wycena', 'wycena'), ('kontakt/', 'Kontakt', 'kontakt')]
 
 # ---------- dane strukturalne (wytyczne, pkt 3) ----------
 SERVICES = ['Projektowanie ogrodów', 'Zakładanie ogrodów', 'Pielęgnacja ogrodów', 'Instalacje nawadniające',
@@ -119,6 +122,39 @@ def faq_html():
     </div>
   </section>'''
 
+AREA = ['Aleksandrów Kujawski', 'Ciechocinek', 'Toruń', 'Włocławek', 'Nieszawa', 'Raciążek', 'Służewo', 'Bądkowo']
+
+def area_html(root, compact=False):
+    chips = ''.join(('<li class="is-hq">' if i == 0 else '<li>') + t + '</li>' for i, t in enumerate(AREA))
+    return f'''<section class="section section--sand" id="obszar">
+    <div class="wrap area">
+      <div class="area__text reveal">
+        <span class="eyebrow eyebrow--dark">Obszar działania</span>
+        <h2>Aleksandrów Kujawski <span class="mark">i okolice</span></h2>
+        <p>Nasza siedziba mieści się w Aleksandrowie Kujawskim. Zakładamy i pielęgnujemy ogrody w mieście i okolicznych miejscowościach, m.in.:</p>
+        <ul class="area__list" data-stagger>{chips}</ul>
+        <p class="area__note">Twoja miejscowość nie jest na liście? Zadzwoń – dojazd ustalamy indywidualnie.</p>
+        <a class="btn btn--primary" href="{root}wycena/">{I['calc']}Zapytaj o wycenę</a>
+      </div>
+      <div class="area__map reveal" aria-hidden="true">
+        <svg viewBox="0 0 400 400"><defs><radialGradient id="rg" cx="50%" cy="50%"><stop offset="0" stop-color="#54bf3f" stop-opacity=".35"/><stop offset="1" stop-color="#54bf3f" stop-opacity="0"/></radialGradient></defs>
+          <circle class="ring" cx="200" cy="200" r="150"/><circle class="ring" cx="200" cy="200" r="100"/><circle class="ring" cx="200" cy="200" r="50"/>
+          <circle cx="200" cy="200" r="150" fill="url(#rg)"/>
+          <g class="pins">
+            <g transform="translate(200 200)"><circle r="9" class="hq"/><text y="-18">Aleksandrów Kuj.</text></g>
+            <g transform="translate(232 158)"><circle r="5"/><text y="-12">Ciechocinek</text></g>
+            <g transform="translate(150 70)"><circle r="5"/><text y="-12">Toruń</text></g>
+            <g transform="translate(300 310)"><circle r="5"/><text y="-12">Włocławek</text></g>
+            <g transform="translate(286 264)"><circle r="5"/><text y="20">Nieszawa</text></g>
+            <g transform="translate(232 226)"><circle r="4"/><text y="-11">Raciążek</text></g>
+            <g transform="translate(148 232)"><circle r="4"/><text y="18">Służewo</text></g>
+            <g transform="translate(120 320)"><circle r="4"/><text y="18">Bądkowo</text></g>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </section>'''
+
 def local_business():
     return {
         '@context': 'https://schema.org',
@@ -145,7 +181,7 @@ def local_business():
             'telephone': BIZ['phone_tel'],
         },
         'hasMap': BIZ['gmaps'],
-        'areaServed': {'@type': 'City', 'name': BIZ['city']},
+        'areaServed': [{'@type': 'City', 'name': t} for t in AREA],
         'makesOffer': [{'@type': 'Offer', 'itemOffered': {'@type': 'Service', 'name': s}} for s in SERVICES],
         'openingHoursSpecification': [{
             '@type': 'OpeningHoursSpecification',
@@ -275,6 +311,8 @@ def footer(root):
           <li><a href="{root}oferta/#pielegnacja">Pielęgnacja ogrodów</a></li>
           <li><a href="{root}galeria/">Realizacje przed i po</a></li>
           <li><a href="{root}rzezba/">Rzeźba ogrodowa</a></li>
+          <li><a href="{root}wycena/">Zapytaj o wycenę</a></li>
+          <li><a href="{root}oferta/#kalendarz">Kalendarz prac w ogrodzie</a></li>
           <li><a href="{root}kontakt/">Kontakt i dojazd</a></li>
         </ul>
       </div>
@@ -288,7 +326,7 @@ def footer(root):
 <a class="fab" href="tel:{BIZ['phone_tel']}" aria-label="Zadzwoń: {BIZ['phone_display']}">{I['phone']}<span class="fab__tip">Zadzwoń: {BIZ['phone_display']}</span></a>
 <nav class="action-bar" aria-label="Szybki kontakt">
   <a href="tel:{BIZ['phone_tel']}">{I['phone']}Zadzwoń</a>
-  <a href="mailto:{BIZ['email']}">{I['mail']}Napisz</a>
+  <a href="{root}wycena/">{I['calc']}Wycena</a>
   <a href="{BIZ['gmaps']}" target="_blank" rel="noopener">{I['pin']}Dojazd</a>
 </nav>
 </body>
@@ -326,7 +364,7 @@ def cta_band(root):
         </div>
         <div class="cta-band__actions">
           <a class="btn btn--white" href="tel:{BIZ['phone_tel']}">{I['phone']}{BIZ['phone_display']}</a>
-          <a class="btn btn--ghost" href="{root}kontakt/">Napisz do nas</a>
+          <a class="btn btn--ghost" href="{root}wycena/">{I['calc']}Zapytaj o wycenę</a>
         </div>
       </div>
     </div>
@@ -429,8 +467,8 @@ def build_home():
         <p class="hero__rotator">Projekt · wykonanie · pielęgnacja – <span data-rotate='["projektujemy.","zakładamy.","pielęgnujemy.","dbamy o komfort."]'>projektujemy.</span><span class="caret" aria-hidden="true"></span></p>
         <p class="hero__lead">Zaprojektujemy, wykonamy oraz będziemy odpowiednio pielęgnować Państwa ogrody, tak abyście cały czas czuli się w nich <strong>KOMFORTOWO</strong>!</p>
         <div class="hero__actions">
-          <a class="btn btn--lime" href="kontakt/">Skontaktuj się</a>
-          <a class="btn btn--ghost" href="galeria/">Zobacz realizacje przed i po</a>
+          <a class="btn btn--lime" href="tel:{BIZ['phone_tel']}" data-smart-cta data-open="Zadzwoń – jesteśmy dostępni" data-closed="Napisz – odpowiemy w godzinach pracy" data-closed-href="wycena/">{I['phone']}<span>Zadzwoń – jesteśmy dostępni</span></a>
+          <a class="btn btn--ghost" href="wycena/">Zapytaj o wycenę</a>
         </div>
         <ul class="trust">
           <li>{I['users']}<span><b>150+</b> zaufanych klientów</span></li>
@@ -508,6 +546,8 @@ def build_home():
     </div>
   </section>
 
+  {area_html(r)}
+
   <section class="section">
     <div class="wrap ba-feature">
       <div class="reveal">
@@ -562,6 +602,44 @@ def build_home():
 # =====================================================================
 # OFERTA
 # =====================================================================
+CALENDAR = [
+    ('Styczeń',     'Czas na projekt: szkic koncepcyjny i wizualizacja 3D, żeby wiosną ruszyć z realizacją.', ['projekt']),
+    ('Luty',        'Projektowanie, zamawianie roślin i cięcie prześwietlające drzew oraz krzewów pod koniec miesiąca.', ['projekt', 'pielęgnacja']),
+    ('Marzec',      'Porządki po zimie, wertykulacja i pierwsze nawożenie trawnika, cięcie żywopłotów przed wegetacją, niwelacja terenu pod nowe ogrody.', ['pielęgnacja', 'wykonanie']),
+    ('Kwiecień',    'Zakładanie trawników z siewu i z rolki, nasadzenia, uruchomienie nawadniania, pierwsze koszenie i opryski profilaktyczne.', ['wykonanie', 'pielęgnacja']),
+    ('Maj',         'Nasadzenia bylin i krzewów, regularne koszenie, nawadnianie i ochrona roślin przed szkodnikami.', ['wykonanie', 'pielęgnacja']),
+    ('Czerwiec',    'Pierwsze formowanie żywopłotów, cotygodniowe koszenie, nawadnianie, montaż oczek wodnych i oświetlenia.', ['pielęgnacja', 'wykonanie']),
+    ('Lipiec',      'Nawadnianie w upały, koszenie, opryski przy chorobach grzybowych, cięcie letnie krzewów.', ['pielęgnacja']),
+    ('Sierpień',    'Drugie cięcie żywopłotów, przygotowanie stanowisk pod jesienne nasadzenia, od połowy miesiąca zakładanie trawników.', ['pielęgnacja', 'wykonanie']),
+    ('Wrzesień',    'Najlepszy czas na trawnik z siewu, nasadzenia drzew i krzewów, nawożenie jesienne i regeneracja trawnika.', ['wykonanie', 'pielęgnacja']),
+    ('Październik', 'Nasadzenia, grabienie liści, ostatnie koszenie, zabezpieczenie instalacji nawadniającej przed zimą.', ['pielęgnacja']),
+    ('Listopad',    'Okrywanie roślin wrażliwych, cięcie sanitarne, prace porządkowe i oświetlenie ogrodu na krótkie dni.', ['pielęgnacja', 'wykonanie']),
+    ('Grudzień',    'Planowanie i projekt na kolejny sezon, strząsanie śniegu z iglaków, przegląd oświetlenia.', ['projekt', 'pielęgnacja']),
+]
+
+def calendar_html(root):
+    tabs = ''.join(f'<button class="cal__tab" type="button" role="tab" data-m="{i}" aria-selected="false" id="cal-tab-{i}" aria-controls="cal-panel-{i}">{m[:3]}<span class="sr-only">{m[3:]}</span></button>' for i, (m, _, _) in enumerate(CALENDAR))
+    panels = ''.join(f'''
+          <div class="cal__panel" role="tabpanel" id="cal-panel-{i}" aria-labelledby="cal-tab-{i}" hidden>
+            <h3>{m}</h3><p>{t}</p>
+            <ul class="chips">{''.join(f'<li>{x}</li>' for x in tags)}</ul>
+          </div>''' for i, (m, t, tags) in enumerate(CALENDAR))
+    return f'''<section class="section" id="kalendarz">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow eyebrow--dark">Kalendarz ogrodnika</span>
+        <h2>Co robimy w ogrodzie <span class="mark">przez cały rok</span></h2>
+        <p>Ogród żyje w rytmie pór roku. Sprawdź, jakie prace mają sens w danym miesiącu – i kiedy najlepiej się z nami umówić.</p>
+      </div>
+      <div class="cal reveal">
+        <div class="cal__tabs" role="tablist" aria-label="Miesiące">{tabs}</div>
+        <div class="cal__body">{panels}
+        </div>
+        <p class="cal__cta"><span class="open-status"></span> <a class="link-arrow" href="{root}wycena/">Umów prace na ten sezon</a></p>
+      </div>
+    </div>
+  </section>'''
+
 def build_offer():
     r = '../'
     blocks = ''
@@ -606,6 +684,8 @@ def build_offer():
       <p style="text-align:center;margin-top:36px"><a class="btn btn--outline" href="{r}galeria/">Zobacz więcej realizacji</a></p>
     </div>
   </section>
+
+  {calendar_html(r)}
 
   <div style="height:clamp(64px,9vw,112px)"></div>
   {cta_band(r)}
@@ -720,6 +800,8 @@ def build_contact():
       </div>
     </div>
   </section>
+
+  {area_html(r)}
 </main>
 ''' + footer(r)
     write('kontakt/index.html', body)
@@ -824,6 +906,108 @@ def build_sculpture():
     write('rzezba/index.html', body)
 
 # =====================================================================
+# WYCENA – konfigurator zapytania
+# =====================================================================
+def build_quote():
+    r = '../'
+    services = [('Projekt ogrodu', 'szkic koncepcyjny + wizualizacja 3D', 'layers'), ('Założenie ogrodu', 'teren, nawadnianie, oświetlenie, trawnik, nasadzenia', 'cube'),
+                ('Pielęgnacja', 'koszenie, żywopłoty, formowanie, opryski', 'leaf'), ('Rzeźba ogrodowa', 'lustrzana rzeźba na postumencie', 'medal')]
+    svc = ''.join(f'''
+              <label class="pick"><input type="checkbox" name="zakres" value="{n}"><span class="pick__box"><span class="ico">{I[ic]}</span><b>{n}</b><small>{d}</small></span></label>''' for n, d, ic in services)
+    terms = ['jak najszybciej', 'w tym sezonie', 'w przyszłym sezonie', 'jeszcze nie wiem']
+    trm = ''.join(f'<label class="pill"><input type="radio" name="termin" value="{t}"><span>{t}</span></label>' for t in terms)
+    lead = f"Cztery krótkie kroki i gotowe. Zapytanie trafi do nas e-mailem – odpowiadamy w godzinach pracy, {BIZ['hours_label']}."
+    body = head('Zapytaj o wycenę ogrodu | Komfortowe Ogrody',
+                'Opisz swój ogród w 4 prostych krokach – zakres prac, powierzchnia, termin i kontakt. Przygotujemy wycenę projektu, założenia lub pielęgnacji ogrodu.',
+                'wycena/', r, [breadcrumbs_ld('Wycena', 'wycena/')]) + header('wycena', r) + f'''
+<main id="tresc">
+  {page_hero('Zapytaj <span class="shine">o wycenę</span>', lead, 'Wycena', '4375db2d-421f-4512-a314-577c463903e2-A85w1ND26vIWDo2L.png', r)}
+
+  <section class="section">
+    <div class="wrap quote">
+      <form class="wizard" id="wizard" novalidate>
+        <ol class="wizard__steps" aria-label="Kroki">
+          <li class="is-active"><span>1</span>Zakres</li><li><span>2</span>Ogród</li><li><span>3</span>Termin</li><li><span>4</span>Kontakt</li>
+        </ol>
+        <div class="wizard__bar"><span></span></div>
+
+        <fieldset class="wizard__step is-active" data-step="0">
+          <legend>Czego potrzebujesz?</legend>
+          <p class="wizard__hint">Możesz zaznaczyć kilka opcji.</p>
+          <div class="picks">{svc}
+          </div>
+        </fieldset>
+
+        <fieldset class="wizard__step" data-step="1">
+          <legend>Opowiedz o ogrodzie</legend>
+          <div class="range">
+            <label for="q-area">Powierzchnia ogrodu: <output for="q-area" id="q-area-out">500 m²</output></label>
+            <input id="q-area" name="powierzchnia" type="range" min="50" max="5000" step="50" value="500">
+            <div class="range__scale"><span>50 m²</span><span>5000 m²</span></div>
+          </div>
+          <p class="wizard__label">Stan terenu</p>
+          <div class="pills">
+            <label class="pill"><input type="radio" name="teren" value="nowa działka / plac budowy"><span>Nowa działka</span></label>
+            <label class="pill"><input type="radio" name="teren" value="istniejący ogród do odświeżenia"><span>Istniejący ogród</span></label>
+            <label class="pill"><input type="radio" name="teren" value="ogród wymaga tylko pielęgnacji"><span>Tylko pielęgnacja</span></label>
+          </div>
+          <div class="field"><input id="q-city" name="miejscowosc" type="text" placeholder=" " autocomplete="address-level2"><label for="q-city">Miejscowość</label></div>
+        </fieldset>
+
+        <fieldset class="wizard__step" data-step="2">
+          <legend>Kiedy chcesz zacząć?</legend>
+          <div class="pills">{trm}</div>
+          <div class="field"><textarea id="q-notes" name="uwagi" rows="4" placeholder=" "></textarea><label for="q-notes">Uwagi (opcjonalnie) – np. co jest dla Ciebie najważniejsze</label></div>
+        </fieldset>
+
+        <fieldset class="wizard__step" data-step="3">
+          <legend>Jak się z Tobą skontaktować?</legend>
+          <div class="field"><input id="q-name" name="name" type="text" placeholder=" " autocomplete="name"><label for="q-name">Imię i nazwisko</label></div>
+          <div class="field"><input id="q-phone" name="phone" type="tel" placeholder=" " autocomplete="tel"><label for="q-phone">Telefon</label></div>
+          <div class="field"><input id="q-email" name="email" type="email" placeholder=" " autocomplete="email" required><label for="q-email">Adres e-mail*</label></div>
+          <div class="hp" aria-hidden="true"><label for="q-firma">Nie wypełniaj tego pola</label><input id="q-firma" name="firma" type="text" tabindex="-1" autocomplete="off"></div>
+          <p class="form__rodo">Po kliknięciu „Wyślij zapytanie” otworzy się Twój program pocztowy z gotową, uporządkowaną wiadomością. Administratorem danych jest {BIZ['legal']}. <a href="{r}polityka-prywatnosci/">Polityka prywatności</a>.</p>
+        </fieldset>
+
+        <div class="wizard__nav">
+          <button class="btn btn--outline" type="button" data-prev hidden>Wstecz</button>
+          <button class="btn btn--primary" type="button" data-next>Dalej</button>
+          <button class="btn btn--primary" type="submit" data-send hidden>{I['mail']}Wyślij zapytanie</button>
+          <p class="form__note" role="status" aria-live="polite"></p>
+        </div>
+      </form>
+
+      <aside class="quote__side">
+        <div class="summary">
+          <h2>Twoje zapytanie</h2>
+          <dl class="summary__list" id="summary">
+            <div><dt>Zakres</dt><dd data-sum="zakres">–</dd></div>
+            <div><dt>Powierzchnia</dt><dd data-sum="powierzchnia">500 m²</dd></div>
+            <div><dt>Teren</dt><dd data-sum="teren">–</dd></div>
+            <div><dt>Miejscowość</dt><dd data-sum="miejscowosc">–</dd></div>
+            <div><dt>Termin</dt><dd data-sum="termin">–</dd></div>
+          </dl>
+          <button class="copy" type="button" data-copy-summary>{I['copy']}Kopiuj podsumowanie</button>
+          <p class="summary__alt">Wolisz porozmawiać? <a href="tel:{BIZ['phone_tel']}">{BIZ['phone_display']}</a></p>
+        </div>
+        <div class="prep">
+          <h2>Zanim zadzwonisz</h2>
+          <p>Wycena pójdzie szybciej, jeśli przygotujesz:</p>
+          <ul class="checklist">
+            <li>{I['check']}<span>przybliżone wymiary działki lub ogrodu</span></li>
+            <li>{I['check']}<span>kilka zdjęć terenu, najlepiej z różnych stron</span></li>
+            <li>{I['check']}<span>pomysły i inspiracje – co lubisz, a czego nie</span></li>
+            <li>{I['check']}<span>orientacyjny budżet i termin</span></li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+  </section>
+</main>
+''' + footer(r)
+    write('wycena/index.html', body)
+
+# =====================================================================
 # POLITYKA PRYWATNOŚCI
 # =====================================================================
 def build_privacy():
@@ -903,7 +1087,7 @@ def build_404():
 
 def build_seo_files():
     today = '2026-09-30'
-    urls = [('', '1.0'), ('oferta/', '0.9'), ('galeria/', '0.8'), ('rzezba/', '0.7'), ('kontakt/', '0.8'), ('polityka-prywatnosci/', '0.3')]
+    urls = [('', '1.0'), ('oferta/', '0.9'), ('galeria/', '0.8'), ('rzezba/', '0.7'), ('wycena/', '0.8'), ('kontakt/', '0.8'), ('polityka-prywatnosci/', '0.3')]
     sm = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + ''.join(
         f'  <url><loc>{DOMAIN}/{u}</loc><lastmod>{today}</lastmod><priority>{p}</priority></url>\n' for u, p in urls) + '</urlset>\n'
     write('sitemap.xml', sm)
@@ -923,7 +1107,7 @@ ErrorDocument 404 /404.html
   RewriteCond %{HTTP_HOST} ^www\\. [NC]
   RewriteRule ^ https://komfortoweogrody.pl%{REQUEST_URI} [L,R=301]
   # Stare adresy ze strony Zyro i z podglądu
-  RewriteRule ^(oferta|galeria|rzezba|kontakt|polityka-prywatnosci)$ /$1/ [L,R=301]
+  RewriteRule ^(oferta|galeria|rzezba|wycena|kontakt|polityka-prywatnosci)$ /$1/ [L,R=301]
   RewriteRule ^(oferta|galeria|kontakt)\\.html$ /$1/ [L,R=301]
   RewriteRule ^strona-g-owna/?$ / [L,R=301]
   RewriteRule ^komfortowe-ogrody-(.*)$ / [L,R=301]
@@ -961,5 +1145,5 @@ ErrorDocument 404 /404.html
 ''')
 
 if __name__ == '__main__':
-    build_home(); build_offer(); build_gallery(); build_sculpture(); build_contact(); build_privacy(); build_manifest(); build_404(); build_seo_files()
+    build_home(); build_offer(); build_gallery(); build_sculpture(); build_quote(); build_contact(); build_privacy(); build_manifest(); build_404(); build_seo_files()
     print('OK')
