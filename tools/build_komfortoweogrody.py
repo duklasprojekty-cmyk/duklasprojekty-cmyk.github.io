@@ -80,7 +80,7 @@ I = {
  'google': '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M22.6 12.3c0-.8-.1-1.5-.2-2.3H12v4.3h5.9a5 5 0 0 1-2.2 3.3v2.8h3.6c2.1-1.9 3.3-4.8 3.3-8.1z"/><path fill="#34A853" d="M12 23c3 0 5.5-1 7.3-2.7l-3.6-2.8c-1 .7-2.2 1.1-3.7 1.1-2.9 0-5.3-1.9-6.2-4.5H2.1v2.9A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.8 14.1a6.6 6.6 0 0 1 0-4.2V7H2.1a11 11 0 0 0 0 10z"/><path fill="#EA4335" d="M12 5.4c1.6 0 3.1.6 4.2 1.7l3.2-3.2A11 11 0 0 0 2.1 7l3.7 2.9C6.7 7.3 9.1 5.4 12 5.4z"/></svg>',
 }
 
-NAV = [('', 'Strona główna', 'home'), ('oferta/', 'Oferta', 'oferta'), ('galeria/', 'Galeria', 'galeria'), ('kontakt/', 'Kontakt', 'kontakt')]
+NAV = [('', 'Strona główna', 'home'), ('oferta/', 'Oferta', 'oferta'), ('galeria/', 'Galeria', 'galeria'), ('rzezba/', 'Rzeźba', 'rzezba'), ('kontakt/', 'Kontakt', 'kontakt')]
 
 # ---------- dane strukturalne (wytyczne, pkt 3) ----------
 SERVICES = ['Projektowanie ogrodów', 'Zakładanie ogrodów', 'Pielęgnacja ogrodów', 'Instalacje nawadniające',
@@ -268,6 +268,7 @@ def footer(root):
           <li><a href="{root}oferta/#zakladanie">Zakładanie ogrodów</a></li>
           <li><a href="{root}oferta/#pielegnacja">Pielęgnacja ogrodów</a></li>
           <li><a href="{root}galeria/">Realizacje przed i po</a></li>
+          <li><a href="{root}rzezba/">Rzeźba ogrodowa</a></li>
           <li><a href="{root}kontakt/">Kontakt i dojazd</a></li>
         </ul>
       </div>
@@ -679,6 +680,95 @@ def build_contact():
     write('kontakt/index.html', body)
 
 # =====================================================================
+# RZEŹBA
+# =====================================================================
+SCULPT_VIEWS = ['z przodu', 'z boku', 'z profilu', 'z drugiej strony']
+
+def build_sculpture():
+    r = '../'
+    base = f'{r}assets/rzezba/'
+    thumbs = ''.join(f'''
+            <button class="viewer__thumb{' is-active' if i == 1 else ''}" type="button" data-i="{i-1}" aria-label="Pokaż ujęcie {SCULPT_VIEWS[i-1]}"{' aria-current="true"' if i == 1 else ''}>
+              <img src="{base}rzezba-{i}-min.webp" alt="" width="360" height="450" loading="lazy" decoding="async">
+            </button>''' for i in range(1, 5))
+    frames = ''.join(f'''
+              <picture class="viewer__frame{' is-active' if i == 1 else ''}" data-full="{base}rzezba-{i}.webp">
+                <source srcset="{base}rzezba-{i}.webp" type="image/webp">
+                <img src="{base}rzezba-{i}.jpg" alt="Lustrzana rzeźba ogrodowa na czarnym postumencie – ujęcie {SCULPT_VIEWS[i-1]}" width="1200" height="1500" {'fetchpriority="high"' if i == 1 else 'loading="lazy"'} decoding="async">
+              </picture>''' for i in range(1, 5))
+    grid = ''.join(f'''
+        <figure class="sculpt-tile spot">
+          <picture><source srcset="{base}rzezba-{i}.webp" type="image/webp"><img src="{base}rzezba-{i}.jpg" alt="Rzeźba ogrodowa – ujęcie {SCULPT_VIEWS[i-1]}" width="1200" height="1500" loading="lazy" decoding="async"></picture>
+          <figcaption>Ujęcie {SCULPT_VIEWS[i-1]}</figcaption>
+        </figure>''' for i in range(1, 5))
+    mail = f"mailto:{BIZ['email']}?subject=" + 'Zapytanie%20o%20rze%C5%BAb%C4%99%20ogrodow%C4%85'
+    sculpt_ld = {'@context': 'https://schema.org', '@type': 'VisualArtwork', 'name': 'Lustrzana rzeźba ogrodowa',
+                 'artform': 'Rzeźba', 'image': [f'{DOMAIN}/assets/rzezba/rzezba-{i}.jpg' for i in range(1, 5)],
+                 'description': 'Nowoczesna rzeźba ogrodowa o lustrzanym wykończeniu, ustawiona na czarnym postumencie.'}
+    body = head('Lustrzana rzeźba ogrodowa | Komfortowe Ogrody',
+                'Nowoczesna rzeźba ogrodowa o lustrzanym wykończeniu na czarnym postumencie. Zobacz ją z każdej strony i zapytaj o szczegóły – Komfortowe Ogrody, Aleksandrów Kujawski.',
+                'rzezba/', r, [breadcrumbs_ld('Rzeźba ogrodowa', 'rzezba/'), sculpt_ld]) + header('rzezba', r) + f'''
+<main id="tresc">
+  <section class="sculpt-hero">
+    <div class="wrap sculpt-hero__grid">
+      <div class="sculpt-hero__text">
+        <nav class="breadcrumbs breadcrumbs--dark" aria-label="Ścieżka nawigacji"><ol><li><a href="{r}">Strona główna</a></li><li aria-current="page">Rzeźba</li></ol></nav>
+        <span class="eyebrow eyebrow--dark">Rzeźba ogrodowa</span>
+        <h1>Lustrzana rzeźba, która <span class="mark">odbija Twój ogród</span></h1>
+        <p class="sculpt-lead">Nowoczesna, płynna forma o lustrzanym wykończeniu na czarnym postumencie. Odbija zieleń, niebo i światło, więc o każdej porze dnia wygląda inaczej – to efektowny punkt centralny ogrodu, podjazdu lub tarasu.</p>
+        <ul class="chips chips--lg">
+          <li>Lustrzane wykończenie</li><li>Czarny postument</li><li>Do ogrodu i na taras</li>
+        </ul>
+        <div class="sculpt-actions">
+          <a class="btn btn--primary" href="tel:{BIZ['phone_tel']}">{I['phone']}Zadzwoń i zapytaj</a>
+          <a class="btn btn--outline" href="{mail}">{I['mail']}Napisz w sprawie rzeźby</a>
+        </div>
+        <p class="sculpt-note">Wymiary, cenę i możliwość ustawienia w Twoim ogrodzie omówimy telefonicznie lub mailowo.</p>
+      </div>
+      <div class="viewer" aria-roledescription="podgląd z kilku stron">
+        <div class="viewer__stage" tabindex="0" aria-label="Rzeźba – przeciągnij lub użyj strzałek, żeby obejrzeć z innej strony">
+          {frames}
+          <span class="viewer__lens" aria-hidden="true"></span>
+          <span class="viewer__hint" aria-hidden="true">{I['hand']}Przeciągnij, żeby obrócić</span>
+          <span class="viewer__count" aria-live="polite">1 / 4</span>
+        </div>
+        <div class="viewer__thumbs">{thumbs}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--sand">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow eyebrow--dark">Z każdej strony</span>
+        <h2>Każde ujęcie <span class="mark">wygląda inaczej</span></h2>
+        <p>Lustrzana powierzchnia za każdym razem odbija otoczenie – zieleń, dom, niebo. Zobacz rzeźbę z czterech stron.</p>
+      </div>
+      <div class="sculpt-grid" data-stagger>{grid}
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="cta-band reveal">
+        <div>
+          <h2>Chcesz ją u siebie w <span class="shine">ogrodzie</span>?</h2>
+          <p>Zadzwoń lub napisz – opowiemy o rzeźbie i doradzimy, gdzie najlepiej się zaprezentuje. {BIZ['hours_label']}.</p>
+        </div>
+        <div class="cta-band__actions">
+          <a class="btn btn--white" href="tel:{BIZ['phone_tel']}">{I['phone']}{BIZ['phone_display']}</a>
+          <a class="btn btn--ghost" href="{mail}">Napisz do nas</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+''' + footer(r)
+    write('rzezba/index.html', body)
+
+# =====================================================================
 # 404
 # =====================================================================
 def build_404():
@@ -699,7 +789,7 @@ def build_404():
 
 def build_seo_files():
     today = '2026-09-30'
-    urls = [('', '1.0'), ('oferta/', '0.9'), ('galeria/', '0.8'), ('kontakt/', '0.8')]
+    urls = [('', '1.0'), ('oferta/', '0.9'), ('galeria/', '0.8'), ('rzezba/', '0.7'), ('kontakt/', '0.8')]
     sm = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + ''.join(
         f'  <url><loc>{DOMAIN}/{u}</loc><lastmod>{today}</lastmod><priority>{p}</priority></url>\n' for u, p in urls) + '</urlset>\n'
     write('sitemap.xml', sm)
@@ -716,7 +806,7 @@ ErrorDocument 404 /404.html
   RewriteCond %{HTTP_HOST} ^www\\. [NC]
   RewriteRule ^ https://komfortoweogrody.pl%{REQUEST_URI} [L,R=301]
   # Stare adresy ze strony Zyro i z podglądu
-  RewriteRule ^(oferta|galeria|kontakt)$ /$1/ [L,R=301]
+  RewriteRule ^(oferta|galeria|rzezba|kontakt)$ /$1/ [L,R=301]
   RewriteRule ^(oferta|galeria|kontakt)\\.html$ /$1/ [L,R=301]
   RewriteRule ^strona-g-owna/?$ / [L,R=301]
   RewriteRule ^komfortowe-ogrody-(.*)$ / [L,R=301]
@@ -745,5 +835,5 @@ ErrorDocument 404 /404.html
 ''')
 
 if __name__ == '__main__':
-    build_home(); build_offer(); build_gallery(); build_contact(); build_404(); build_seo_files()
+    build_home(); build_offer(); build_gallery(); build_sculpture(); build_contact(); build_404(); build_seo_files()
     print('OK')
