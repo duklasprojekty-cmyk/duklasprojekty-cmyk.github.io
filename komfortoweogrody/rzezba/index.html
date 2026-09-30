@@ -24,10 +24,15 @@
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="../assets/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
+<meta property="og:image:alt" content="Ogród zrealizowany przez Komfortowe Ogrody">
+<meta name="twitter:image" content="https://komfortoweogrody.pl/assets/rzezba/rzezba-og.jpg">
+<meta name="author" content="Komfortowe Ogrody">
+<link rel="alternate" hreflang="pl" href="https://komfortoweogrody.pl/rzezba/">
+<link rel="manifest" href="../manifest.webmanifest">
 <link rel="preconnect" href="https://assets.zyrosite.com" crossorigin>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Roboto+Slab:wght@500;700&display=swap">
+<link rel="preload" href="../assets/fonts/lato-700-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../assets/fonts/lato-400-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../assets/fonts.css">
 <link rel="stylesheet" href="../assets/style.css">
 <script src="../assets/main.js" defer></script>
 <script type="application/ld+json">
@@ -199,7 +204,7 @@
 </script>
 </head>
 <body>
-<a class="skip-link" href="#tresc">Przejdź do treści</a>
+<a class="skip-link" href="#tresc">Przejdź do treści</a>
 <header class="header">
   <div class="wrap header__bar">
     <a class="logo" href="../" aria-label="Komfortowe Ogrody – strona główna">
@@ -214,7 +219,7 @@
         <li><a href="../kontakt/">Kontakt</a></li>
       </ul>
     </nav>
-    <a class="btn btn--primary header__cta" href="tel:+48600927502"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg><span>+48 600 927 502</span></a>
+    <a class="btn btn--primary header__cta" href="tel:+48600927502"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg><span>+48 600 927 502</span></a>
     <button class="burger" type="button" aria-controls="menu" aria-expanded="false" aria-label="Otwórz menu"><span></span><span></span><span></span></button>
   </div>
 </header>
@@ -226,19 +231,19 @@
         <nav class="breadcrumbs breadcrumbs--dark" aria-label="Ścieżka nawigacji"><ol><li><a href="../">Strona główna</a></li><li aria-current="page">Rzeźba</li></ol></nav>
         <span class="eyebrow eyebrow--dark">Rzeźba ogrodowa</span>
         <h1>Lustrzana rzeźba, która <span class="mark">odbija Twój ogród</span></h1>
-        <p class="sculpt-lead">Nowoczesna, płynna forma o lustrzanym wykończeniu na czarnym postumencie. Odbija zieleń, niebo i światło, więc o każdej porze dnia wygląda inaczej – to efektowny punkt centralny ogrodu, podjazdu lub tarasu.</p>
+        <p class="sculpt-lead">Nowoczesna, płynna forma o lustrzanym wykończeniu na czarnym postumencie. Odbija zieleń, niebo i światło, więc o każdej porze dnia wygląda inaczej – to efektowny punkt centralny ogrodu, podjazdu lub tarasu.</p>
         <ul class="chips chips--lg">
-          <li>Lustrzane wykończenie</li><li>Czarny postument</li><li>Do ogrodu i na taras</li>
+          <li>Lustrzane wykończenie</li><li>Czarny postument</li><li>Do ogrodu i na taras</li>
         </ul>
         <div class="price-tag">
           <span class="price-tag__label">Cena</span>
-          <span class="price-tag__value">11 849,99 zł</span>
+          <span class="price-tag__value">11 849,99 zł</span>
         </div>
         <div class="sculpt-actions">
-          <a class="btn btn--primary" href="tel:+48600927502"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>Zadzwoń i zamów</a>
-          <a class="btn btn--outline" href="mailto:kontakt@komfortoweogrody.pl?subject=Zapytanie%20o%20rze%C5%BAb%C4%99%20ogrodow%C4%85"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg>Napisz w sprawie rzeźby</a>
+          <a class="btn btn--primary" href="tel:+48600927502"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>Zadzwoń i zamów</a>
+          <a class="btn btn--outline" href="mailto:kontakt@komfortoweogrody.pl?subject=Zapytanie%20o%20rze%C5%BAb%C4%99%20ogrodow%C4%85"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg>Napisz w sprawie rzeźby</a>
         </div>
-        <p class="sculpt-note">Wymiary, dostawę i ustawienie w Twoim ogrodzie omówimy telefonicznie lub mailowo.</p>
+        <p class="sculpt-note">Wymiary, dostawę i ustawienie w Twoim ogrodzie omówimy telefonicznie lub mailowo.</p>
       </div>
       <div class="viewer" aria-roledescription="podgląd z kilku stron">
         <div class="viewer__stage" tabindex="0" aria-label="Rzeźba – przeciągnij lub użyj strzałek, żeby obejrzeć z innej strony">
@@ -291,26 +296,26 @@
   <section class="section section--sand">
     <div class="wrap">
       <div class="section-head reveal">
-        <span class="eyebrow eyebrow--dark">Z każdej strony</span>
+        <span class="eyebrow eyebrow--dark">Z każdej strony</span>
         <h2>Każde ujęcie <span class="mark">wygląda inaczej</span></h2>
-        <p>Lustrzana powierzchnia za każdym razem odbija otoczenie – zieleń, dom, niebo. Zobacz rzeźbę z czterech stron.</p>
+        <p>Lustrzana powierzchnia za każdym razem odbija otoczenie – zieleń, dom, niebo. Zobacz rzeźbę z czterech stron.</p>
       </div>
       <div class="sculpt-grid" data-stagger>
         <figure class="sculpt-tile spot">
           <picture><source srcset="../assets/rzezba/rzezba-1.webp" type="image/webp"><img src="../assets/rzezba/rzezba-1.jpg" alt="Rzeźba ogrodowa – ujęcie z przodu" width="1200" height="1500" loading="lazy" decoding="async"></picture>
-          <figcaption>Ujęcie z przodu</figcaption>
+          <figcaption>Ujęcie z przodu</figcaption>
         </figure>
         <figure class="sculpt-tile spot">
           <picture><source srcset="../assets/rzezba/rzezba-2.webp" type="image/webp"><img src="../assets/rzezba/rzezba-2.jpg" alt="Rzeźba ogrodowa – ujęcie z boku" width="1200" height="1500" loading="lazy" decoding="async"></picture>
-          <figcaption>Ujęcie z boku</figcaption>
+          <figcaption>Ujęcie z boku</figcaption>
         </figure>
         <figure class="sculpt-tile spot">
           <picture><source srcset="../assets/rzezba/rzezba-3.webp" type="image/webp"><img src="../assets/rzezba/rzezba-3.jpg" alt="Rzeźba ogrodowa – ujęcie z profilu" width="1200" height="1500" loading="lazy" decoding="async"></picture>
-          <figcaption>Ujęcie z profilu</figcaption>
+          <figcaption>Ujęcie z profilu</figcaption>
         </figure>
         <figure class="sculpt-tile spot">
           <picture><source srcset="../assets/rzezba/rzezba-4.webp" type="image/webp"><img src="../assets/rzezba/rzezba-4.jpg" alt="Rzeźba ogrodowa – ujęcie z drugiej strony" width="1200" height="1500" loading="lazy" decoding="async"></picture>
-          <figcaption>Ujęcie z drugiej strony</figcaption>
+          <figcaption>Ujęcie z drugiej strony</figcaption>
         </figure>
       </div>
     </div>
@@ -320,12 +325,12 @@
     <div class="wrap">
       <div class="cta-band reveal">
         <div>
-          <h2>Chcesz ją u siebie w <span class="shine">ogrodzie</span>?</h2>
-          <p>Cena: <strong>11 849,99 zł</strong>. Zadzwoń lub napisz – opowiemy o rzeźbie i doradzimy, gdzie najlepiej się zaprezentuje. Pn–Sob 7:00–18:00.</p>
+          <h2>Chcesz ją u siebie w <span class="shine">ogrodzie</span>?</h2>
+          <p>Cena: <strong>11 849,99 zł</strong>. Zadzwoń lub napisz – opowiemy o rzeźbie i doradzimy, gdzie najlepiej się zaprezentuje. Pn–Sob 7:00–18:00.</p>
         </div>
         <div class="cta-band__actions">
-          <a class="btn btn--white" href="tel:+48600927502"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>+48 600 927 502</a>
-          <a class="btn btn--ghost" href="mailto:kontakt@komfortoweogrody.pl?subject=Zapytanie%20o%20rze%C5%BAb%C4%99%20ogrodow%C4%85">Napisz do nas</a>
+          <a class="btn btn--white" href="tel:+48600927502"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>+48 600 927 502</a>
+          <a class="btn btn--ghost" href="mailto:kontakt@komfortoweogrody.pl?subject=Zapytanie%20o%20rze%C5%BAb%C4%99%20ogrodow%C4%85">Napisz do nas</a>
         </div>
       </div>
     </div>
@@ -336,45 +341,45 @@
     <div class="footer__grid">
       <div class="footer__brand">
         <span class="name">Komfortowe Ogrody</span>
-        <p>Tworzymy piękne i funkcjonalne ogrody dla Ciebie. Projekt, wykonanie i pielęgnacja od 2013 roku.</p>
-        <a class="gbtn" href="https://maps.google.com/?cid=8841425791970558141" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M22.6 12.3c0-.8-.1-1.5-.2-2.3H12v4.3h5.9a5 5 0 0 1-2.2 3.3v2.8h3.6c2.1-1.9 3.3-4.8 3.3-8.1z"/><path fill="#34A853" d="M12 23c3 0 5.5-1 7.3-2.7l-3.6-2.8c-1 .7-2.2 1.1-3.7 1.1-2.9 0-5.3-1.9-6.2-4.5H2.1v2.9A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.8 14.1a6.6 6.6 0 0 1 0-4.2V7H2.1a11 11 0 0 0 0 10z"/><path fill="#EA4335" d="M12 5.4c1.6 0 3.1.6 4.2 1.7l3.2-3.2A11 11 0 0 0 2.1 7l3.7 2.9C6.7 7.3 9.1 5.4 12 5.4z"/></svg>Znajdź nas w Google</a>
+        <p>Tworzymy piękne i funkcjonalne ogrody dla Ciebie. Projekt, wykonanie i pielęgnacja od 2013 roku.</p>
+        <a class="gbtn" href="https://maps.google.com/?cid=8841425791970558141" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M22.6 12.3c0-.8-.1-1.5-.2-2.3H12v4.3h5.9a5 5 0 0 1-2.2 3.3v2.8h3.6c2.1-1.9 3.3-4.8 3.3-8.1z"/><path fill="#34A853" d="M12 23c3 0 5.5-1 7.3-2.7l-3.6-2.8c-1 .7-2.2 1.1-3.7 1.1-2.9 0-5.3-1.9-6.2-4.5H2.1v2.9A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.8 14.1a6.6 6.6 0 0 1 0-4.2V7H2.1a11 11 0 0 0 0 10z"/><path fill="#EA4335" d="M12 5.4c1.6 0 3.1.6 4.2 1.7l3.2-3.2A11 11 0 0 0 2.1 7l3.7 2.9C6.7 7.3 9.1 5.4 12 5.4z"/></svg>Znajdź nas w Google</a>
       </div>
       <div>
         <h2>Kontakt</h2>
         <ul class="nap">
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg><a href="tel:+48600927502">+48 600 927 502</a></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg><a href="tel:+48600927502">+48 600 927 502</a></li>
           <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg><a href="mailto:kontakt@komfortoweogrody.pl">kontakt@komfortoweogrody.pl</a></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg><a href="https://maps.google.com/?cid=8841425791970558141" target="_blank" rel="noopener">Henryka Sienkiewicza 19,<br>87-700 Aleksandrów Kujawski</a></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg><a href="https://maps.google.com/?cid=8841425791970558141" target="_blank" rel="noopener">Henryka Sienkiewicza 19,<br>87-700 Aleksandrów Kujawski</a></li>
         </ul>
       </div>
       <div>
         <h2>Godziny otwarcia</h2>
         <table class="hours-table">
-            <tr><th scope="row">Poniedziałek – piątek</th><td>7:00 – 18:00</td></tr>
-            <tr><th scope="row">Sobota</th><td>7:00 – 18:00</td></tr>
-            <tr><th scope="row">Niedziela</th><td>zamknięte</td></tr>
+            <tr data-days="1,2,3,4,5"><th scope="row">Poniedziałek – piątek</th><td>7:00 – 18:00</td></tr>
+            <tr data-days="6"><th scope="row">Sobota</th><td>7:00 – 18:00</td></tr>
+            <tr data-days="0"><th scope="row">Niedziela</th><td>zamknięte</td></tr>
           </table>
         <p style="margin-top:12px"><span class="open-status"></span></p>
       </div>
       <div>
-        <h2>Na skróty</h2>
+        <h2>Na skróty</h2>
         <ul>
           <li><a href="../oferta/#projektowanie">Projektowanie ogrodów</a></li>
           <li><a href="../oferta/#zakladanie">Zakładanie ogrodów</a></li>
           <li><a href="../oferta/#pielegnacja">Pielęgnacja ogrodów</a></li>
-          <li><a href="../galeria/">Realizacje przed i po</a></li>
+          <li><a href="../galeria/">Realizacje przed i po</a></li>
           <li><a href="../rzezba/">Rzeźba ogrodowa</a></li>
-          <li><a href="../kontakt/">Kontakt i dojazd</a></li>
+          <li><a href="../kontakt/">Kontakt i dojazd</a></li>
         </ul>
       </div>
     </div>
     <div class="footer__legal">
       <span>© <span data-year>2026</span> Komfortowe Ogrody · PPHU OLEJNIK Adrian Olejnik · NIP: 891-151-33-75</span>
-      <span>Henryka Sienkiewicza 19, 87-700 Aleksandrów Kujawski</span>
+      <span>Henryka Sienkiewicza 19, 87-700 Aleksandrów Kujawski · <a href="../polityka-prywatnosci/">Polityka prywatności</a></span>
     </div>
   </div>
 </footer>
-<a class="fab" href="tel:+48600927502" aria-label="Zadzwoń: +48 600 927 502"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg><span class="fab__tip">Zadzwoń: +48 600 927 502</span></a>
+<a class="fab" href="tel:+48600927502" aria-label="Zadzwoń: +48 600 927 502"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg><span class="fab__tip">Zadzwoń: +48 600 927 502</span></a>
 <nav class="action-bar" aria-label="Szybki kontakt">
   <a href="tel:+48600927502"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>Zadzwoń</a>
   <a href="mailto:kontakt@komfortoweogrody.pl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg>Napisz</a>

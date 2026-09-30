@@ -170,9 +170,10 @@ def ld(obj):
     return '<script type="application/ld+json">\n' + json.dumps(obj, ensure_ascii=False, indent=2) + '\n</script>'
 
 # ---------- szablon ----------
-def head(title, desc, slug, root, extra_ld=(), og=None):
+def head(title, desc, slug, root, extra_ld=(), og=None, preload_img=None):
     canonical = f'{DOMAIN}/{slug}'
     og_img = og or zurl(HERO, 1200, 630)
+    preload = f'<link rel="preload" as="image" href="{preload_img}" fetchpriority="high">\n' if preload_img else ''
     blocks = [ld(local_business())] + [ld(x) for x in extra_ld]
     return f'''<!DOCTYPE html>
 <html lang="pl" class="no-js">
@@ -200,10 +201,15 @@ def head(title, desc, slug, root, extra_ld=(), og=None):
 <link rel="icon" href="{root}assets/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="{root}assets/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="{root}assets/apple-touch-icon.png">
+<meta property="og:image:alt" content="Ogród zrealizowany przez Komfortowe Ogrody">
+<meta name="twitter:image" content="{og_img}">
+<meta name="author" content="{BIZ['name']}">
+<link rel="alternate" hreflang="pl" href="{canonical}">
+<link rel="manifest" href="{root}manifest.webmanifest">
 <link rel="preconnect" href="https://assets.zyrosite.com" crossorigin>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Roboto+Slab:wght@500;700&display=swap">
+<link rel="preload" href="{root}assets/fonts/lato-700-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="{root}assets/fonts/lato-400-latin.woff2" as="font" type="font/woff2" crossorigin>
+{preload}<link rel="stylesheet" href="{root}assets/fonts.css">
 <link rel="stylesheet" href="{root}assets/style.css">
 <script src="{root}assets/main.js" defer></script>
 {chr(10).join(blocks)}
@@ -234,9 +240,9 @@ def header(active, root):
 
 def hours_table():
     return '''<table class="hours-table">
-            <tr><th scope="row">Poniedziałek – piątek</th><td>7:00 – 18:00</td></tr>
-            <tr><th scope="row">Sobota</th><td>7:00 – 18:00</td></tr>
-            <tr><th scope="row">Niedziela</th><td>zamknięte</td></tr>
+            <tr data-days="1,2,3,4,5"><th scope="row">Poniedziałek – piątek</th><td>7:00 – 18:00</td></tr>
+            <tr data-days="6"><th scope="row">Sobota</th><td>7:00 – 18:00</td></tr>
+            <tr data-days="0"><th scope="row">Niedziela</th><td>zamknięte</td></tr>
           </table>'''
 
 def footer(root):
@@ -275,7 +281,7 @@ def footer(root):
     </div>
     <div class="footer__legal">
       <span>© <span data-year>2026</span> {BIZ['name']} · {BIZ['legal']} · NIP: {BIZ['nip']}</span>
-      <span>{ADDRESS_ONE_LINE}</span>
+      <span>{ADDRESS_ONE_LINE} · <a href="{root}polityka-prywatnosci/">Polityka prywatności</a></span>
     </div>
   </div>
 </footer>
@@ -326,7 +332,32 @@ def cta_band(root):
     </div>
   </section>'''
 
+# Polska typografia: „sieroty” (a, i, o, u, w, z, na, do…) łączone twardą spacją z następnym
+# słowem, twarda spacja w liczbach, cenach, numerze telefonu i kodzie pocztowym.
+import re as _re
+NBSP = '\u00a0'
+_ORPHANS = r'(?<![\w\-–])(a|i|o|u|w|z|A|I|O|U|W|Z|na|do|od|po|we|ze|za|ku|Na|Do|Od|Po|We|Ze|Za|że|się|nie|Nie)'
+_RULES = [
+    (_re.compile(_ORPHANS + r' (?=[\wĄąĆćĘęŁłŃńÓóŚśŹźŻż„(])'), lambda m: m.group(1) + NBSP),
+    (_re.compile(r'(\d) (\d{3})(?!\d)'), lambda m: m.group(1) + NBSP + m.group(2)),        # 11 849,99
+    (_re.compile(r'(\d) (zł|r\.|roku|lat|klientów)'), lambda m: m.group(1) + NBSP + m.group(2)),
+    (_re.compile(r'\+48 (\d{3}) (\d{3}) (\d{3})'), lambda m: '+48' + NBSP + m.group(1) + NBSP + m.group(2) + NBSP + m.group(3)),
+    (_re.compile(r'(\d{2}-\d{3}) (Aleksandrów)'), lambda m: m.group(1) + NBSP + m.group(2)),
+    (_re.compile(r'(\d{1,2}:\d{2}) – (\d{1,2}:\d{2})'), lambda m: m.group(1) + NBSP + '–' + NBSP + m.group(2)),
+]
+_SKIP = _re.compile(r'(<script\b.*?</script>|<style\b.*?</style>|<textarea\b.*?</textarea>|<[^>]+>)', _re.S)
+
+def polish_typography(html_text):
+    parts = _SKIP.split(html_text)
+    for i in range(0, len(parts), 2):          # parzyste indeksy = tekst poza tagami
+        t = parts[i]
+        if not t.strip(): continue
+        for rx, fn in _RULES: t = rx.sub(fn, t)
+        parts[i] = t
+    return ''.join(parts)
+
 def write(rel, content):
+    if rel.endswith('.html'): content = polish_typography(content)
     path = os.path.join(OUT, rel)
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, 'w', encoding='utf-8') as f:
@@ -351,7 +382,12 @@ CARD_IMG = ['1-mjEvxLGk6DIPkV3x.png', '2-YbNvXDK9lgFDjNJY.png', 'dsc_0570-A1awGr
 # =====================================================================
 def words(text, start=0, cls=''):
     c = f' {cls}' if cls else ''
-    return ' '.join(f'<span class="w{c}" style="--i:{start+i}">{w}</span>' for i, w in enumerate(text.split()))
+    toks, out = text.split(), []
+    for w in toks:
+        if out and len(out[-1].split('\u00a0')[-1]) <= 2 and out[-1].split('\u00a0')[-1].lower() in ('a','i','o','u','w','z','na','do','od','po','we','ze','za'):
+            out[-1] += '\u00a0' + w
+        else: out.append(w)
+    return ' '.join(f'<span class="w{c}" style="--i:{start+i}">{w}</span>' for i, w in enumerate(out))
 
 MARQUEE = ['Projektowanie ogrodów', 'Wizualizacje 3D', 'Zakładanie ogrodów', 'Instalacje nawadniające', 'Oświetlenie ogrodowe',
            'Kostka brukowa', 'Trawniki i nasadzenia', 'Oczka wodne', 'Przycinanie żywopłotów', 'Koszenie trawy', 'Pielęgnacja zieleni']
@@ -381,7 +417,7 @@ def build_home():
     stars = I['star'] * 5
     body = head('Zakładanie ogrodów Aleksandrów Kujawski | Komfortowe Ogrody',
                 'Projektowanie, zakładanie i pielęgnacja ogrodów w Aleksandrowie Kujawskim od 2013 r. Ponad 150 zadowolonych klientów. Zadzwoń: 600 927 502.',
-                '', r, [faq_ld()]) + header('home', r) + f'''
+                '', r, [faq_ld()], preload_img=zurl(HERO, 1920, 1080)) + header('home', r) + f'''
 <main id="tresc">
   <section class="hero">
     {img(HERO, '', 1920, 1080, cls='hero__bg', lazy=False, sizes='100vw', extra='data-parallax')}
@@ -598,6 +634,7 @@ def build_gallery():
   <section class="section">
     <div class="wrap">
       <p style="text-align:center"><span class="hint">{I['hand']}Przeciągnij suwak na zdjęciu, żeby zobaczyć różnicę</span></p>
+      <p class="gallery-note">Wszystkie zdjęcia pochodzą z naszych realizacji – bez zdjęć stockowych.</p>
       <div class="gallery-grid">{items}
       </div>
     </div>
@@ -635,7 +672,7 @@ def build_contact():
           <button class="copy" type="button" data-copy="{BIZ['phone_display']}">{I['copy']}Kopiuj numer</button>
         </div>
         <div class="contact-card spot">
-          <span class="ico">{I['mail']}</span><small>E-mail</small><a href="mailto:{BIZ['email']}"><b>{BIZ['email']}</b></a>
+          <span class="ico">{I['mail']}</span><small>E-mail</small><a href="mailto:{BIZ['email']}"><b>{BIZ['email'].replace('@', '@<wbr>')}</b></a>
           <button class="copy" type="button" data-copy="{BIZ['email']}">{I['copy']}Kopiuj adres</button>
         </div>
         <div class="contact-card spot">
@@ -650,9 +687,15 @@ def build_contact():
       </div>
 
       <div class="contact-main">
-        <div class="map reveal">
-          <iframe src="{BIZ['map_embed']}" title="Mapa dojazdu – {BIZ['name']}, {ADDRESS_ONE_LINE}" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
-          <a class="btn btn--primary map__link" href="{BIZ['gmaps']}" target="_blank" rel="noopener">{I['google']}Otwórz wizytówkę w Google Maps</a>
+        <div class="map reveal" data-map-src="{BIZ['map_embed']}" data-map-title="Mapa dojazdu – {BIZ['name']}, {ADDRESS_ONE_LINE}">
+          <div class="map__consent">
+            <span class="ico">{I['pin']}</span>
+            <h2>Mapa dojazdu</h2>
+            <p>{ADDRESS_ONE_LINE}</p>
+            <p class="map__note">Mapa Google załaduje się po kliknięciu. Wtedy Twoja przeglądarka połączy się z serwerami Google (szczegóły w <a href="{r}polityka-prywatnosci/">polityce prywatności</a>).</p>
+            <button class="btn btn--primary" type="button" data-map-load>{I['google']}Pokaż mapę Google</button>
+            <a class="link-arrow" href="{BIZ['gmaps']}" target="_blank" rel="noopener">Otwórz w aplikacji Google Maps</a>
+          </div>
         </div>
         <form class="form reveal" id="contact-form" novalidate>
           <h2>Napisz do nas</h2>
@@ -661,8 +704,10 @@ def build_contact():
           <div class="field"><input id="f-email" name="email" type="email" placeholder=" " autocomplete="email" required><label for="f-email">Adres e-mail*</label></div>
           <div class="field"><input id="f-phone" name="phone" type="tel" placeholder=" " autocomplete="tel"><label for="f-phone">Telefon (opcjonalnie)</label></div>
           <div class="field"><textarea id="f-msg" name="message" rows="6" placeholder=" " required></textarea><label for="f-msg">Wiadomość*</label></div>
+          <div class="hp" aria-hidden="true"><label for="f-firma">Nie wypełniaj tego pola</label><input id="f-firma" name="firma" type="text" tabindex="-1" autocomplete="off"></div>
           <button class="btn btn--primary" type="submit">Wyślij zapytanie</button>
           <p class="form__note" role="status" aria-live="polite"></p>
+          <p class="form__rodo">Wiadomość otworzy się w Twoim programie pocztowym i trafi bezpośrednio na naszą skrzynkę. Administratorem danych jest {BIZ['legal']}; wykorzystamy je wyłącznie do odpowiedzi na zapytanie. <a href="{r}polityka-prywatnosci/">Polityka prywatności</a>.</p>
         </form>
       </div>
 
@@ -779,6 +824,65 @@ def build_sculpture():
     write('rzezba/index.html', body)
 
 # =====================================================================
+# POLITYKA PRYWATNOŚCI
+# =====================================================================
+def build_privacy():
+    r = '../'
+    body = head('Polityka prywatności | Komfortowe Ogrody',
+                'Polityka prywatności serwisu komfortoweogrody.pl: administrator danych, cele przetwarzania, pliki cookie, mapa Google i prawa użytkownika.',
+                'polityka-prywatnosci/', r, [breadcrumbs_ld('Polityka prywatności', 'polityka-prywatnosci/')]) + header('', r) + f'''
+<main id="tresc">
+  <section class="section legal">
+    <div class="wrap legal__wrap">
+      <nav class="breadcrumbs breadcrumbs--dark" aria-label="Ścieżka nawigacji"><ol><li><a href="{r}">Strona główna</a></li><li aria-current="page">Polityka prywatności</li></ol></nav>
+      <h1>Polityka prywatności</h1>
+      <p class="legal__lead">Szanujemy Twoją prywatność. Ta strona jest statyczną wizytówką firmy – nie zbiera danych automatycznie, nie używa własnych plików cookie ani narzędzi analitycznych i reklamowych.</p>
+
+      <h2>1. Administrator danych</h2>
+      <p>Administratorem danych osobowych jest <strong>{BIZ['legal']}</strong>, {ADDRESS_ONE_LINE}, NIP {BIZ['nip']}. Kontakt: <a href="mailto:{BIZ['email']}">{BIZ['email']}</a>, tel. <a href="tel:{BIZ['phone_tel']}">{BIZ['phone_display']}</a>.</p>
+
+      <h2>2. Jakie dane przetwarzamy i po co</h2>
+      <p>Przetwarzamy wyłącznie dane, które sam przekażesz, kontaktując się z nami telefonicznie, e-mailem lub przez formularz: imię i nazwisko, adres e-mail, numer telefonu oraz treść wiadomości. Wykorzystujemy je, aby odpowiedzieć na zapytanie, przygotować ofertę i – jeśli zdecydujesz się na współpracę – zrealizować usługę (art. 6 ust. 1 lit. b RODO) oraz w naszym prawnie uzasadnionym interesie, jakim jest obsługa korespondencji (art. 6 ust. 1 lit. f RODO).</p>
+      <p>Formularz na stronie nie wysyła danych na żaden serwer: po kliknięciu „Wyślij zapytanie” otwiera się Twój program pocztowy z gotową wiadomością, którą wysyłasz samodzielnie na adres {BIZ['email']}.</p>
+
+      <h2>3. Jak długo przechowujemy dane</h2>
+      <p>Przez czas niezbędny do obsługi zapytania i ewentualnej współpracy, a następnie przez okres wymagany przepisami (np. podatkowymi) lub do upływu terminów przedawnienia roszczeń.</p>
+
+      <h2>4. Odbiorcy danych</h2>
+      <p>Dane mogą być przetwarzane przez podmioty świadczące dla nas usługi hostingu strony i poczty e-mail – wyłącznie w zakresie niezbędnym do ich działania. Nie sprzedajemy danych ani nie przekazujemy ich do celów marketingowych osób trzecich.</p>
+
+      <h2>5. Pliki cookie i pamięć przeglądarki</h2>
+      <p>Strona nie ustawia własnych plików cookie. Jedynie po kliknięciu „Pokaż mapę Google” zapisujemy w pamięci Twojej przeglądarki (localStorage) informację o wyrażonej zgodzie, aby przy kolejnej wizycie mapa załadowała się od razu. Możesz ją usunąć, czyszcząc dane witryny w przeglądarce.</p>
+
+      <h2>6. Usługi zewnętrzne</h2>
+      <ul>
+        <li><strong>Mapa Google</strong> na podstronie Kontakt jest ładowana dopiero po Twoim kliknięciu. Wtedy przeglądarka łączy się z serwerami Google (Google Ireland Ltd.), które mogą przetwarzać m.in. Twój adres IP zgodnie z <a href="https://policies.google.com/privacy?hl=pl" target="_blank" rel="noopener">polityką prywatności Google</a>.</li>
+        <li><strong>Zdjęcia</strong> na stronie są dostarczane z serwerów naszego dostawcy hostingu obrazów; przy ich pobieraniu przekazywany jest adres IP w zakresie technicznie niezbędnym do wyświetlenia strony.</li>
+        <li><strong>Czcionki</strong> są hostowane na naszym serwerze – strona nie łączy się z serwerami czcionek Google.</li>
+      </ul>
+
+      <h2>7. Twoje prawa</h2>
+      <p>Masz prawo dostępu do swoich danych, ich sprostowania, usunięcia lub ograniczenia przetwarzania, prawo do przenoszenia danych oraz prawo sprzeciwu wobec przetwarzania opartego na prawnie uzasadnionym interesie. Masz też prawo wnieść skargę do Prezesa Urzędu Ochrony Danych Osobowych (ul. Stawki 2, 00-193 Warszawa). Aby skorzystać z tych praw, napisz na {BIZ['email']}.</p>
+
+      <h2>8. Zmiany polityki</h2>
+      <p>Polityka może być aktualizowana, gdy zmieni się sposób działania strony. Aktualna wersja jest zawsze dostępna pod tym adresem.</p>
+      <p class="legal__date">Ostatnia aktualizacja: 30 września 2026 r.</p>
+    </div>
+  </section>
+</main>
+''' + footer(r)
+    write('polityka-prywatnosci/index.html', body)
+
+def build_manifest():
+    write('manifest.webmanifest', json.dumps({
+        'name': BIZ['name'], 'short_name': BIZ['name'], 'description': BIZ['desc'],
+        'start_url': './', 'scope': './', 'display': 'browser', 'lang': 'pl',
+        'background_color': '#ffffff', 'theme_color': '#287319',
+        'icons': [{'src': 'assets/icon-192.png', 'sizes': '192x192', 'type': 'image/png'},
+                  {'src': 'assets/icon-512.png', 'sizes': '512x512', 'type': 'image/png', 'purpose': 'any maskable'}],
+    }, ensure_ascii=False, indent=2) + '\n')
+
+# =====================================================================
 # 404
 # =====================================================================
 def build_404():
@@ -799,7 +903,7 @@ def build_404():
 
 def build_seo_files():
     today = '2026-09-30'
-    urls = [('', '1.0'), ('oferta/', '0.9'), ('galeria/', '0.8'), ('rzezba/', '0.7'), ('kontakt/', '0.8')]
+    urls = [('', '1.0'), ('oferta/', '0.9'), ('galeria/', '0.8'), ('rzezba/', '0.7'), ('kontakt/', '0.8'), ('polityka-prywatnosci/', '0.3')]
     sm = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + ''.join(
         f'  <url><loc>{DOMAIN}/{u}</loc><lastmod>{today}</lastmod><priority>{p}</priority></url>\n' for u, p in urls) + '</urlset>\n'
     write('sitemap.xml', sm)
@@ -807,6 +911,9 @@ def build_seo_files():
     write('.htaccess', '''# Komfortowe Ogrody – konfiguracja dla serwera Apache / LiteSpeed (po migracji na komfortoweogrody.pl)
 Options -Indexes
 DirectoryIndex index.html
+AddType font/woff2 .woff2
+AddType application/manifest+json .webmanifest
+AddDefaultCharset UTF-8
 ErrorDocument 404 /404.html
 
 <IfModule mod_rewrite.c>
@@ -816,7 +923,7 @@ ErrorDocument 404 /404.html
   RewriteCond %{HTTP_HOST} ^www\\. [NC]
   RewriteRule ^ https://komfortoweogrody.pl%{REQUEST_URI} [L,R=301]
   # Stare adresy ze strony Zyro i z podglądu
-  RewriteRule ^(oferta|galeria|rzezba|kontakt)$ /$1/ [L,R=301]
+  RewriteRule ^(oferta|galeria|rzezba|kontakt|polityka-prywatnosci)$ /$1/ [L,R=301]
   RewriteRule ^(oferta|galeria|kontakt)\\.html$ /$1/ [L,R=301]
   RewriteRule ^strona-g-owna/?$ / [L,R=301]
   RewriteRule ^komfortowe-ogrody-(.*)$ / [L,R=301]
@@ -835,15 +942,24 @@ ErrorDocument 404 /404.html
   ExpiresByType application/javascript "access plus 1 month"
   ExpiresByType image/svg+xml "access plus 1 year"
   ExpiresByType image/png "access plus 1 year"
+  ExpiresByType image/webp "access plus 1 year"
+  ExpiresByType font/woff2 "access plus 1 year"
+  ExpiresByType application/manifest+json "access plus 1 week"
 </IfModule>
 
 <IfModule mod_headers.c>
   Header always set X-Content-Type-Options "nosniff"
   Header always set Referrer-Policy "strict-origin-when-cross-origin"
   Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+  Header always set Strict-Transport-Security "max-age=31536000"
+  Header always set Content-Security-Policy "default-src 'self'; img-src 'self' data: https://assets.zyrosite.com https://web.archive.org; frame-src https://maps.google.com https://www.google.com; style-src 'self' 'unsafe-inline'; script-src 'self'; font-src 'self'; connect-src 'self'; base-uri 'self'; form-action 'self' mailto:; frame-ancestors 'self'"
+  <FilesMatch "\.(woff2|png|svg|webp|jpg)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
 </IfModule>
 ''')
 
 if __name__ == '__main__':
-    build_home(); build_offer(); build_gallery(); build_sculpture(); build_contact(); build_404(); build_seo_files()
+    build_home(); build_offer(); build_gallery(); build_sculpture(); build_contact(); build_privacy(); build_manifest(); build_404(); build_seo_files()
     print('OK')
