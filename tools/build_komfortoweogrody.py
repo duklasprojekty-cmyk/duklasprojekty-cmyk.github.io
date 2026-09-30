@@ -170,9 +170,9 @@ def ld(obj):
     return '<script type="application/ld+json">\n' + json.dumps(obj, ensure_ascii=False, indent=2) + '\n</script>'
 
 # ---------- szablon ----------
-def head(title, desc, slug, root, extra_ld=()):
+def head(title, desc, slug, root, extra_ld=(), og=None):
     canonical = f'{DOMAIN}/{slug}'
-    og_img = zurl(HERO, 1200, 630)
+    og_img = og or zurl(HERO, 1200, 630)
     blocks = [ld(local_business())] + [ld(x) for x in extra_ld]
     return f'''<!DOCTYPE html>
 <html lang="pl" class="no-js">
@@ -683,19 +683,21 @@ def build_contact():
 # RZEŹBA
 # =====================================================================
 SCULPT_VIEWS = ['z przodu', 'z boku', 'z profilu', 'z drugiej strony']
+# (plik, opis ujęcia, szerokość, wysokość) – ujęcie studyjne jako główne
+VIEWER = [('rzezba-studio', 'studyjne', 768, 1024)] + [(f'rzezba-{i}', SCULPT_VIEWS[i-1], 1200, 1500) for i in range(1, 5)]
 
 def build_sculpture():
     r = '../'
     base = f'{r}assets/rzezba/'
     thumbs = ''.join(f'''
-            <button class="viewer__thumb{' is-active' if i == 1 else ''}" type="button" data-i="{i-1}" aria-label="Pokaż ujęcie {SCULPT_VIEWS[i-1]}"{' aria-current="true"' if i == 1 else ''}>
-              <img src="{base}rzezba-{i}-min.webp" alt="" width="360" height="450" loading="lazy" decoding="async">
-            </button>''' for i in range(1, 5))
+            <button class="viewer__thumb{' is-active' if k == 0 else ''}" type="button" data-i="{k}" aria-label="Pokaż ujęcie {label}"{' aria-current="true"' if k == 0 else ''}>
+              <img src="{base}{f}-min.webp" alt="" width="{w}" height="{h}" loading="lazy" decoding="async">
+            </button>''' for k, (f, label, w, h) in enumerate(VIEWER))
     frames = ''.join(f'''
-              <picture class="viewer__frame{' is-active' if i == 1 else ''}" data-full="{base}rzezba-{i}.webp">
-                <source srcset="{base}rzezba-{i}.webp" type="image/webp">
-                <img src="{base}rzezba-{i}.jpg" alt="Lustrzana rzeźba ogrodowa na czarnym postumencie – ujęcie {SCULPT_VIEWS[i-1]}" width="1200" height="1500" {'fetchpriority="high"' if i == 1 else 'loading="lazy"'} decoding="async">
-              </picture>''' for i in range(1, 5))
+              <picture class="viewer__frame{' is-active' if k == 0 else ''}" data-full="{base}{f}.webp">
+                <source srcset="{base}{f}.webp" type="image/webp">
+                <img src="{base}{f}.jpg" alt="Lustrzana rzeźba ogrodowa na czarnym postumencie – ujęcie {label}" width="{w}" height="{h}" {'fetchpriority="high"' if k == 0 else 'loading="lazy"'} decoding="async">
+              </picture>''' for k, (f, label, w, h) in enumerate(VIEWER))
     grid = ''.join(f'''
         <figure class="sculpt-tile spot">
           <picture><source srcset="{base}rzezba-{i}.webp" type="image/webp"><img src="{base}rzezba-{i}.jpg" alt="Rzeźba ogrodowa – ujęcie {SCULPT_VIEWS[i-1]}" width="1200" height="1500" loading="lazy" decoding="async"></picture>
@@ -703,11 +705,11 @@ def build_sculpture():
         </figure>''' for i in range(1, 5))
     mail = f"mailto:{BIZ['email']}?subject=" + 'Zapytanie%20o%20rze%C5%BAb%C4%99%20ogrodow%C4%85'
     sculpt_ld = {'@context': 'https://schema.org', '@type': 'VisualArtwork', 'name': 'Lustrzana rzeźba ogrodowa',
-                 'artform': 'Rzeźba', 'image': [f'{DOMAIN}/assets/rzezba/rzezba-{i}.jpg' for i in range(1, 5)],
+                 'artform': 'Rzeźba', 'image': [f'{DOMAIN}/assets/rzezba/{f}.jpg' for f, *_ in VIEWER],
                  'description': 'Nowoczesna rzeźba ogrodowa o lustrzanym wykończeniu, ustawiona na czarnym postumencie.'}
     body = head('Lustrzana rzeźba ogrodowa | Komfortowe Ogrody',
                 'Nowoczesna rzeźba ogrodowa o lustrzanym wykończeniu na czarnym postumencie. Zobacz ją z każdej strony i zapytaj o szczegóły – Komfortowe Ogrody, Aleksandrów Kujawski.',
-                'rzezba/', r, [breadcrumbs_ld('Rzeźba ogrodowa', 'rzezba/'), sculpt_ld]) + header('rzezba', r) + f'''
+                'rzezba/', r, [breadcrumbs_ld('Rzeźba ogrodowa', 'rzezba/'), sculpt_ld], og=f'{DOMAIN}/assets/rzezba/rzezba-og.jpg') + header('rzezba', r) + f'''
 <main id="tresc">
   <section class="sculpt-hero">
     <div class="wrap sculpt-hero__grid">
@@ -730,7 +732,7 @@ def build_sculpture():
           {frames}
           <span class="viewer__lens" aria-hidden="true"></span>
           <span class="viewer__hint" aria-hidden="true">{I['hand']}Przeciągnij, żeby obrócić</span>
-          <span class="viewer__count" aria-live="polite">1 / 4</span>
+          <span class="viewer__count" aria-live="polite">1 / {len(VIEWER)}</span>
         </div>
         <div class="viewer__thumbs">{thumbs}
         </div>

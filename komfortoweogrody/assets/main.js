@@ -460,10 +460,15 @@
       stage.addEventListener('mousemove', function(e){
         if (sx !== null) { lens.classList.remove('on'); return; }
         var r = stage.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top, z = 2.4;
-        var src = frames[vi].getAttribute('data-full');
+        var src = frames[vi].getAttribute('data-full'), img = frames[vi].querySelector('img');
+        // rzeczywisty obszar zdjęcia przy object-fit: contain (ujęcia mają różne proporcje)
+        var ratio = (img.naturalWidth || img.width) / (img.naturalHeight || img.height), iw = r.width, ih = r.width / ratio;
+        if (ih > r.height) { ih = r.height; iw = ih * ratio; }
+        var ox = (r.width - iw) / 2, oy = (r.height - ih) / 2;
         lens.style.backgroundImage = 'url("' + src + '")';
-        lens.style.backgroundSize = (r.width * z) + 'px ' + (r.height * z) + 'px';
-        lens.style.backgroundPosition = (-(x * z - 95)) + 'px ' + (-(y * z - 95)) + 'px';
+        lens.style.backgroundColor = '#fff';
+        lens.style.backgroundSize = (iw * z) + 'px ' + (ih * z) + 'px';
+        lens.style.backgroundPosition = (-((x - ox) * z - 95)) + 'px ' + (-((y - oy) * z - 95)) + 'px';
         lens.style.left = (x - 95) + 'px'; lens.style.top = (y - 95) + 'px';
         lens.classList.add('on');
       });

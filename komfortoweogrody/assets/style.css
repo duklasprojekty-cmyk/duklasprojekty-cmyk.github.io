@@ -593,7 +593,7 @@ a.contact-card:hover{transform:translateY(-4px);box-shadow:var(--shadow);border-
 .sculpt-hero__text>*:nth-child(4){animation-delay:.24s}.sculpt-hero__text>*:nth-child(5){animation-delay:.32s}
 .sculpt-hero__text>*:nth-child(6){animation-delay:.4s}.sculpt-hero__text>*:nth-child(7){animation-delay:.48s}
 .viewer{opacity:0;animation:fadeUp 1s var(--ease) .2s forwards}
-.viewer__stage{position:relative;aspect-ratio:4/5;border-radius:var(--radius-lg);background:#fff;box-shadow:0 30px 60px -30px rgba(13,19,26,.35),0 0 0 1px var(--line);overflow:hidden;cursor:grab;touch-action:pan-y;user-select:none;-webkit-user-select:none}
+.viewer__stage{position:relative;aspect-ratio:3/4;border-radius:var(--radius-lg);background:#fff;box-shadow:0 30px 60px -30px rgba(13,19,26,.35),0 0 0 1px var(--line);overflow:hidden;cursor:grab;touch-action:pan-y;user-select:none;-webkit-user-select:none}
 .viewer__stage:active{cursor:grabbing}
 .viewer__frame{position:absolute;inset:0;opacity:0;transform:scale(1.03);transition:opacity .45s ease,transform .6s var(--ease)}
 .viewer__frame.is-active{opacity:1;transform:none}
@@ -605,9 +605,9 @@ a.contact-card:hover{transform:translateY(-4px);box-shadow:var(--shadow);border-
 .viewer__count{position:absolute;right:16px;top:16px;padding:6px 12px;border-radius:999px;background:var(--green-50);color:var(--green-800);font-size:13px;font-weight:700;pointer-events:none}
 .viewer__lens{position:absolute;width:190px;height:190px;border-radius:50%;border:4px solid #fff;box-shadow:0 12px 30px rgba(0,0,0,.28);background-repeat:no-repeat;pointer-events:none;opacity:0;transform:scale(.6);transition:opacity .2s,transform .25s var(--ease);z-index:2}
 .viewer__lens.on{opacity:1;transform:none}
-.viewer__thumbs{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px}
+.viewer__thumbs{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:14px}
 .viewer__thumb{padding:0;border:2px solid var(--line);border-radius:16px;background:#fff;overflow:hidden;cursor:pointer;transition:border-color .25s,transform .25s var(--ease),box-shadow .25s}
-.viewer__thumb img{width:100%;aspect-ratio:4/5;object-fit:contain}
+.viewer__thumb img{width:100%;aspect-ratio:3/4;object-fit:cover}
 .viewer__thumb:hover{transform:translateY(-3px);box-shadow:var(--shadow-sm)}
 .viewer__thumb.is-active{border-color:var(--green);box-shadow:0 0 0 4px rgba(84,191,63,.2)}
 .sculpt-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
