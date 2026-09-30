@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://komfortoweogrody.pl/sitemap.xml
