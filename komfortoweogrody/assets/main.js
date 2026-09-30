@@ -429,6 +429,55 @@
     });
   }
 
+  // Rzeźba: podgląd z kilku stron – przeciąganie, strzałki, miniatury, lupa
+  var viewer = document.querySelector('.viewer');
+  if (viewer) {
+    var stage = viewer.querySelector('.viewer__stage'), frames = viewer.querySelectorAll('.viewer__frame'),
+        vthumbs = viewer.querySelectorAll('.viewer__thumb'), vcount = viewer.querySelector('.viewer__count'),
+        lens = viewer.querySelector('.viewer__lens'), vi = 0;
+    var go = function(n){
+      vi = (n + frames.length) % frames.length;
+      frames.forEach(function(f, k){ f.classList.toggle('is-active', k === vi); });
+      vthumbs.forEach(function(t, k){ t.classList.toggle('is-active', k === vi); if (k === vi) t.setAttribute('aria-current', 'true'); else t.removeAttribute('aria-current'); });
+      vcount.textContent = (vi + 1) + ' / ' + frames.length;
+    };
+    vthumbs.forEach(function(t){ t.addEventListener('click', function(){ viewer.classList.add('used'); go(+t.dataset.i); }); });
+    stage.addEventListener('keydown', function(e){
+      if (e.key === 'ArrowRight') { viewer.classList.add('used'); go(vi + 1); e.preventDefault(); }
+      if (e.key === 'ArrowLeft') { viewer.classList.add('used'); go(vi - 1); e.preventDefault(); }
+    });
+    // przeciąganie: co ~70 px kolejne ujęcie (efekt obracania)
+    var sx = null, acc = 0;
+    stage.addEventListener('pointerdown', function(e){ sx = e.clientX; acc = 0; if (e.pointerType === 'mouse') stage.setPointerCapture(e.pointerId); });
+    stage.addEventListener('pointermove', function(e){
+      if (sx === null) return;
+      acc += e.clientX - sx; sx = e.clientX;
+      if (Math.abs(acc) > 70) { viewer.classList.add('used'); go(vi + (acc < 0 ? 1 : -1)); acc = 0; }
+    });
+    ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(function(t){ stage.addEventListener(t, function(){ sx = null; }); });
+    // lupa (tylko mysz)
+    if (finePointer) {
+      stage.addEventListener('mousemove', function(e){
+        if (sx !== null) { lens.classList.remove('on'); return; }
+        var r = stage.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top, z = 2.4;
+        var src = frames[vi].getAttribute('data-full');
+        lens.style.backgroundImage = 'url("' + src + '")';
+        lens.style.backgroundSize = (r.width * z) + 'px ' + (r.height * z) + 'px';
+        lens.style.backgroundPosition = (-(x * z - 95)) + 'px ' + (-(y * z - 95)) + 'px';
+        lens.style.left = (x - 95) + 'px'; lens.style.top = (y - 95) + 'px';
+        lens.classList.add('on');
+      });
+      stage.addEventListener('mouseleave', function(){ lens.classList.remove('on'); });
+    }
+    // krótka autoprezentacja: rzeźba „obraca się” raz po wejściu na stronę
+    if (!reduce) {
+      var demo = 0, demoT = setInterval(function(){
+        if (viewer.classList.contains('used') || demo >= frames.length) { clearInterval(demoT); if (!viewer.classList.contains('used')) go(0); return; }
+        demo++; go(demo % frames.length);
+      }, 900);
+    }
+  }
+
   // Na podglądzie w github.io strona leży obok aplikacji Król Kufla, której service worker (cache-first)
   // obejmuje cały serwis. Własny, pusty worker o węższym zasięgu sprawia, że ta strona zawsze idzie z sieci.
   if ('serviceWorker' in navigator && location.hostname.indexOf('github.io') !== -1) {

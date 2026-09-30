@@ -576,3 +576,52 @@ a.contact-card:hover{transform:translateY(-4px);box-shadow:var(--shadow);border-
 }
 .hero h1 .w.shine{animation:wordIn .8s var(--ease) forwards,shine 5s linear infinite;animation-delay:calc(.15s + var(--i) * .07s),1.2s}
 @media (prefers-reduced-motion:reduce){.hero h1 .w.shine{-webkit-text-fill-color:var(--lime)}}
+
+/* =====================================================================
+   Podstrona: Rzeźba – podgląd z kilku stron
+   ===================================================================== */
+.sculpt-hero{background:radial-gradient(1200px 600px at 75% 40%,#f3f6f1,#fff 60%);padding:clamp(28px,5vw,64px) 0 clamp(56px,7vw,96px)}
+.sculpt-hero__grid{display:grid;grid-template-columns:1fr 1.05fr;gap:clamp(32px,5vw,72px);align-items:center}
+.breadcrumbs--dark ol{color:var(--muted);margin-bottom:22px}
+.sculpt-hero h1{font-size:clamp(34px,4.4vw,56px);margin:12px 0 18px}
+.sculpt-lead{font-size:clamp(17px,1.5vw,20px);color:var(--muted);margin-bottom:22px}
+.chips--lg li{font-size:15px;padding:8px 14px}
+.sculpt-actions{display:flex;flex-wrap:wrap;gap:12px;margin:28px 0 16px}
+.sculpt-note{font-size:15px;color:var(--muted)}
+.sculpt-hero__text>*{opacity:0;animation:fadeUp .9s var(--ease) forwards}
+.sculpt-hero__text>*:nth-child(2){animation-delay:.08s}.sculpt-hero__text>*:nth-child(3){animation-delay:.16s}
+.sculpt-hero__text>*:nth-child(4){animation-delay:.24s}.sculpt-hero__text>*:nth-child(5){animation-delay:.32s}
+.sculpt-hero__text>*:nth-child(6){animation-delay:.4s}.sculpt-hero__text>*:nth-child(7){animation-delay:.48s}
+.viewer{opacity:0;animation:fadeUp 1s var(--ease) .2s forwards}
+.viewer__stage{position:relative;aspect-ratio:4/5;border-radius:var(--radius-lg);background:#fff;box-shadow:0 30px 60px -30px rgba(13,19,26,.35),0 0 0 1px var(--line);overflow:hidden;cursor:grab;touch-action:pan-y;user-select:none;-webkit-user-select:none}
+.viewer__stage:active{cursor:grabbing}
+.viewer__frame{position:absolute;inset:0;opacity:0;transform:scale(1.03);transition:opacity .45s ease,transform .6s var(--ease)}
+.viewer__frame.is-active{opacity:1;transform:none}
+.viewer__frame img{width:100%;height:100%;object-fit:contain;pointer-events:none}
+.viewer__hint{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border-radius:999px;background:rgba(13,19,26,.78);color:#fff;font-size:14px;font-weight:700;white-space:nowrap;pointer-events:none;transition:opacity .4s}
+.viewer__hint svg{width:18px;height:18px;animation:swipe 1.8s ease-in-out infinite}
+.viewer.used .viewer__hint{opacity:0}
+@keyframes swipe{0%,100%{transform:translateX(-4px)}50%{transform:translateX(6px)}}
+.viewer__count{position:absolute;right:16px;top:16px;padding:6px 12px;border-radius:999px;background:var(--green-50);color:var(--green-800);font-size:13px;font-weight:700;pointer-events:none}
+.viewer__lens{position:absolute;width:190px;height:190px;border-radius:50%;border:4px solid #fff;box-shadow:0 12px 30px rgba(0,0,0,.28);background-repeat:no-repeat;pointer-events:none;opacity:0;transform:scale(.6);transition:opacity .2s,transform .25s var(--ease);z-index:2}
+.viewer__lens.on{opacity:1;transform:none}
+.viewer__thumbs{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px}
+.viewer__thumb{padding:0;border:2px solid var(--line);border-radius:16px;background:#fff;overflow:hidden;cursor:pointer;transition:border-color .25s,transform .25s var(--ease),box-shadow .25s}
+.viewer__thumb img{width:100%;aspect-ratio:4/5;object-fit:contain}
+.viewer__thumb:hover{transform:translateY(-3px);box-shadow:var(--shadow-sm)}
+.viewer__thumb.is-active{border-color:var(--green);box-shadow:0 0 0 4px rgba(84,191,63,.2)}
+.sculpt-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.sculpt-tile{border-radius:var(--radius-lg);background:#fff;border:1px solid var(--line);overflow:hidden;transition:transform .4s var(--ease),box-shadow .4s var(--ease)}
+.sculpt-tile:hover{transform:translateY(-6px);box-shadow:var(--shadow)}
+.sculpt-tile img{width:100%;aspect-ratio:4/5;object-fit:contain;transition:transform .6s var(--ease)}
+.sculpt-tile:hover img{transform:scale(1.05)}
+.sculpt-tile figcaption{padding:12px 16px 16px;font-weight:700;font-size:15px;color:var(--muted);text-align:center}
+@media (max-width:880px){
+  .sculpt-hero__grid{grid-template-columns:1fr}
+  .viewer{order:-1}
+  .sculpt-grid{grid-template-columns:1fr 1fr}
+  .viewer__lens{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  .sculpt-hero__text>*,.viewer{opacity:1}
+}
