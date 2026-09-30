@@ -682,6 +682,8 @@ def build_contact():
 # =====================================================================
 # RZEŹBA
 # =====================================================================
+SCULPT_PRICE = '11849.99'          # cena w zł (format dla Google)
+SCULPT_PRICE_TXT = '11 849,99 zł'  # cena wyświetlana na stronie
 SCULPT_VIEWS = ['z przodu', 'z boku', 'z profilu', 'z drugiej strony']
 # (plik, opis ujęcia, szerokość, wysokość) – ujęcie studyjne jako główne
 VIEWER = [('rzezba-studio', 'studyjne', 768, 1024)] + [(f'rzezba-{i}', SCULPT_VIEWS[i-1], 1200, 1500) for i in range(1, 5)]
@@ -706,9 +708,11 @@ def build_sculpture():
     mail = f"mailto:{BIZ['email']}?subject=" + 'Zapytanie%20o%20rze%C5%BAb%C4%99%20ogrodow%C4%85'
     sculpt_ld = {'@context': 'https://schema.org', '@type': 'VisualArtwork', 'name': 'Lustrzana rzeźba ogrodowa',
                  'artform': 'Rzeźba', 'image': [f'{DOMAIN}/assets/rzezba/{f}.jpg' for f, *_ in VIEWER],
-                 'description': 'Nowoczesna rzeźba ogrodowa o lustrzanym wykończeniu, ustawiona na czarnym postumencie.'}
+                 'description': 'Nowoczesna rzeźba ogrodowa o lustrzanym wykończeniu, ustawiona na czarnym postumencie.',
+                 'offers': {'@type': 'Offer', 'price': SCULPT_PRICE, 'priceCurrency': 'PLN', 'url': f'{DOMAIN}/rzezba/',
+                            'seller': {'@id': DOMAIN + '/'}}}
     body = head('Lustrzana rzeźba ogrodowa | Komfortowe Ogrody',
-                'Nowoczesna rzeźba ogrodowa o lustrzanym wykończeniu na czarnym postumencie. Zobacz ją z każdej strony i zapytaj o szczegóły – Komfortowe Ogrody, Aleksandrów Kujawski.',
+                f'Nowoczesna rzeźba ogrodowa o lustrzanym wykończeniu na czarnym postumencie. Cena: {SCULPT_PRICE_TXT}. Zobacz ją z każdej strony – Komfortowe Ogrody.',
                 'rzezba/', r, [breadcrumbs_ld('Rzeźba ogrodowa', 'rzezba/'), sculpt_ld], og=f'{DOMAIN}/assets/rzezba/rzezba-og.jpg') + header('rzezba', r) + f'''
 <main id="tresc">
   <section class="sculpt-hero">
@@ -721,11 +725,15 @@ def build_sculpture():
         <ul class="chips chips--lg">
           <li>Lustrzane wykończenie</li><li>Czarny postument</li><li>Do ogrodu i na taras</li>
         </ul>
+        <div class="price-tag">
+          <span class="price-tag__label">Cena</span>
+          <span class="price-tag__value">{SCULPT_PRICE_TXT}</span>
+        </div>
         <div class="sculpt-actions">
-          <a class="btn btn--primary" href="tel:{BIZ['phone_tel']}">{I['phone']}Zadzwoń i zapytaj</a>
+          <a class="btn btn--primary" href="tel:{BIZ['phone_tel']}">{I['phone']}Zadzwoń i zamów</a>
           <a class="btn btn--outline" href="{mail}">{I['mail']}Napisz w sprawie rzeźby</a>
         </div>
-        <p class="sculpt-note">Wymiary, cenę i możliwość ustawienia w Twoim ogrodzie omówimy telefonicznie lub mailowo.</p>
+        <p class="sculpt-note">Wymiary, dostawę i ustawienie w Twoim ogrodzie omówimy telefonicznie lub mailowo.</p>
       </div>
       <div class="viewer" aria-roledescription="podgląd z kilku stron">
         <div class="viewer__stage" tabindex="0" aria-label="Rzeźba – przeciągnij lub użyj strzałek, żeby obejrzeć z innej strony">
@@ -757,7 +765,7 @@ def build_sculpture():
       <div class="cta-band reveal">
         <div>
           <h2>Chcesz ją u siebie w <span class="shine">ogrodzie</span>?</h2>
-          <p>Zadzwoń lub napisz – opowiemy o rzeźbie i doradzimy, gdzie najlepiej się zaprezentuje. {BIZ['hours_label']}.</p>
+          <p>Cena: <strong>{SCULPT_PRICE_TXT}</strong>. Zadzwoń lub napisz – opowiemy o rzeźbie i doradzimy, gdzie najlepiej się zaprezentuje. {BIZ['hours_label']}.</p>
         </div>
         <div class="cta-band__actions">
           <a class="btn btn--white" href="tel:{BIZ['phone_tel']}">{I['phone']}{BIZ['phone_display']}</a>
