@@ -160,6 +160,7 @@
     var note = form.querySelector('.form__note');
     form.addEventListener('submit', function(e){
       e.preventDefault();
+      if (form.elements.firma && form.elements.firma.value) { note.textContent = 'Dziękujemy za kontakt!'; return; }
       var name = form.elements.name.value.trim(), email = form.elements.email.value.trim(),
           phone = form.elements.phone.value.trim(), msg = form.elements.message.value.trim(), ok = true;
       [[form.elements.email, /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)], [form.elements.message, msg.length > 0]].forEach(function(p){
@@ -481,6 +482,37 @@
         demo++; go(demo % frames.length);
       }, 900);
     }
+  }
+
+  // Godziny otwarcia: podświetlenie dzisiejszego dnia (czas polski)
+  try {
+    var todayName = new Intl.DateTimeFormat('en-US', {timeZone: 'Europe/Warsaw', weekday: 'short'}).format(new Date());
+    var todayIdx = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].indexOf(todayName);
+    document.querySelectorAll('.hours-table tr[data-days]').forEach(function(tr){
+      if (tr.getAttribute('data-days').split(',').indexOf(String(todayIdx)) !== -1) tr.classList.add('today');
+    });
+  } catch (e) {}
+
+  // Mapa Google ładowana dopiero za zgodą (RODO); zgoda zapamiętana w przeglądarce
+  var map = document.querySelector('.map[data-map-src]');
+  if (map) {
+    var loadMap = function(){
+      if (map.classList.contains('loaded')) return;
+      var f = document.createElement('iframe');
+      f.src = map.getAttribute('data-map-src'); f.title = map.getAttribute('data-map-title');
+      f.loading = 'lazy'; f.referrerPolicy = 'no-referrer-when-downgrade'; f.allowFullscreen = true;
+      map.appendChild(f);
+      var open = document.createElement('a');
+      open.className = 'btn btn--primary map__link'; open.target = '_blank'; open.rel = 'noopener';
+      open.href = document.querySelector('.map__consent .link-arrow').href; open.textContent = 'Otwórz w Google Maps';
+      map.appendChild(open);
+      map.classList.add('loaded');
+    };
+    map.querySelector('[data-map-load]').addEventListener('click', function(){
+      try { localStorage.setItem('ko-map-consent', '1'); } catch (e) {}
+      loadMap();
+    });
+    try { if (localStorage.getItem('ko-map-consent') === '1') loadMap(); } catch (e) {}
   }
 
   // Na podglądzie w github.io strona leży obok aplikacji Król Kufla, której service worker (cache-first)
