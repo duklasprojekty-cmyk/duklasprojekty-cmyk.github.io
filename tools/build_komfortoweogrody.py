@@ -1225,7 +1225,7 @@ ErrorDocument 404 /404.html
 
 <IfModule mod_expires.c>
   ExpiresActive On
-  ExpiresByType text/html "access plus 1 hour"
+  ExpiresByType text/html "access plus 0 seconds"
   ExpiresByType text/css "access plus 1 week"
   ExpiresByType application/javascript "access plus 1 week"
   ExpiresByType image/svg+xml "access plus 1 year"
@@ -1242,6 +1242,10 @@ ErrorDocument 404 /404.html
   Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
   Header always set Strict-Transport-Security "max-age=31536000"
   Header always set Content-Security-Policy "default-src 'self'; img-src 'self' data: https://assets.zyrosite.com https://web.archive.org; frame-src https://maps.google.com https://www.google.com; style-src 'self' 'unsafe-inline'; script-src 'self'; font-src 'self'; connect-src 'self'; base-uri 'self'; form-action 'self' mailto:; frame-ancestors 'self'"
+  # Strony HTML: przeglądarka zawsze pyta serwer o nowszą wersję (aktualizacje widać od razu)
+  <FilesMatch "\.html$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
   <FilesMatch "\.(woff2|png|svg|webp|jpg)$">
     Header set Cache-Control "public, max-age=31536000, immutable"
   </FilesMatch>
