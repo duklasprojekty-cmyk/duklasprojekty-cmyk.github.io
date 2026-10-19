@@ -271,6 +271,9 @@ def head(title, desc, slug, root, extra_ld=(), og=None, preload_img=None):
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="{root}favicon.ico" sizes="48x48">
+<link rel="icon" href="{root}assets/favicon-96.png" sizes="96x96" type="image/png">
+<link rel="icon" href="{root}assets/favicon-48.png" sizes="48x48" type="image/png">
 <link rel="icon" href="{root}assets/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="{root}assets/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="{root}assets/apple-touch-icon.png">
@@ -873,7 +876,7 @@ def build_contact():
             <a class="link-arrow" href="{BIZ['gmaps']}" target="_blank" rel="noopener">Otwórz w aplikacji Google Maps</a>
           </div>
         </div>
-        <form class="form reveal" id="contact-form" novalidate>
+        <form class="form reveal" id="contact-form" action="../wyslij.php" method="post" novalidate>
           <h2>Napisz do nas</h2>
           <p>Opisz krótko, czego potrzebujesz – odpowiemy najszybciej, jak to możliwe.</p>
           <div class="field"><input id="f-name" name="name" type="text" placeholder=" " autocomplete="name"><label for="f-name">Imię i nazwisko</label></div>
@@ -883,7 +886,7 @@ def build_contact():
           <div class="hp" aria-hidden="true"><label for="f-firma">Nie wypełniaj tego pola</label><input id="f-firma" name="firma" type="text" tabindex="-1" autocomplete="off"></div>
           <button class="btn btn--primary" type="submit">Wyślij zapytanie</button>
           <p class="form__note" role="status" aria-live="polite"></p>
-          <p class="form__rodo">Wiadomość otworzy się w Twoim programie pocztowym i trafi bezpośrednio na naszą skrzynkę. Administratorem danych jest {BIZ['legal']}; wykorzystamy je wyłącznie do odpowiedzi na zapytanie. <a href="{r}polityka-prywatnosci/">Polityka prywatności</a>.</p>
+          <p class="form__rodo">Wiadomość trafi bezpośrednio na naszą skrzynkę e-mail. Administratorem danych jest {BIZ['legal']}; wykorzystamy je wyłącznie do odpowiedzi na zapytanie. <a href="{r}polityka-prywatnosci/">Polityka prywatności</a>.</p>
         </form>
       </div>
 
@@ -1028,7 +1031,7 @@ def build_quote():
 
   <section class="section">
     <div class="wrap quote">
-      <form class="wizard" id="wizard" novalidate>
+      <form class="wizard" id="wizard" action="../wyslij.php" method="post" novalidate>
         <ol class="wizard__steps" aria-label="Kroki">
           <li class="is-active"><span>1</span>Zakres</li><li><span>2</span>Ogród</li><li><span>3</span>Termin</li><li><span>4</span>Kontakt</li>
         </ol>
@@ -1069,7 +1072,7 @@ def build_quote():
           <div class="field"><input id="q-phone" name="phone" type="tel" placeholder=" " autocomplete="tel"><label for="q-phone">Telefon</label></div>
           <div class="field"><input id="q-email" name="email" type="email" placeholder=" " autocomplete="email" required><label for="q-email">Adres e-mail*</label></div>
           <div class="hp" aria-hidden="true"><label for="q-firma">Nie wypełniaj tego pola</label><input id="q-firma" name="firma" type="text" tabindex="-1" autocomplete="off"></div>
-          <p class="form__rodo">Po kliknięciu „Wyślij zapytanie” otworzy się Twój program pocztowy z gotową, uporządkowaną wiadomością. Administratorem danych jest {BIZ['legal']}. <a href="{r}polityka-prywatnosci/">Polityka prywatności</a>.</p>
+          <p class="form__rodo">Po kliknięciu „Wyślij zapytanie” uporządkowana wiadomość trafi bezpośrednio na naszą skrzynkę e-mail. Administratorem danych jest {BIZ['legal']}. <a href="{r}polityka-prywatnosci/">Polityka prywatności</a>.</p>
         </fieldset>
 
         <div class="wizard__nav">
@@ -1130,7 +1133,7 @@ def build_privacy():
 
       <h2>2. Jakie dane przetwarzamy i po co</h2>
       <p>Przetwarzamy wyłącznie dane, które sam przekażesz, kontaktując się z nami telefonicznie, e-mailem lub przez formularz: imię i nazwisko, adres e-mail, numer telefonu oraz treść wiadomości. Wykorzystujemy je, aby odpowiedzieć na zapytanie, przygotować ofertę i – jeśli zdecydujesz się na współpracę – zrealizować usługę (art. 6 ust. 1 lit. b RODO) oraz w naszym prawnie uzasadnionym interesie, jakim jest obsługa korespondencji (art. 6 ust. 1 lit. f RODO).</p>
-      <p>Formularz na stronie nie wysyła danych na żaden serwer: po kliknięciu „Wyślij zapytanie” otwiera się Twój program pocztowy z gotową wiadomością, którą wysyłasz samodzielnie na adres {BIZ['email']}.</p>
+      <p>Po kliknięciu „Wyślij zapytanie” formularz przekazuje wiadomość przez serwer naszego dostawcy hostingu (Hostinger) wyłącznie na adres {BIZ['email']}. Strona nie zapisuje treści formularzy w żadnej bazie danych; do ochrony przed nadużyciami serwer przez 10 minut przechowuje jedynie skrót adresu IP.</p>
 
       <h2>3. Jak długo przechowujemy dane</h2>
       <p>Przez czas niezbędny do obsługi zapytania i ewentualnej współpracy, a następnie przez okres wymagany przepisami (np. podatkowymi) lub do upływu terminów przedawnienia roszczeń.</p>
