@@ -10,10 +10,23 @@ import json, os, html, hashlib
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'komfortoweogrody')
 DOMAIN = 'https://komfortoweogrody.pl'
 
-def asset_ver(name):
-    """Krótki skrót zawartości pliku z assets/ – dopisywany do adresu (?v=), żeby po aktualizacji przeglądarki nie używały starego CSS/JS z cache."""
-    with open(os.path.join(OUT, 'assets', name), 'rb') as f:
-        return hashlib.md5(f.read()).hexdigest()[:8]
+def asset_path(name):
+    """Kopia pliku z assets/ z krótkim skrótem zawartości w nazwie (style.ab12cd34.css).
+    Nowa zawartość = nowa nazwa pliku, więc żaden cache (przeglądarki, serwera, CDN) nie popoda starej wersji."""
+    import glob
+    stem, ext = os.path.splitext(name)
+    src = os.path.join(OUT, 'assets', name)
+    with open(src, 'rb') as f:
+        data = f.read()
+    new = f'{stem}.{hashlib.md5(data).hexdigest()[:8]}{ext}'
+    dst = os.path.join(OUT, 'assets', new)
+    for old in glob.glob(os.path.join(OUT, 'assets', f'{stem}.????????{ext}')):
+        if old != dst:
+            os.remove(old)
+    if not os.path.exists(dst):
+        with open(dst, 'wb') as f:
+            f.write(data)
+    return 'assets/' + new
 
 # ---------- dane firmy (jedno miejsce do zmian) ----------
 BIZ = {
@@ -99,6 +112,9 @@ I = {
  'google': '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M22.6 12.3c0-.8-.1-1.5-.2-2.3H12v4.3h5.9a5 5 0 0 1-2.2 3.3v2.8h3.6c2.1-1.9 3.3-4.8 3.3-8.1z"/><path fill="#34A853" d="M12 23c3 0 5.5-1 7.3-2.7l-3.6-2.8c-1 .7-2.2 1.1-3.7 1.1-2.9 0-5.3-1.9-6.2-4.5H2.1v2.9A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.8 14.1a6.6 6.6 0 0 1 0-4.2V7H2.1a11 11 0 0 0 0 10z"/><path fill="#EA4335" d="M12 5.4c1.6 0 3.1.6 4.2 1.7l3.2-3.2A11 11 0 0 0 2.1 7l3.7 2.9C6.7 7.3 9.1 5.4 12 5.4z"/></svg>',
 }
 
+# Każda ikona ma rozmiar w samym HTML. Style CSS go nadpisują, ale gdy arkusz się nie wczyta, ikona nie rozciągnie się na cały ekran.
+I = {k: v.replace('<svg ', '<svg width="20" height="20" ', 1) if '<svg width=' not in v else v for k, v in I.items()}
+
 NAV = [('', 'Strona główna', 'home'), ('oferta/', 'Oferta', 'oferta'), ('galeria/', 'Galeria', 'galeria'), ('ozdoby-ogrodowe/', 'Ozdoby ogrodowe', 'rzezba'), ('wycena/', 'Wycena', 'wycena'), ('kontakt/', 'Kontakt', 'kontakt')]
 
 # ---------- dane strukturalne (wytyczne, pkt 3) ----------
@@ -153,7 +169,7 @@ def area_html(root, compact=False):
         <a class="btn btn--primary" href="{root}wycena/">{I['calc']}Zapytaj o wycenę</a>
       </div>
       <div class="area__map reveal" aria-hidden="true">
-        <svg viewBox="0 0 400 400"><defs><radialGradient id="rg" cx="50%" cy="50%"><stop offset="0" stop-color="#54bf3f" stop-opacity=".35"/><stop offset="1" stop-color="#54bf3f" stop-opacity="0"/></radialGradient></defs>
+        <svg viewBox="0 0 400 400" width="400" height="400"><defs><radialGradient id="rg" cx="50%" cy="50%"><stop offset="0" stop-color="#54bf3f" stop-opacity=".35"/><stop offset="1" stop-color="#54bf3f" stop-opacity="0"/></radialGradient></defs>
           <circle class="ring" cx="200" cy="200" r="150"/><circle class="ring" cx="200" cy="200" r="100"/><circle class="ring" cx="200" cy="200" r="50"/>
           <circle cx="200" cy="200" r="150" fill="url(#rg)"/>
           <g class="pins">
@@ -266,9 +282,9 @@ def head(title, desc, slug, root, extra_ld=(), og=None, preload_img=None):
 <link rel="preconnect" href="https://assets.zyrosite.com" crossorigin>
 <link rel="preload" href="{root}assets/fonts/lato-700-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="{root}assets/fonts/lato-400-latin.woff2" as="font" type="font/woff2" crossorigin>
-{preload}<link rel="stylesheet" href="{root}assets/fonts.css?v={asset_ver('fonts.css')}">
-<link rel="stylesheet" href="{root}assets/style.css?v={asset_ver('style.css')}">
-<script src="{root}assets/main.js?v={asset_ver('main.js')}" defer></script>
+{preload}<link rel="stylesheet" href="{root}{asset_path('fonts.css')}">
+<link rel="stylesheet" href="{root}{asset_path('style.css')}">
+<script src="{root}{asset_path('main.js')}" defer></script>
 {chr(10).join(blocks)}
 </head>
 <body>
