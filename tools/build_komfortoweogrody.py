@@ -468,7 +468,8 @@ OFFER = [
     ('pielegnacja', 'Pielęgnacja ogrodów', 'Zapewniamy fachową opiekę nad Twoim ogrodem przez cały rok.',
      ['formowanie roślin', 'przycinanie żywopłotów', 'koszenie trawy', 'opryski ochronne roślin'], 's1-A85wPrbRVDfwPQ4j.jpg', None),
 ]
-CARD_ALT = ['Nowoczesny ogród z białymi murkami, płytami i trawami ozdobnymi – projekt Komfortowe Ogrody',
+CARD_IMG = ['karta-projekt', 'karta-2', 'karta-3']
+CARD_ALT = ['Projekt ogrodu – wizualizacja z basenem, trawnikiem, rabatami i tarasem – Komfortowe Ogrody',
             'Założony ogród z pergolą, kostką brukową i trawnikiem – realizacja Komfortowe Ogrody',
             'Pielęgnowana rabata bylinowa wzdłuż granitowej ścieżki – Komfortowe Ogrody']
 
@@ -499,7 +500,7 @@ def build_home():
         cards += f'''
         <article class="service-card tilt spot">
           <div class="service-card__media">
-            {limg(f'karta-{i+1}', CARD_ALT[i], 600, 450, [300, 600, 900], sizes='(min-width: 880px) 390px, 100vw')}
+            {limg(CARD_IMG[i], CARD_ALT[i], 600, 450, [300, 600, 900], sizes='(min-width: 880px) 390px, 100vw')}
             <span class="service-card__num" aria-hidden="true">0{i+1}</span>
           </div>
           <div class="service-card__body">
@@ -704,7 +705,7 @@ def build_offer():
         lis = ''.join(f'<li>{I["check"]}<span>{x[0].upper() + x[1:]}</span></li>' for x in items)
         trim = '255.5066079295154;317.1806167400881;669.6035242290749;264.3171806167401' if pic.startswith('s1-') else None
         local = {'zakladanie': ('oferta-2', 'Nowo założony ogród z pergolą, kostką i młodymi drzewami – Komfortowe Ogrody'),
-                 'pielegnacja': ('oferta-3', 'Zadbane rabaty z ciemnym żwirem przy tarasie – pielęgnacja Komfortowe Ogrody')}
+                 'pielegnacja': ('oferta-pielegnacja', 'Pielęgnowane rabaty z kocimiętką, szałwią i trawami ozdobnymi – Komfortowe Ogrody')}
         if slug in local:
             media = limg(local[slug][0], local[slug][1], 760, 608, [380, 760, 1140], root=r, sizes='(min-width: 880px) 560px, 100vw', cls='img-reveal')
         else:
@@ -720,7 +721,7 @@ def build_offer():
           <h2>{name}</h2>
           <p>{text}</p>
           <ul class="checklist" data-stagger>{lis}</ul>
-          <a class="btn btn--primary" href="{r}kontakt/">Zapytaj o {name.split()[0].lower()}</a>
+          <a class="btn btn--primary" href="{r}kontakt/">Zapytaj o {name.split()[0].lower().replace('pielęgnacja', 'pielęgnację')}</a>
         </div>
       </article>'''
     body = head('Oferta – projektowanie, zakładanie i pielęgnacja ogrodów',
