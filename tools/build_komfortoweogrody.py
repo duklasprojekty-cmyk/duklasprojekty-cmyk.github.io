@@ -5,10 +5,15 @@ Użycie: python3 tools/build_komfortoweogrody.py
 Dane firmy (telefon, godziny, adres) są w słowniku BIZ; style i skrypty w komfortoweogrody/assets/.
 Katalog komfortoweogrody/ to przyszły katalog główny domeny komfortoweogrody.pl.
 """
-import json, os, html
+import json, os, html, hashlib
 
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'komfortoweogrody')
 DOMAIN = 'https://komfortoweogrody.pl'
+
+def asset_ver(name):
+    """Krótki skrót zawartości pliku z assets/ – dopisywany do adresu (?v=), żeby po aktualizacji przeglądarki nie używały starego CSS/JS z cache."""
+    with open(os.path.join(OUT, 'assets', name), 'rb') as f:
+        return hashlib.md5(f.read()).hexdigest()[:8]
 
 # ---------- dane firmy (jedno miejsce do zmian) ----------
 BIZ = {
@@ -261,9 +266,9 @@ def head(title, desc, slug, root, extra_ld=(), og=None, preload_img=None):
 <link rel="preconnect" href="https://assets.zyrosite.com" crossorigin>
 <link rel="preload" href="{root}assets/fonts/lato-700-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="{root}assets/fonts/lato-400-latin.woff2" as="font" type="font/woff2" crossorigin>
-{preload}<link rel="stylesheet" href="{root}assets/fonts.css">
-<link rel="stylesheet" href="{root}assets/style.css">
-<script src="{root}assets/main.js" defer></script>
+{preload}<link rel="stylesheet" href="{root}assets/fonts.css?v={asset_ver('fonts.css')}">
+<link rel="stylesheet" href="{root}assets/style.css?v={asset_ver('style.css')}">
+<script src="{root}assets/main.js?v={asset_ver('main.js')}" defer></script>
 {chr(10).join(blocks)}
 </head>
 <body>
@@ -743,7 +748,10 @@ NEW_PAIRS = [('Nawadnianie i trawnik z kamienną ścieżką', 'Instalacja nawadn
              ('Pas zieleni wzdłuż ogrodzenia', 'Trawnik, kora i obrzeża – uporządkowany pas przy ścianie domu.'),
              ('Trawnik z falistymi rabatami', 'Z piaszczystej działki do zielonego trawnika z rabatami wysypanymi korą.'),
              ('Front domu z nawierzchnią i rabatami', 'Kostka brukowa, rabaty z ciemnym żwirem i młode drzewa przed domem.'),
-             ('Ogród ze schodami i tarasem', 'Wyrównany teren, trawnik, podniesione rabaty i płyty tarasowe.')]
+             ('Ogród ze schodami i tarasem', 'Wyrównany teren, trawnik, podniesione rabaty i płyty tarasowe.'),
+             ('Wejście do domu ze ścieżką z płyt', 'Plac przed wejściem zamieniony w estetyczny podjazd z kostki i ścieżkę z dużych płyt.'),
+             ('Taras z drewnianym podestem', 'Od nasypu z piasku do trawnika, kamiennych schodów i rabaty z otoczaków.'),
+             ('Ogród z altaną i rabatami', 'Z gołej działki do zagospodarowanego ogrodu z zadaszonym tarasem, kostką i trawnikiem.')]
 SINGLES = [('Wejście do domu z nową nawierzchnią', 'Kostka brukowa i rabaty przed wejściem do domu', 1200, 1600),
            ('Zadaszony taras i kostka brukowa', 'Zadaszony taras ogrodowy z kostką brukową i trawnikiem', 1200, 1600),
            ('Pergola i młode drzewa', 'Pergola, kostka i młode drzewa formowane na pniu', 1200, 1600),
@@ -1228,8 +1236,8 @@ ErrorDocument 404 /404.html
 <IfModule mod_expires.c>
   ExpiresActive On
   ExpiresByType text/html "access plus 1 hour"
-  ExpiresByType text/css "access plus 1 month"
-  ExpiresByType application/javascript "access plus 1 month"
+  ExpiresByType text/css "access plus 1 week"
+  ExpiresByType application/javascript "access plus 1 week"
   ExpiresByType image/svg+xml "access plus 1 year"
   ExpiresByType image/png "access plus 1 year"
   ExpiresByType image/webp "access plus 1 year"
