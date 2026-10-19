@@ -167,7 +167,32 @@
     });
   }
 
-  // Formularz kontaktowy: strona jest statyczna, więc otwiera program pocztowy z gotową wiadomością
+  // Wysyłka formularza przez serwer (wyslij.php) prosto na skrzynkę firmy.
+  // Gdy serwer nie obsługuje PHP (podgląd github.io) – awaryjnie otwiera program pocztowy z gotową wiadomością.
+  function sendForm(formEl, data, mailtoHref, noteEl, onSuccess){
+    var btn = formEl.querySelector('[type=submit]');
+    var fallback = function(){
+      noteEl.textContent = 'Otwieramy Twój program pocztowy z gotową wiadomością.';
+      window.location.href = mailtoHref;
+    };
+    if (!window.fetch || !window.FormData) { fallback(); return; }
+    var fd = new FormData();
+    Object.keys(data).forEach(function(k){ fd.append(k, data[k]); });
+    if (btn) btn.disabled = true;
+    formEl.classList.add('is-sending');
+    noteEl.textContent = 'Wysyłamy wiadomość…';
+    fetch(formEl.getAttribute('action'), {method: 'POST', body: fd, headers: {'X-Requested-With': 'fetch'}, credentials: 'same-origin'})
+      .then(function(r){ return r.json().then(function(j){ return {status: r.status, j: j}; }); })
+      .then(function(res){
+        if (res.j && res.j.ok) { noteEl.textContent = res.j.message; showToast('Wiadomość wysłana'); onSuccess(); }
+        else if (res.j && res.j.message) { noteEl.textContent = res.j.message; }
+        else { fallback(); }
+      })
+      .catch(fallback)
+      .then(function(){ if (btn) btn.disabled = false; formEl.classList.remove('is-sending'); });
+  }
+
+  // Formularz kontaktowy
   var form = document.getElementById('contact-form');
   if (form) {
     var note = form.querySelector('.form__note');
@@ -183,9 +208,9 @@
       });
       if (!ok) { note.textContent = 'Uzupełnij poprawnie adres e-mail i treść wiadomości.'; return; }
       var body = msg + '\n\n—\n' + (name ? name + '\n' : '') + email + (phone ? '\ntel. ' + phone : '');
-      window.location.href = 'mailto:kontakt@komfortoweogrody.pl?subject=' +
+      var href = 'mailto:kontakt@komfortoweogrody.pl?subject=' +
         encodeURIComponent('Zapytanie ze strony' + (name ? ' – ' + name : '')) + '&body=' + encodeURIComponent(body);
-      note.textContent = 'Dziękujemy za kontakt! Otwieramy Twój program pocztowy z gotową wiadomością.';
+      sendForm(form, {typ: 'kontakt', name: name, email: email, phone: phone, tresc: msg, firma: ''}, href, note, function(){ form.reset(); });
     });
   }
 
@@ -619,9 +644,10 @@
         'Zakres: ' + (val('zakres') || '–'), 'Powierzchnia: ' + val('powierzchnia'), 'Teren: ' + (val('teren') || '–'),
         'Miejscowość: ' + (val('miejscowosc') || '–'), 'Termin: ' + (val('termin') || '–'), 'Uwagi: ' + (val('uwagi') || '–'), '',
         'Kontakt: ' + (val('name') || '–'), 'Telefon: ' + (val('phone') || '–'), 'E-mail: ' + email.value.trim()];
-      window.location.href = 'mailto:kontakt@komfortoweogrody.pl?subject=' + encodeURIComponent('Zapytanie o wycenę' + (val('name') ? ' – ' + val('name') : '')) + '&body=' + encodeURIComponent(lines.join('\n'));
-      wnote.textContent = 'Dziękujemy! Otwieramy Twój program pocztowy z gotowym zapytaniem.';
-      try { localStorage.removeItem('ko-quote'); } catch (er) {}
+      var href = 'mailto:kontakt@komfortoweogrody.pl?subject=' + encodeURIComponent('Zapytanie o wycenę' + (val('name') ? ' – ' + val('name') : '')) + '&body=' + encodeURIComponent(lines.join('\n'));
+      sendForm(wiz, {typ: 'wycena', name: val('name'), email: email.value.trim(), phone: val('phone'), tresc: lines.slice(2, 8).join('\n'), firma: ''}, href, wnote, function(){
+        try { localStorage.removeItem('ko-quote'); } catch (er) {}
+      });
     });
     var copyBtn = document.querySelector('[data-copy-summary]');
     if (copyBtn) copyBtn.addEventListener('click', function(){
