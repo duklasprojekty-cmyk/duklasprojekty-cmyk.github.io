@@ -24,7 +24,7 @@ BIZ = {
     'region': 'kujawsko-pomorskie',
     'gmaps': 'https://maps.google.com/?cid=8841425791970558141',
     'map_embed': 'https://maps.google.com/maps?q=Komfortowe+Ogrody%2C+Henryka+Sienkiewicza+19%2C+87-700+Aleksandr%C3%B3w+Kujawski&z=15&ie=UTF8&output=embed',
-    'hours_label': 'Pn–Sob 7:00–18:00',
+    'hours_label': 'Pn–Pt 7:00–16:00, Sob 8:00–13:00',
     'desc': 'Od 2013 roku zakładamy i pielęgnujemy ogrody w Aleksandrowie Kujawskim i okolicach: projekty ogrodów z wizualizacją 3D, kompleksowe wykonanie, nawadnianie, oświetlenie, trawniki i nasadzenia oraz stała pielęgnacja zieleni.',
 }
 ADDRESS_ONE_LINE = f"{BIZ['street']}, {BIZ['postal']} {BIZ['city']}"
@@ -48,6 +48,17 @@ def img(path, alt, w, h=None, sizes='100vw', cls='', trim=None, lazy=True, extra
     attrs = [f'src="{zurl(path, w, h, trim)}"', f'srcset="{srcset}"', f'sizes="{sizes}"', f'alt="{html.escape(alt)}"']
     if h: attrs += [f'width="{w}"', f'height="{h}"']
     elif ratio: attrs += [f'width="{w}"', f'height="{round(w/ratio)}"']
+    if cls: attrs.append(f'class="{cls}"')
+    attrs.append('loading="lazy" decoding="async"' if lazy else 'fetchpriority="high" decoding="async"')
+    if extra: attrs.append(extra)
+    return '<img ' + ' '.join(attrs) + '>'
+
+def limg(name, alt, w, h, widths, root='', sizes='100vw', cls='', lazy=True, extra=''):
+    """<img> ze zdjęć klienta zapisanych lokalnie (assets/img/<name>-<szer>.webp)."""
+    base = f'{root}assets/img/{name}'
+    srcset = ', '.join(f'{base}-{ww}.webp {ww}w' for ww in widths)
+    src = f'{base}-{widths[min(1, len(widths) - 1)]}.webp'
+    attrs = [f'src="{src}"', f'srcset="{srcset}"', f'sizes="{sizes}"', f'alt="{html.escape(alt)}"', f'width="{w}"', f'height="{h}"']
     if cls: attrs.append(f'class="{cls}"')
     attrs.append('loading="lazy" decoding="async"' if lazy else 'fetchpriority="high" decoding="async"')
     if extra: attrs.append(extra)
@@ -83,7 +94,7 @@ I = {
  'google': '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M22.6 12.3c0-.8-.1-1.5-.2-2.3H12v4.3h5.9a5 5 0 0 1-2.2 3.3v2.8h3.6c2.1-1.9 3.3-4.8 3.3-8.1z"/><path fill="#34A853" d="M12 23c3 0 5.5-1 7.3-2.7l-3.6-2.8c-1 .7-2.2 1.1-3.7 1.1-2.9 0-5.3-1.9-6.2-4.5H2.1v2.9A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.8 14.1a6.6 6.6 0 0 1 0-4.2V7H2.1a11 11 0 0 0 0 10z"/><path fill="#EA4335" d="M12 5.4c1.6 0 3.1.6 4.2 1.7l3.2-3.2A11 11 0 0 0 2.1 7l3.7 2.9C6.7 7.3 9.1 5.4 12 5.4z"/></svg>',
 }
 
-NAV = [('', 'Strona główna', 'home'), ('oferta/', 'Oferta', 'oferta'), ('galeria/', 'Galeria', 'galeria'), ('rzezba/', 'Rzeźba', 'rzezba'), ('wycena/', 'Wycena', 'wycena'), ('kontakt/', 'Kontakt', 'kontakt')]
+NAV = [('', 'Strona główna', 'home'), ('oferta/', 'Oferta', 'oferta'), ('galeria/', 'Galeria', 'galeria'), ('ozdoby-ogrodowe/', 'Ozdoby ogrodowe', 'rzezba'), ('wycena/', 'Wycena', 'wycena'), ('kontakt/', 'Kontakt', 'kontakt')]
 
 # ---------- dane strukturalne (wytyczne, pkt 3) ----------
 SERVICES = ['Projektowanie ogrodów', 'Zakładanie ogrodów', 'Pielęgnacja ogrodów', 'Instalacje nawadniające',
@@ -100,7 +111,7 @@ FAQ = [
     ('Czy zajmujecie się stałą pielęgnacją ogrodów?',
      'Tak. Formujemy rośliny, przycinamy żywopłoty, kosimy trawę i wykonujemy opryski ochronne roślin, żeby ogród był zadbany przez cały rok.'),
     ('Gdzie działacie i jak się z Wami skontaktować?',
-     'Nasza siedziba to ul. Henryka Sienkiewicza 19, 87-700 Aleksandrów Kujawski. Zadzwoń pod numer +48 600 927 502 lub napisz na kontakt@komfortoweogrody.pl – jesteśmy dostępni od poniedziałku do soboty w godzinach 7:00–18:00.'),
+     'Nasza siedziba to ul. Henryka Sienkiewicza 19, 87-700 Aleksandrów Kujawski. Zadzwoń pod numer +48 600 927 502 lub napisz na kontakt@komfortoweogrody.pl – jesteśmy dostępni od poniedziałku do piątku w godzinach 7:00–16:00 oraz w soboty 8:00–13:00.'),
 ]
 
 def faq_ld():
@@ -185,9 +196,14 @@ def local_business():
         'makesOffer': [{'@type': 'Offer', 'itemOffered': {'@type': 'Service', 'name': s}} for s in SERVICES],
         'openingHoursSpecification': [{
             '@type': 'OpeningHoursSpecification',
-            'dayOfWeek': ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+            'dayOfWeek': ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
             'opens': '07:00',
-            'closes': '18:00',
+            'closes': '16:00',
+        }, {
+            '@type': 'OpeningHoursSpecification',
+            'dayOfWeek': ['Saturday'],
+            'opens': '08:00',
+            'closes': '13:00',
         }],
         'sameAs': [BIZ['gmaps']],
     }
@@ -208,7 +224,7 @@ def ld(obj):
 # ---------- szablon ----------
 def head(title, desc, slug, root, extra_ld=(), og=None, preload_img=None):
     canonical = f'{DOMAIN}/{slug}'
-    og_img = og or zurl(HERO, 1200, 630)
+    og_img = og or f'{DOMAIN}/assets/img/og.jpg'
     preload = f'<link rel="preload" as="image" href="{preload_img}" fetchpriority="high">\n' if preload_img else ''
     blocks = [ld(local_business())] + [ld(x) for x in extra_ld]
     return f'''<!DOCTYPE html>
@@ -276,8 +292,8 @@ def header(active, root):
 
 def hours_table():
     return '''<table class="hours-table">
-            <tr data-days="1,2,3,4,5"><th scope="row">Poniedziałek – piątek</th><td>7:00 – 18:00</td></tr>
-            <tr data-days="6"><th scope="row">Sobota</th><td>7:00 – 18:00</td></tr>
+            <tr data-days="1,2,3,4,5"><th scope="row">Poniedziałek – piątek</th><td>7:00 – 16:00</td></tr>
+            <tr data-days="6"><th scope="row">Sobota</th><td>8:00 – 13:00</td></tr>
             <tr data-days="0"><th scope="row">Niedziela</th><td>zamknięte</td></tr>
           </table>'''
 
@@ -310,7 +326,7 @@ def footer(root):
           <li><a href="{root}oferta/#zakladanie">Zakładanie ogrodów</a></li>
           <li><a href="{root}oferta/#pielegnacja">Pielęgnacja ogrodów</a></li>
           <li><a href="{root}galeria/">Realizacje przed i po</a></li>
-          <li><a href="{root}rzezba/">Rzeźba ogrodowa</a></li>
+          <li><a href="{root}ozdoby-ogrodowe/">Ozdoby ogrodowe</a></li>
           <li><a href="{root}wycena/">Zapytaj o wycenę</a></li>
           <li><a href="{root}oferta/#kalendarz">Kalendarz prac w ogrodzie</a></li>
           <li><a href="{root}kontakt/">Kontakt i dojazd</a></li>
@@ -334,8 +350,12 @@ def footer(root):
 '''
 
 def page_hero(title_html, lead, crumb, bg_path, root):
+    if '.' in bg_path:
+        bg = img(bg_path, '', 1600, 700, cls='page-hero__bg', lazy=False)
+    else:
+        bg = limg(bg_path, '', 1600, 700, [800, 1600], root=root, cls='page-hero__bg', lazy=False)
     return f'''<section class="page-hero">
-    {img(bg_path, '', 1600, 700, cls='page-hero__bg', lazy=False)}
+    {bg}
     <div class="wrap">
       <nav class="breadcrumbs" aria-label="Ścieżka nawigacji"><ol><li><a href="{root}">Strona główna</a></li><li aria-current="page">{crumb}</li></ol></nav>
       <h1>{title_html}</h1>
@@ -352,6 +372,20 @@ def ba_slider(before, after, n, w=900, h=675, sizes='(min-width: 880px) 600px, 1
             <span class="ba__line"></span>
             <span class="ba__handle">{I['arrows']}</span>
             <input class="ba__range" type="range" min="0" max="100" value="50" aria-label="Porównanie przed i po – realizacja {n}">
+          </div>'''
+
+def lba_slider(n, title, root, w=800, h=1000, sizes='(min-width: 1024px) 380px, (min-width: 640px) 50vw, 100vw', widths=(400, 800, 1200)):
+    name = n if isinstance(n, str) else f'r{n}'
+    base = f'{root}assets/img/{name}'
+    big = widths[-1]
+    return f'''<div class="ba">
+            {limg(f'{name}-po', f'{title} – po realizacji', w, h, widths, root=root, sizes=sizes, cls='ba__after', extra=f'data-full="{base}-po-{big}.webp"')}
+            {limg(f'{name}-przed', f'{title} – przed realizacją', w, h, widths, root=root, sizes=sizes, cls='ba__before', extra=f'data-full="{base}-przed-{big}.webp"')}
+            <span class="ba__label ba__label--before">PRZED</span>
+            <span class="ba__label ba__label--after">PO</span>
+            <span class="ba__line"></span>
+            <span class="ba__handle">{I['arrows']}</span>
+            <input class="ba__range" type="range" min="0" max="100" value="50" aria-label="Porównanie przed i po – {title}">
           </div>'''
 
 def cta_band(root):
@@ -413,7 +447,9 @@ OFFER = [
     ('pielegnacja', 'Pielęgnacja ogrodów', 'Zapewniamy fachową opiekę nad Twoim ogrodem przez cały rok.',
      ['formowanie roślin', 'przycinanie żywopłotów', 'koszenie trawy', 'opryski ochronne roślin'], 's1-A85wPrbRVDfwPQ4j.jpg', None),
 ]
-CARD_IMG = ['1-mjEvxLGk6DIPkV3x.png', '2-YbNvXDK9lgFDjNJY.png', 'dsc_0570-A1awGrORzaS9MeVg.JPG']
+CARD_ALT = ['Nowoczesny ogród z białymi murkami, płytami i trawami ozdobnymi – projekt Komfortowe Ogrody',
+            'Założony ogród z pergolą, kostką brukową i trawnikiem – realizacja Komfortowe Ogrody',
+            'Pielęgnowana rabata bylinowa wzdłuż granitowej ścieżki – Komfortowe Ogrody']
 
 # =====================================================================
 # STRONA GŁÓWNA
@@ -442,7 +478,7 @@ def build_home():
         cards += f'''
         <article class="service-card tilt spot">
           <div class="service-card__media">
-            {img(CARD_IMG[i], name, 600, 450, sizes='(min-width: 880px) 390px, 100vw')}
+            {limg(f'karta-{i+1}', CARD_ALT[i], 600, 450, [300, 600, 900], sizes='(min-width: 880px) 390px, 100vw')}
             <span class="service-card__num" aria-hidden="true">0{i+1}</span>
           </div>
           <div class="service-card__body">
@@ -455,10 +491,10 @@ def build_home():
     stars = I['star'] * 5
     body = head('Zakładanie ogrodów Aleksandrów Kujawski | Komfortowe Ogrody',
                 'Projektowanie, zakładanie i pielęgnacja ogrodów w Aleksandrowie Kujawskim od 2013 r. Ponad 150 zadowolonych klientów. Zadzwoń: 600 927 502.',
-                '', r, [faq_ld()], preload_img=zurl(HERO, 1920, 1080)) + header('home', r) + f'''
+                '', r, [faq_ld()], preload_img='assets/img/hero-1440.webp') + header('home', r) + f'''
 <main id="tresc">
   <section class="hero">
-    {img(HERO, '', 1920, 1080, cls='hero__bg', lazy=False, sizes='100vw', extra='data-parallax')}
+    {limg('hero', '', 1920, 1080, [640, 960, 1440, 1920], cls='hero__bg', lazy=False, sizes='100vw', extra='data-parallax')}
     <canvas class="leaves" aria-hidden="true"></canvas>
     <div class="wrap">
       <div class="hero__content">
@@ -508,7 +544,7 @@ def build_home():
         </div>
       </div>
       <div class="about__media reveal">
-        {img('7-mnlv0JvKBZSgwxp6.jpg', 'Ogród zrealizowany przez Komfortowe Ogrody', 720, 900, sizes='(min-width: 880px) 520px, 100vw', cls='img-reveal')}
+        {limg('o-nas', 'Wejście do domu z nową nawierzchnią i rabatami – realizacja Komfortowe Ogrody', 720, 900, [360, 720, 1080], sizes='(min-width: 880px) 520px, 100vw', cls='img-reveal')}
         <div class="about__badge"><b>2013</b><span>tworzymy ogrody<br>od ponad dekady</span></div>
       </div>
     </div>
@@ -551,7 +587,7 @@ def build_home():
   <section class="section">
     <div class="wrap ba-feature">
       <div class="reveal">
-        {ba_slider(BEFORE[0], AFTER[0], 1, w=960, h=720, sizes='(min-width: 880px) 700px, 100vw')}
+        {lba_slider('dom', 'Trawnik z falistymi rabatami', r, w=960, h=720, sizes='(min-width: 880px) 700px, 100vw', widths=[480, 960, 1440])}
       </div>
       <div class="ba-feature__text reveal">
         <span class="eyebrow eyebrow--dark">Przed i po</span>
@@ -646,10 +682,16 @@ def build_offer():
     for i, (slug, name, text, items, pic, _) in enumerate(OFFER):
         lis = ''.join(f'<li>{I["check"]}<span>{x[0].upper() + x[1:]}</span></li>' for x in items)
         trim = '255.5066079295154;317.1806167400881;669.6035242290749;264.3171806167401' if pic.startswith('s1-') else None
+        local = {'zakladanie': ('oferta-2', 'Nowo założony ogród z pergolą, kostką i młodymi drzewami – Komfortowe Ogrody'),
+                 'pielegnacja': ('oferta-3', 'Zadbane rabaty z ciemnym żwirem przy tarasie – pielęgnacja Komfortowe Ogrody')}
+        if slug in local:
+            media = limg(local[slug][0], local[slug][1], 760, 608, [380, 760, 1140], root=r, sizes='(min-width: 880px) 560px, 100vw', cls='img-reveal')
+        else:
+            media = img(pic, name, 760, 608, sizes='(min-width: 880px) 560px, 100vw', trim=trim, cls='img-reveal')
         blocks += f'''
       <article class="offer-block" id="{slug}">
         <div class="offer-block__media">
-          {img(pic, name, 760, 608, sizes='(min-width: 880px) 560px, 100vw', trim=trim, cls='img-reveal')}
+          {media}
           <span class="offer-block__num" aria-hidden="true">0{i+1}</span>
         </div>
         <div class="reveal">
@@ -664,7 +706,7 @@ def build_offer():
                 'Projekty ogrodów z wizualizacją 3D, nawadnianie, oświetlenie, kostka brukowa, trawniki, oczka wodne i pielęgnacja zieleni – Aleksandrów Kujawski.',
                 'oferta/', r, [breadcrumbs_ld('Oferta', 'oferta/')]) + header('oferta', r) + f'''
 <main id="tresc">
-  {page_hero('Nasza <span class="shine">oferta</span>', 'Profesjonalne zakładanie i pielęgnacja ogrodów, aby były funkcjonalne i piękne. Od projektu, przez kompleksowe wykonanie, po stałą opiekę nad zielenią.', 'Oferta', 'e-YlevO5P81RUZJbyy.JPG', r)}
+  {page_hero('Nasza <span class="shine">oferta</span>', 'Profesjonalne zakładanie i pielęgnacja ogrodów, aby były funkcjonalne i piękne. Od projektu, przez kompleksowe wykonanie, po stałą opiekę nad zielenią.', 'Oferta', 'naglowek-oferta', r)}
 
   <section class="section">
     <div class="wrap">{blocks}
@@ -678,8 +720,8 @@ def build_offer():
         <h2>Ogrody, w których <span class="mark">czuć komfort</span></h2>
       </div>
       <div class="photo-pair">
-        {img('img_20240615_135533-YX4yKzDvqkflLBLo.jpg', 'Realizacja ogrodu – Komfortowe Ogrody', 760, 608, sizes='(min-width: 880px) 600px, 100vw', cls='img-reveal')}
-        {img('e-YlevO5P81RUZJbyy.JPG', 'Zadbany ogród po realizacji – Komfortowe Ogrody', 760, 608, sizes='(min-width: 880px) 600px, 100vw', cls='img-reveal', trim='205.8319039451115;0;205.8319039451115;0')}
+        {limg('para-1', 'Trawnik z podniesionymi rabatami i schodami tarasowymi – realizacja Komfortowe Ogrody', 760, 608, [380, 760, 1140], root=r, sizes='(min-width: 880px) 600px, 100vw', cls='img-reveal')}
+        {limg('para-2', 'Granitowa ścieżka wśród kwitnących bylin – realizacja Komfortowe Ogrody', 760, 608, [380, 760, 1140], root=r, sizes='(min-width: 880px) 600px, 100vw', cls='img-reveal')}
       </div>
       <p style="text-align:center;margin-top:36px"><a class="btn btn--outline" href="{r}galeria/">Zobacz więcej realizacji</a></p>
     </div>
@@ -696,8 +738,31 @@ def build_offer():
 # =====================================================================
 # GALERIA
 # =====================================================================
+NEW_PAIRS = [('Nawadnianie i trawnik z kamienną ścieżką', 'Instalacja nawadniająca, trawnik z rolki i ścieżka z kamienia przy nowoczesnym domu.'),
+             ('Taras z kamiennymi schodami', 'Zejście z tarasu obsadzone trawami, otoczaki i trawnik zamiast piasku.'),
+             ('Pas zieleni wzdłuż ogrodzenia', 'Trawnik, kora i obrzeża – uporządkowany pas przy ścianie domu.'),
+             ('Trawnik z falistymi rabatami', 'Z piaszczystej działki do zielonego trawnika z rabatami wysypanymi korą.'),
+             ('Front domu z nawierzchnią i rabatami', 'Kostka brukowa, rabaty z ciemnym żwirem i młode drzewa przed domem.'),
+             ('Ogród ze schodami i tarasem', 'Wyrównany teren, trawnik, podniesione rabaty i płyty tarasowe.')]
+SINGLES = [('Wejście do domu z nową nawierzchnią', 'Kostka brukowa i rabaty przed wejściem do domu', 1200, 1600),
+           ('Zadaszony taras i kostka brukowa', 'Zadaszony taras ogrodowy z kostką brukową i trawnikiem', 1200, 1600),
+           ('Pergola i młode drzewa', 'Pergola, kostka i młode drzewa formowane na pniu', 1200, 1600),
+           ('Trawnik z lawendą i płytami', 'Trawnik, płyty krocząco i rabaty z lawendą na tle nieba', 1200, 900),
+           ('Granitowa ścieżka wśród bylin', 'Ścieżka z kostki granitowej wśród kwitnących bylin', 1200, 1600),
+           ('Nawierzchnia z płyt i kostki', 'Nawierzchnia z dużych płyt i kostki brukowej przed domem', 1200, 900),
+           ('Białe murki i trawy ozdobne', 'Nowoczesny ogród z białymi murkami, płytami i trawami', 1200, 900),
+           ('Rabaty z ciemnym żwirem przy tarasie', 'Rabaty z ciemnym żwirem i tarasem przy białym domu', 1200, 1600)]
+
 def build_gallery():
     r = '../'
+    new_items = ''
+    for i, (title, desc) in enumerate(NEW_PAIRS, 1):
+        new_items += f'''
+        <figure class="gallery-item reveal">
+          {lba_slider(i, title, r)}
+          <figcaption class="gallery-item__bar"><span>{title}</span><button class="zoom-btn" type="button">{I['expand']}Powiększ</button></figcaption>
+          <p class="gallery-item__desc">{desc}</p>
+        </figure>'''
     items = ''
     for i, (b, a) in enumerate(zip(BEFORE, AFTER)):
         items += f'''
@@ -705,16 +770,49 @@ def build_gallery():
           {ba_slider(b, a, i+1)}
           <figcaption class="gallery-item__bar"><span>Realizacja {i+1}</span><button class="zoom-btn" type="button">{I['expand']}Powiększ</button></figcaption>
         </figure>'''
+    photos = ''
+    for i, (title, alt, w, h) in enumerate(SINGLES, 1):
+        photos += f'''
+        <a class="photo-grid__item reveal" href="{r}assets/img/foto-{i}-1200.webp" data-full="{r}assets/img/foto-{i}-1200.webp" data-title="{title}">
+          {limg(f'foto-{i}', alt, w, h, [400, 800, 1200], root=r, sizes='(min-width: 1024px) 300px, (min-width: 640px) 50vw, 100vw')}
+          <span class="photo-grid__cap">{I['expand']}{title}</span>
+        </a>'''
     body = head('Galeria realizacji ogrodów – przed i po | Komfortowe Ogrody',
                 'Realizacje ogrodów przed i po: zakładanie ogrodów, trawniki, nasadzenia i pielęgnacja zieleni w Aleksandrowie Kujawskim. Zobacz różnicę!',
                 'galeria/', r, [breadcrumbs_ld('Galeria', 'galeria/')]) + header('galeria', r) + f'''
 <main id="tresc">
-  {page_hero('Galeria <span class="shine">ogrodów</span>', 'Zobacz nasze realizacje ogrodów, które zachwycają funkcjonalnością i pięknem. Przesuń suwak na zdjęciu, żeby porównać stan przed i po.', 'Galeria', AFTER[0], r)}
+  {page_hero('Galeria <span class="shine">ogrodów</span>', 'Zobacz nasze realizacje ogrodów, które zachwycają funkcjonalnością i pięknem. Przesuń suwak na zdjęciu, żeby porównać stan przed i po.', 'Galeria', 'naglowek-galeria', r)}
 
   <section class="section">
     <div class="wrap">
       <p style="text-align:center"><span class="hint">{I['hand']}Przeciągnij suwak na zdjęciu, żeby zobaczyć różnicę</span></p>
       <p class="gallery-note">Wszystkie zdjęcia pochodzą z naszych realizacji – bez zdjęć stockowych.</p>
+      <div class="section-head reveal">
+        <span class="eyebrow eyebrow--dark">Najnowsze realizacje</span>
+        <h2>Od piasku do <span class="mark">gotowego ogrodu</span></h2>
+      </div>
+      <div class="gallery-grid gallery-grid--new">{new_items}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--sand">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow eyebrow--dark">Zdjęcia z realizacji</span>
+        <h2>Detale, które robią <span class="mark">różnicę</span></h2>
+      </div>
+      <div class="photo-grid">{photos}
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow eyebrow--dark">Archiwum realizacji</span>
+        <h2>Więcej ogrodów <span class="mark">przed i po</span></h2>
+      </div>
       <div class="gallery-grid">{items}
       </div>
     </div>
@@ -723,7 +821,7 @@ def build_gallery():
   {cta_band(r)}
 </main>
 
-<div class="modal" role="dialog" aria-modal="true" aria-label="Powiększone porównanie przed i po" hidden>
+<div class="modal" role="dialog" aria-modal="true" aria-label="Powiększone zdjęcie" hidden>
   <button class="modal__close" type="button" aria-label="Zamknij">{I['x']}</button>
   <button class="modal__nav modal__prev" type="button" aria-label="Poprzednia realizacja">{I['left']}</button>
   <div class="modal__inner"></div>
@@ -742,7 +840,7 @@ def build_contact():
                 f'Komfortowe Ogrody: tel. 600 927 502, {BIZ["email"]}, ul. {BIZ["street"]}, {BIZ["city"]}. Czynne {BIZ["hours_label"]}.',
                 'kontakt/', r, [breadcrumbs_ld('Kontakt', 'kontakt/')]) + header('kontakt', r) + f'''
 <main id="tresc">
-  {page_hero('Skontaktuj się <span class="shine">z nami</span>', 'Chętnie odpowiemy na wszystkie Państwa pytania dotyczące ogrodów. Zadzwoń, napisz albo odwiedź nas w Aleksandrowie Kujawskim.', 'Kontakt', '4-m5KwDlD3lECL8jyQ.png', r)}
+  {page_hero('Skontaktuj się <span class="shine">z nami</span>', 'Chętnie odpowiemy na wszystkie Państwa pytania dotyczące ogrodów. Zadzwoń, napisz albo odwiedź nas w Aleksandrowie Kujawskim.', 'Kontakt', 'naglowek-kontakt', r)}
 
   <section class="section">
     <div class="wrap">
@@ -761,7 +859,7 @@ def build_contact():
         </div>
         <div class="contact-card spot">
           <span class="ico">{I['clock']}</span><small>Godziny otwarcia</small>
-          <span class="hours"><b>Pn–Sob: 7:00–18:00</b><br>Niedziela: zamknięte</span>
+          <span class="hours"><b>Pn–Pt: 7:00–16:00</b><br><b>Sob: 8:00–13:00</b><br>Niedziela: zamknięte</span>
           <span class="open-status"></span>
         </div>
       </div>
@@ -809,8 +907,8 @@ def build_contact():
 # =====================================================================
 # RZEŹBA
 # =====================================================================
-SCULPT_PRICE = '11849.99'          # cena w zł (format dla Google)
-SCULPT_PRICE_TXT = '11 849,99 zł'  # cena wyświetlana na stronie
+SCULPT_PRICE = '13990'          # cena w zł (format dla Google)
+SCULPT_PRICE_TXT = '13 990 zł'  # cena wyświetlana na stronie
 SCULPT_VIEWS = ['z przodu', 'z boku', 'z profilu', 'z drugiej strony']
 # (plik, opis ujęcia, szerokość, wysokość) – ujęcie studyjne jako główne
 VIEWER = [('rzezba-studio', 'studyjne', 768, 1024)] + [(f'rzezba-{i}', SCULPT_VIEWS[i-1], 1200, 1500) for i in range(1, 5)]
@@ -836,17 +934,17 @@ def build_sculpture():
     sculpt_ld = {'@context': 'https://schema.org', '@type': 'VisualArtwork', 'name': 'Lustrzana rzeźba ogrodowa',
                  'artform': 'Rzeźba', 'image': [f'{DOMAIN}/assets/rzezba/{f}.jpg' for f, *_ in VIEWER],
                  'description': 'Nowoczesna rzeźba ogrodowa o lustrzanym wykończeniu, ustawiona na czarnym postumencie.',
-                 'offers': {'@type': 'Offer', 'price': SCULPT_PRICE, 'priceCurrency': 'PLN', 'url': f'{DOMAIN}/rzezba/',
+                 'offers': {'@type': 'Offer', 'price': SCULPT_PRICE, 'priceCurrency': 'PLN', 'url': f'{DOMAIN}/ozdoby-ogrodowe/',
                             'seller': {'@id': DOMAIN + '/'}}}
-    body = head('Lustrzana rzeźba ogrodowa | Komfortowe Ogrody',
+    body = head('Ozdoby ogrodowe – lustrzana rzeźba | Komfortowe Ogrody',
                 f'Nowoczesna rzeźba ogrodowa o lustrzanym wykończeniu na czarnym postumencie. Cena: {SCULPT_PRICE_TXT}. Zobacz ją z każdej strony – Komfortowe Ogrody.',
-                'rzezba/', r, [breadcrumbs_ld('Rzeźba ogrodowa', 'rzezba/'), sculpt_ld], og=f'{DOMAIN}/assets/rzezba/rzezba-og.jpg') + header('rzezba', r) + f'''
+                'ozdoby-ogrodowe/', r, [breadcrumbs_ld('Ozdoby ogrodowe', 'ozdoby-ogrodowe/'), sculpt_ld], og=f'{DOMAIN}/assets/rzezba/rzezba-og.jpg') + header('rzezba', r) + f'''
 <main id="tresc">
   <section class="sculpt-hero">
     <div class="wrap sculpt-hero__grid">
       <div class="sculpt-hero__text">
-        <nav class="breadcrumbs breadcrumbs--dark" aria-label="Ścieżka nawigacji"><ol><li><a href="{r}">Strona główna</a></li><li aria-current="page">Rzeźba</li></ol></nav>
-        <span class="eyebrow eyebrow--dark">Rzeźba ogrodowa</span>
+        <nav class="breadcrumbs breadcrumbs--dark" aria-label="Ścieżka nawigacji"><ol><li><a href="{r}">Strona główna</a></li><li aria-current="page">Ozdoby ogrodowe</li></ol></nav>
+        <span class="eyebrow eyebrow--dark">Ozdoby ogrodowe</span>
         <h1>Lustrzana rzeźba, która <span class="mark">odbija Twój ogród</span></h1>
         <p class="sculpt-lead">Nowoczesna, płynna forma o lustrzanym wykończeniu na czarnym postumencie. Odbija zieleń, niebo i światło, więc o każdej porze dnia wygląda inaczej – to efektowny punkt centralny ogrodu, podjazdu lub tarasu.</p>
         <ul class="chips chips--lg">
@@ -903,7 +1001,14 @@ def build_sculpture():
   </section>
 </main>
 ''' + footer(r)
-    write('rzezba/index.html', body)
+    write('ozdoby-ogrodowe/index.html', body)
+    # stary adres /rzezba/ – przekierowanie (na serwerze robi to .htaccess, w podglądzie github.io ten plik)
+    write('rzezba/index.html', f'''<!DOCTYPE html>
+<html lang="pl"><head><meta charset="utf-8"><title>Przeniesiono – Komfortowe Ogrody</title>
+<meta name="robots" content="noindex"><link rel="canonical" href="{DOMAIN}/ozdoby-ogrodowe/">
+<meta http-equiv="refresh" content="0; url=../ozdoby-ogrodowe/"></head>
+<body><p>Strona została przeniesiona: <a href="../ozdoby-ogrodowe/">przejdź dalej</a>.</p></body></html>
+''')
 
 # =====================================================================
 # WYCENA – konfigurator zapytania
@@ -911,7 +1016,7 @@ def build_sculpture():
 def build_quote():
     r = '../'
     services = [('Projekt ogrodu', 'szkic koncepcyjny + wizualizacja 3D', 'layers'), ('Założenie ogrodu', 'teren, nawadnianie, oświetlenie, trawnik, nasadzenia', 'cube'),
-                ('Pielęgnacja', 'koszenie, żywopłoty, formowanie, opryski', 'leaf'), ('Rzeźba ogrodowa', 'lustrzana rzeźba na postumencie', 'medal')]
+                ('Pielęgnacja', 'koszenie, żywopłoty, formowanie, opryski', 'leaf'), ('Ozdoby ogrodowe', 'lustrzana rzeźba na postumencie', 'medal')]
     svc = ''.join(f'''
               <label class="pick"><input type="checkbox" name="zakres" value="{n}"><span class="pick__box"><span class="ico">{I[ic]}</span><b>{n}</b><small>{d}</small></span></label>''' for n, d, ic in services)
     terms = ['jak najszybciej', 'w tym sezonie', 'w przyszłym sezonie', 'jeszcze nie wiem']
@@ -1086,8 +1191,8 @@ def build_404():
     write('404.html', body)
 
 def build_seo_files():
-    today = '2026-09-30'
-    urls = [('', '1.0'), ('oferta/', '0.9'), ('galeria/', '0.8'), ('rzezba/', '0.7'), ('wycena/', '0.8'), ('kontakt/', '0.8'), ('polityka-prywatnosci/', '0.3')]
+    today = '2026-10-19'
+    urls = [('', '1.0'), ('oferta/', '0.9'), ('galeria/', '0.8'), ('ozdoby-ogrodowe/', '0.7'), ('wycena/', '0.8'), ('kontakt/', '0.8'), ('polityka-prywatnosci/', '0.3')]
     sm = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + ''.join(
         f'  <url><loc>{DOMAIN}/{u}</loc><lastmod>{today}</lastmod><priority>{p}</priority></url>\n' for u, p in urls) + '</urlset>\n'
     write('sitemap.xml', sm)
@@ -1107,7 +1212,8 @@ ErrorDocument 404 /404.html
   RewriteCond %{HTTP_HOST} ^www\\. [NC]
   RewriteRule ^ https://komfortoweogrody.pl%{REQUEST_URI} [L,R=301]
   # Stare adresy ze strony Zyro i z podglądu
-  RewriteRule ^(oferta|galeria|rzezba|wycena|kontakt|polityka-prywatnosci)$ /$1/ [L,R=301]
+  RewriteRule ^(oferta|galeria|ozdoby-ogrodowe|wycena|kontakt|polityka-prywatnosci)$ /$1/ [L,R=301]
+  RewriteRule ^rzezba/?$ /ozdoby-ogrodowe/ [L,R=301]
   RewriteRule ^(oferta|galeria|kontakt)\\.html$ /$1/ [L,R=301]
   RewriteRule ^strona-g-owna/?$ / [L,R=301]
   RewriteRule ^komfortowe-ogrody-(.*)$ / [L,R=301]
