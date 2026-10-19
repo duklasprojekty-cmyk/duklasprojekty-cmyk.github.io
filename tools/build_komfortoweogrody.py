@@ -768,15 +768,6 @@ NEW_PAIRS = [('Nawadnianie i trawnik z kamienną ścieżką', 'Instalacja nawadn
              ('Wejście do domu ze ścieżką z płyt', 'Plac przed wejściem zamieniony w estetyczny podjazd z kostki i ścieżkę z dużych płyt.'),
              ('Taras z drewnianym podestem', 'Od nasypu z piasku do trawnika, kamiennych schodów i rabaty z otoczaków.'),
              ('Ogród z altaną i rabatami', 'Z gołej działki do zagospodarowanego ogrodu z zadaszonym tarasem, kostką i trawnikiem.')]
-SINGLES = [('Wejście do domu z nową nawierzchnią', 'Kostka brukowa i rabaty przed wejściem do domu', 1200, 1600),
-           ('Zadaszony taras i kostka brukowa', 'Zadaszony taras ogrodowy z kostką brukową i trawnikiem', 1200, 1600),
-           ('Pergola i młode drzewa', 'Pergola, kostka i młode drzewa formowane na pniu', 1200, 1600),
-           ('Trawnik z lawendą i płytami', 'Trawnik, płyty krocząco i rabaty z lawendą na tle nieba', 1200, 900),
-           ('Granitowa ścieżka wśród bylin', 'Ścieżka z kostki granitowej wśród kwitnących bylin', 1200, 1600),
-           ('Nawierzchnia z płyt i kostki', 'Nawierzchnia z dużych płyt i kostki brukowej przed domem', 1200, 900),
-           ('Białe murki i trawy ozdobne', 'Nowoczesny ogród z białymi murkami, płytami i trawami', 1200, 900),
-           ('Rabaty z ciemnym żwirem przy tarasie', 'Rabaty z ciemnym żwirem i tarasem przy białym domu', 1200, 1600)]
-
 def build_gallery():
     r = '../'
     new_items = ''
@@ -794,13 +785,6 @@ def build_gallery():
           {ba_slider(b, a, i+1)}
           <figcaption class="gallery-item__bar"><span>Realizacja {i+1}</span><button class="zoom-btn" type="button">{I['expand']}Powiększ</button></figcaption>
         </figure>'''
-    photos = ''
-    for i, (title, alt, w, h) in enumerate(SINGLES, 1):
-        photos += f'''
-        <a class="photo-grid__item reveal" href="{r}assets/img/foto-{i}-1200.webp" data-full="{r}assets/img/foto-{i}-1200.webp" data-title="{title}">
-          {limg(f'foto-{i}', alt, w, h, [400, 800, 1200], root=r, sizes='(min-width: 1024px) 300px, (min-width: 640px) 50vw, 100vw')}
-          <span class="photo-grid__cap">{I['expand']}{title}</span>
-        </a>'''
     body = head('Galeria realizacji ogrodów – przed i po | Komfortowe Ogrody',
                 'Realizacje ogrodów przed i po: zakładanie ogrodów, trawniki, nasadzenia i pielęgnacja zieleni w Aleksandrowie Kujawskim. Zobacz różnicę!',
                 'galeria/', r, [breadcrumbs_ld('Galeria', 'galeria/')]) + header('galeria', r) + f'''
@@ -816,17 +800,6 @@ def build_gallery():
         <h2>Od piasku do <span class="mark">gotowego ogrodu</span></h2>
       </div>
       <div class="gallery-grid gallery-grid--new">{new_items}
-      </div>
-    </div>
-  </section>
-
-  <section class="section section--sand">
-    <div class="wrap">
-      <div class="section-head reveal">
-        <span class="eyebrow eyebrow--dark">Zdjęcia z realizacji</span>
-        <h2>Detale, które robią <span class="mark">różnicę</span></h2>
-      </div>
-      <div class="photo-grid">{photos}
       </div>
     </div>
   </section>
