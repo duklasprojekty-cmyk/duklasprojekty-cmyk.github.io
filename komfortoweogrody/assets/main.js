@@ -73,14 +73,16 @@
     counters.forEach(function(el){ co.observe(el); });
   }
 
-  // Status „otwarte teraz” wg godzin pracy (czas polski): pn–sob 7:00–18:00
+  // Status „otwarte teraz” wg godzin pracy (czas polski): pn–pt 7:00–16:00, sob 8:00–13:00
+  var HOURS = {Mon: [7, 16], Tue: [7, 16], Wed: [7, 16], Thu: [7, 16], Fri: [7, 16], Sat: [8, 13]};
   var status = document.querySelectorAll('.open-status');
   if (status.length) {
     try {
       var parts = new Intl.DateTimeFormat('en-GB', {timeZone: 'Europe/Warsaw', weekday: 'short', hour: '2-digit', minute: '2-digit', hour12: false}).formatToParts(new Date());
       var get = function(type){ return (parts.filter(function(p){ return p.type === type; })[0] || {}).value; };
       var day = get('weekday'), minutes = parseInt(get('hour'), 10) % 24 * 60 + parseInt(get('minute'), 10);
-      var open = day !== 'Sun' && minutes >= 7 * 60 && minutes < 18 * 60;
+      var win = HOURS[day];
+      var open = !!win && minutes >= win[0] * 60 && minutes < win[1] * 60;
       status.forEach(function(el){
         el.classList.add(open ? 'is-open' : 'is-closed');
         el.textContent = open ? 'Teraz otwarte' : 'Teraz zamknięte';
@@ -113,31 +115,42 @@
   }
   document.querySelectorAll('.ba').forEach(initBA);
 
-  // Galeria: powiększony podgląd suwaka
+  // Galeria: powiększony podgląd suwaka „przed / po” oraz pojedynczych zdjęć
   var modal = document.querySelector('.modal');
   if (modal) {
-    var items = Array.prototype.slice.call(document.querySelectorAll('.gallery-item'));
+    var items = Array.prototype.slice.call(document.querySelectorAll('.gallery-item, .photo-grid__item'));
     var inner = modal.querySelector('.modal__inner'), count = modal.querySelector('.modal__count');
     var current = 0, lastFocus = null;
     var show = function(i){
       current = (i + items.length) % items.length;
-      var src = items[current].querySelector('.ba');
-      var clone = src.cloneNode(true);
-      delete clone.dataset.ready;
-      clone.querySelectorAll('img').forEach(function(img){
-        var big = img.getAttribute('data-full');
-        img.removeAttribute('srcset'); img.removeAttribute('sizes'); img.loading = 'eager';
-        if (big) img.src = big;
-        archiveFallback(img);
-      });
+      var item = items[current], src = item.querySelector('.ba');
       inner.innerHTML = '';
-      inner.appendChild(clone);
-      initBA(clone);
-      count.textContent = 'Realizacja ' + (current + 1) + ' z ' + items.length;
+      if (src) {
+        var clone = src.cloneNode(true);
+        delete clone.dataset.ready;
+        clone.querySelectorAll('img').forEach(function(img){
+          var big = img.getAttribute('data-full');
+          img.removeAttribute('srcset'); img.removeAttribute('sizes'); img.loading = 'eager';
+          if (big) img.src = big;
+          if (img.src.indexOf('zyrosite') !== -1) archiveFallback(img);
+        });
+        inner.appendChild(clone);
+        initBA(clone);
+      } else {
+        var pic = document.createElement('img');
+        pic.className = 'modal__img'; pic.src = item.getAttribute('data-full'); pic.alt = item.querySelector('img').alt;
+        inner.appendChild(pic);
+        var title = document.createElement('span');
+        title.className = 'modal__title'; title.textContent = item.getAttribute('data-title') || '';
+        inner.appendChild(title);
+      }
+      count.textContent = (src ? 'Realizacja ' : 'Zdjęcie ') + (current + 1) + ' z ' + items.length;
     };
     var close = function(){ modal.hidden = true; document.body.style.overflow = ''; inner.innerHTML = ''; if (lastFocus) lastFocus.focus(); };
     items.forEach(function(item, i){
-      item.querySelector('.zoom-btn').addEventListener('click', function(){
+      var trigger = item.querySelector('.zoom-btn') || item;
+      trigger.addEventListener('click', function(e){
+        if (trigger === item) e.preventDefault();
         lastFocus = this; show(i); modal.hidden = false; document.body.style.overflow = 'hidden';
         modal.querySelector('.modal__close').focus();
       });
